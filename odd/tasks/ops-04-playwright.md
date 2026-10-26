@@ -37,7 +37,12 @@ Poner la infraestructura de pruebas de interfaz antes de que existan flujos que 
 
 ## Evidencia y progreso
 
-Pendiente de rellenar por quien implementa: comandos, proyectos ejecutados, tiempo y resultado.
+- RED: el smoke falló antes de existir la configuración (sin servidor y sin navegador instalado) y el test del guardián falló con `Cannot find module ./helpers/network-guard`.
+- GREEN: smoke 4 de 4 proyectos, guardián 4 de 4, `pnpm e2e` completo 8 de 8 (chromium, firefox, webkit y mobile-chrome), 15,5 s.
+- Navegadores instalados en local con `playwright install`: los cuatro proyectos corrieron, ninguno quedó bloqueado en Windows.
+- `pnpm check` en la raíz en verde.
+- Generador de PDF sin dependencias nuevas: emite un PDF válido con stream sin comprimir y xref calculada, y se autocomprueba.
+- La CI añade un paso `pnpm --filter @letra-grande/web fixtures` antes de `pnpm e2e`, porque los binarios generados no se versionan.
 
 ## Siguiente paso
 
@@ -45,4 +50,5 @@ Desbloquea los specs de interfaz de la Ola 2 y QA-07.
 
 ## Cambios de alcance aceptados
 
-Ninguno.
+1. `apps/web/generated/`, `apps/web/test-results/` y `apps/web/playwright-report/` se añaden al `.gitignore` de la raíz: son artefactos regenerables y binarios. Lo hace el orquestador porque la raíz estaba fuera de la superficie del escritor.
+2. `apps/web/tsconfig.json` incluye `e2e/**/*.ts` y `playwright.config.ts` para que `pnpm check` compruebe también los tipos de las pruebas, no solo los del código de la app.
