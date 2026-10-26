@@ -6,7 +6,7 @@ Estado vivo de las tareas de Letra Grande. El detalle de cada tarea vive en su d
 
 | Ola | Tareas | Estado |
 |---|---|---|
-| 0 | H-01 a H-10, D-01 | pendiente (humano) |
+| 0 | H-01 a H-10, D-01 | H-10 hecho; el resto pendiente (humano) |
 | 1 | OPS-01, CORE-01, CORE-02, UI-01, OPS-04, AI-06, VAULT-01, UI-02, CONTENT-01, OPS-05, AI-01, AI-02, VAULT-02, OPS-04b, OPS-06 | hecho |
 | 1 (documentación) | CORE-03: `ARCHITECTURE.md` y `data-model.md` | hecho |
 | 2 | RADAR-01 hecho; DOCS-01 a DOCS-03, RADAR-02, CARPETA-01, AI-03 a AI-05, MOD-01 a MOD-03, CONTENT-02 a CONTENT-04 pendientes | en curso |
@@ -38,7 +38,7 @@ Cada tarea la ejecuta un agente en su carril. `Dep.` indica dependencias. Los cr
 | D-01 | Elegir acento de color y nombre de la tipografía | Tokens fijados |
 | H-08 | Preguntar a NaN Builders: si la clave permite servir a usuarios finales, límites por clave, retención y uso de datos de las peticiones, y soporte de salida estructurada por modelo | Respuesta por escrito archivada en `docs/ai-provider.md` |
 | H-09 | Instalar y comprobar gentle-ai y gentle-shell (sección 21.6): `doctor`, estado de la revisión, proveedor NaN, lectura de `AGENTS.md`, versión y sistema operativo | Lista "no confirmado" de 21.7 resuelta o anotada |
-| H-10 | Proteger `main` en GitHub: PR obligatorio, CI en verde, informe de review presente y aprobación humana | Regla activa |
+| H-10 | Proteger `main` en GitHub: PR obligatorio, CI en verde, informe de review presente y aprobación humana | **Hecho**: `dev` y `main` protegidas con PR obligatorio, los checks `check`, `e2e` y `review-report` como requeridos, y `enforce_admins` activo |
 
 ### Ola 1: fundamentos (todo en paralelo)
 

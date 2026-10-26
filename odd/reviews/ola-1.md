@@ -45,6 +45,12 @@ En `docs/backlog.md`, tabla de refactores: `REF-OPS-01`, `REF-OPS-01b`, `REF-OPS
 
 Siguen abiertas, ninguna bloquea la Ola 2 salvo donde se indica: H-01 (nombre y marca), H-02 (revisión legal), H-03 (proveedor y cuotas), H-04 (licencia del contenido y moderación), H-05 (asociación de consumidores), H-06 (avisos: `.ics` en el MVP), H-07 (verificación de fichas, bloquea el lanzamiento), H-08 (condiciones de NaN, bloquea producción de la IA), H-09 (resuelto en la práctica: el entorno funciona), H-10 (protección de `main`, pendiente en GitHub) y D-01 (acento y tipografía, hoy con valores provisionales aislados en tokens).
 
+## Protección de ramas
+
+`dev` y `main` están protegidas desde el cierre: los cambios entran por pull request, con `check`, `e2e` y `review-report` como comprobaciones requeridas, sin force push ni borrado, y con `enforce_admins` activo. Se probó de la forma que importa: un push directo a `dev` con permisos de administrador fue rechazado con "Changes must be made through a pull request" y "3 of 3 required status checks are expected". Antes de activar `enforce_admins`, el mismo push pasaba, así que la protección sin esa opción era decorativa.
+
+Consecuencia práctica: el orquestador ya no puede publicar directo en `dev`; todo pasa por rama, PR en borrador, informe de review y merge con los checks en verde.
+
 ## Siguiente paso
 
 Ola 2, empezando por lo que no depende de contenido real ni de H-08: DOCS-01 (lectura local de PDF y OCR), RADAR-01 (cálculo de plazos), CARPETA-01 y AI-03 con el proveedor `mock`. El contenido (CONTENT-02 a CONTENT-04) se prepara en borrador y espera verificación humana.
