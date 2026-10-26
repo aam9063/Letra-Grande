@@ -13,20 +13,56 @@ import {
   encryptRecord,
   KDF_ALGORITHM,
   RECORD_VERSION,
+  VERIFIER_ID,
+  VERIFIER_PLAINTEXT,
   type EncryptedRecord,
   type KdfParams,
 } from "./crypto.js";
 import {
   DATA_STORES,
+  META_STORE,
   openVaultDatabase,
   readMeta,
   requestToPromise,
   transactionDone,
   writeMeta,
   type DataStore,
+  type VaultMeta,
 } from "./db.js";
+import {
+  createExportArtifact,
+  EXPORT_PAYLOAD_VERSION,
+  type ExportPayload,
+} from "./backup.js";
+import {
+  VaultCorruptError,
+  VaultCorruptMetaError,
+  VaultError,
+  VaultLockedError,
+  VaultRecordVersionError,
+  VaultStaleSessionError,
+  VaultUnsupportedKdfError,
+  WrongPasswordError,
+} from "./errors.js";
+import { lockOtherSessions, registerSession, unregisterSession } from "./sessions.js";
 import { decodeBase64, type JsonValue } from "./serialize.js";
 import type { Profile, RadarItem, VaultDocument } from "@letra-grande/schema";
+
+// Los errores tipados viven en errors.ts y se reexportan aquí para mantener
+// la API pública del paquete en un solo punto de entrada.
+export {
+  VaultCorruptError,
+  VaultCorruptExportError,
+  VaultCorruptMetaError,
+  VaultError,
+  VaultLockedError,
+  VaultNotEmptyError,
+  VaultRecordVersionError,
+  VaultStaleSessionError,
+  VaultUnsupportedExportError,
+  VaultUnsupportedKdfError,
+  WrongPasswordError,
+} from "./errors.js";
 
 /** Programa el bloqueo por inactividad. Inyectable para pruebas deterministas. */
 export interface VaultTimer {
@@ -61,7 +97,23 @@ export interface TypedCollection<T extends JsonValue> {
   get(id: string): Promise<T | undefined>;
   put(id: string, value: T): Promise<void>;
   delete(id: string): Promise<void>;
-  list(): Promise<T[]>;
+  list(): Promise<ListResult<T>>;
+}
+
+/** Error de un registro concreto durante el listado. */
+export interface ListEntryError {
+  id: string;
+  error: VaultError;
+}
+
+/**
+ * Resultado de un listado con degradación por registro: los valores buenos
+ * vuelven siempre, y cada registro dañado aparece en `errors` con su id y su
+ * error tipado, en lugar de bloquear el listado completo.
+ */
+export interface ListResult<T extends JsonValue> {
+  values: T[];
+  errors: ListEntryError[];
 }
 
 export type BlobRecord = {
@@ -77,52 +129,6 @@ export type DocumentRecord = VaultDocument;
 export type RadarRecord = RadarItem;
 export type ProfileRecord = Profile;
 
-/** Error base del vault. Los mensajes nunca incluyen datos ni claves. */
-export class VaultError extends Error {}
-
-/** La contraseña no descifra el verificador: no se ha tocado ningún dato. */
-export class WrongPasswordError extends VaultError {
-  constructor() {
-    super("La contraseña no es correcta.");
-  }
-}
-
-/** La sesión está cerrada: hace falta la contraseña otra vez. */
-export class VaultLockedError extends VaultError {
-  constructor() {
-    super("El vault está bloqueado: introduce la contraseña otra vez.");
-  }
-}
-
-/** GCM ha detectado manipulación o corrupción en un registro. */
-export class VaultCorruptError extends VaultError {
-  constructor() {
-    super("Un registro no se ha podido descifrar: los datos están dañados.");
-  }
-}
-
-/** Los metadatos del vault están incompletos o dañados. */
-export class VaultCorruptMetaError extends VaultError {
-  constructor() {
-    super("Los metadatos del vault están dañados: no se puede abrir de forma fiable.");
-  }
-}
-
-/** El registro usa una versión del formato que esta versión no entiende. */
-export class VaultRecordVersionError extends VaultError {
-  constructor() {
-    super("Un registro usa una versión del formato cifrado no compatible.");
-  }
-}
-
-/** Los parámetros de derivación guardados no son compatibles con esta versión. */
-export class VaultUnsupportedKdfError extends VaultError {
-  constructor() {
-    super("Los parámetros de derivación guardados no son compatibles con esta versión.");
-  }
-}
-
-/** Registro cifrado tal y como se guarda en IndexedDB. */
 type StoredRecord = EncryptedRecord;
 
 export class Vault {
@@ -135,6 +141,8 @@ export class Vault {
   private readonly timer: VaultTimer;
   private readonly onLock?: () => void;
   private lockHandle: unknown;
+  /** Época del almacén con la que se abrió esta sesión. */
+  private readonly epoch: number;
 
   constructor(
     key: CryptoKey,
@@ -142,6 +150,7 @@ export class Vault {
     dbName: string,
     factory: IDBFactory,
     params: KdfParams,
+    epoch: number,
     options: Required<Pick<OpenVaultOptions, "inactivityMs">> & OpenVaultOptions,
   ) {
     this.key = key;
@@ -149,9 +158,11 @@ export class Vault {
     this.dbName = dbName;
     this.factory = factory;
     this.params = params;
+    this.epoch = epoch;
     this.inactivityMs = options.inactivityMs;
     this.timer = options.timer ?? defaultTimer();
     this.onLock = options.onLock;
+    registerSession(dbName, this);
     this.programarBloqueo();
   }
 
@@ -178,6 +189,7 @@ export class Vault {
   lock(): void {
     this.timer.cancel(this.lockHandle);
     this.key = null;
+    unregisterSession(this.dbName, this);
     this.db?.close();
   }
 
@@ -192,11 +204,22 @@ export class Vault {
     });
   }
 
-  private session(): { key: CryptoKey; db: IDBDatabase } {
+  /**
+   * Sesión válida: con clave y con la época del almacén sin cambiar. Cada
+   * operación comprueba la época guardada en meta, porque una importación o
+   * una purga desde otra sesión (u otra pestaña) dejan esta clave inútil.
+   */
+  private async session(): Promise<{ key: CryptoKey; db: IDBDatabase }> {
     const key = this.key;
     const db = this.db;
     if (key === null || db === null) {
       throw new VaultLockedError();
+    }
+    const meta = await readMeta(db);
+    const epochAlmacenada =
+      meta === undefined ? undefined : typeof meta.epoch === "number" ? meta.epoch : 0;
+    if (epochAlmacenada !== this.epoch) {
+      throw new VaultStaleSessionError();
     }
     return { key, db };
   }
@@ -211,7 +234,7 @@ export class Vault {
   }
 
   private async get<T extends JsonValue>(store: DataStore, id: string): Promise<T | undefined> {
-    const { key, db } = this.session();
+    const { key, db } = await this.session();
     // Leer también es actividad: reprograma el bloqueo antes de descifrar.
     this.programarBloqueo();
     const tx = db.transaction(store, "readonly");
@@ -228,7 +251,7 @@ export class Vault {
   }
 
   private async put<T extends JsonValue>(store: DataStore, id: string, value: T): Promise<void> {
-    const { key, db } = this.session();
+    const { key, db } = await this.session();
     const record: StoredRecord = await encryptRecord(key, id, value);
     const tx = db.transaction(store, "readwrite");
     tx.objectStore(store).put(record, id);
@@ -237,15 +260,15 @@ export class Vault {
   }
 
   private async delete(store: DataStore, id: string): Promise<void> {
-    const { db } = this.session();
+    const { db } = await this.session();
     const tx = db.transaction(store, "readwrite");
     tx.objectStore(store).delete(id);
     await transactionDone(tx);
     this.programarBloqueo();
   }
 
-  private async list<T extends JsonValue>(store: DataStore): Promise<T[]> {
-    const { key, db } = this.session();
+  private async list<T extends JsonValue>(store: DataStore): Promise<ListResult<T>> {
+    const { key, db } = await this.session();
     // Listar también es actividad: reprograma el bloqueo antes de descifrar.
     this.programarBloqueo();
     const tx = db.transaction(store, "readonly");
@@ -257,29 +280,110 @@ export class Vault {
     if (records.length !== ids.length) {
       throw new VaultCorruptError();
     }
+    // Degradación por registro: un registro dañado no bloquea el listado.
     const valores: T[] = [];
+    const errores: ListEntryError[] = [];
     for (let i = 0; i < records.length; i += 1) {
       const id = ids[i];
       const record = records[i];
-      if (typeof id !== "string" || record === undefined) {
-        throw new VaultCorruptError();
-      }
-      assertRecordVersion(record);
       try {
+        if (typeof id !== "string" || record === undefined) {
+          throw new VaultCorruptError();
+        }
+        assertRecordVersion(record);
         valores.push(await decryptRecord<T>(key, record, id));
-      } catch {
-        throw new VaultCorruptError();
+      } catch (error) {
+        errores.push({
+          id: typeof id === "string" ? id : String(id),
+          error: error instanceof VaultError ? error : new VaultCorruptError(),
+        });
       }
     }
-    return valores;
+    return { values: valores, errors: errores };
+  }
+
+  /**
+   * Exporta todo el contenido a un único artefacto cifrado con una clave
+   * derivada de la contraseña y una sal nueva. El archivo se construye en
+   * memoria y no contiene ningún dato legible: la cabecera solo lleva datos
+   * técnicos del cifrado y la carga útil va cifrada completa.
+   *
+   * Si algún registro está dañado, la exportación falla: nunca se copia un
+   * vault a medias sin avisar.
+   */
+  async exportBackup(password: string): Promise<Uint8Array<ArrayBuffer>> {
+    const { key, db } = await this.session();
+    this.programarBloqueo();
+    const tx = db.transaction([...DATA_STORES], "readonly");
+    // Todas las lecturas se piden en el mismo turno para que la transacción
+    // siga viva; el descifrado va después, fuera de la transacción.
+    const lecturas = DATA_STORES.map((store) => {
+      const almacen = tx.objectStore(store);
+      return Promise.all([
+        requestToPromise(almacen.getAll() as IDBRequest<StoredRecord[]>),
+        requestToPromise(almacen.getAllKeys() as IDBRequest<IDBValidKey[]>),
+      ]);
+    });
+    const resultados = await Promise.all(lecturas);
+    const colecciones = {} as Record<DataStore, Record<string, JsonValue>>;
+    for (let s = 0; s < DATA_STORES.length; s += 1) {
+      const store = DATA_STORES[s];
+      const par = resultados[s];
+      if (store === undefined || par === undefined) {
+        throw new VaultCorruptError();
+      }
+      const [records, ids] = par;
+      const objetos: Record<string, JsonValue> = {};
+      for (let i = 0; i < records.length; i += 1) {
+        const id = ids[i];
+        const record = records[i];
+        if (typeof id !== "string" || record === undefined) {
+          throw new VaultCorruptError();
+        }
+        assertRecordVersion(record);
+        try {
+          objetos[id] = await decryptRecord<JsonValue>(key, record, id);
+        } catch {
+          throw new VaultCorruptError();
+        }
+      }
+      colecciones[store] = objetos;
+    }
+    const payload: ExportPayload = { version: EXPORT_PAYLOAD_VERSION, colecciones };
+    return createExportArtifact(payload, password, this.params.iterations);
+  }
+
+  /**
+   * Borra todo: vacía las cinco colecciones dentro de una única transacción
+   * atómica, incrementa la época de los metadatos y cierra la sesión.
+   *
+   * Los metadatos técnicos (parámetros de derivación y verificador) se
+   * conservan con la época aumentada: así ninguna sesión viva, ni aquí ni en
+   * otra pestaña, puede resucitar datos después de la purga, porque su época
+   * ya no coincide. Todos los datos personales desaparecen.
+   */
+  async purge(): Promise<void> {
+    const { db } = await this.session();
+    const meta = await readMeta(db);
+    if (meta === undefined || meta.verifier === undefined) {
+      throw new VaultCorruptMetaError();
+    }
+    const epochPrevia = typeof meta.epoch === "number" ? meta.epoch : 0;
+    const metaNueva: VaultMeta = {
+      kdf: meta.kdf,
+      verifier: meta.verifier,
+      epoch: epochPrevia + 1,
+    };
+    const tx = db.transaction([META_STORE, ...DATA_STORES], "readwrite");
+    for (const store of DATA_STORES) {
+      tx.objectStore(store).clear();
+    }
+    tx.objectStore(META_STORE).put(metaNueva, "vault");
+    await transactionDone(tx);
+    lockOtherSessions(this.dbName, this);
+    this.lock();
   }
 }
-
-/** Verificador: texto conocido que solo descifra la contraseña correcta. */
-const VERIFIER_PLAINTEXT: JsonValue = { verificador: "letra-grande-vault" };
-
-/** Identificador del verificador, autenticado como additionalData. */
-const VERIFIER_ID = "verificador";
 
 /** Comprueba que el registro usa la versión del formato que esta versión entiende. */
 function assertRecordVersion(record: EncryptedRecord): void {
@@ -302,44 +406,74 @@ function validarKdfParams(params: KdfParams): void {
   }
 }
 
+/**
+ * Bloqueo de apertura por base de datos: serializa las aperturas dentro del
+ * proceso para que dos `openVault` simultáneos sobre un almacén vacío no
+ * escriban metadatos distintos (salarios distintos dejan registros ilegibles).
+ * En cuanto la primera apertura termina, la segunda lee la meta ya escrita y
+ * deriva la misma clave.
+ */
+const locksApertura = new Map<string, Promise<unknown>>();
+
+function withOpenLock<T>(dbName: string, work: () => Promise<T>): Promise<T> {
+  const previo = locksApertura.get(dbName) ?? Promise.resolve();
+  const resultado = previo.then(work, work);
+  const liberacion = resultado.then(
+    () => undefined,
+    () => undefined,
+  );
+  locksApertura.set(dbName, liberacion);
+  void liberacion.then(() => {
+    if (locksApertura.get(dbName) === liberacion) {
+      locksApertura.delete(dbName);
+    }
+  });
+  return resultado;
+}
+
 export async function openVault(options: OpenVaultOptions): Promise<Vault> {
   const dbName = options.dbName ?? "letra-grande-vault";
   const factory = options.indexedDB ?? globalThis.indexedDB;
   const iterations = options.iterations ?? DEFAULT_KDF_ITERATIONS;
   const db = await openVaultDatabase(factory, dbName);
   try {
-    const meta = await readMeta(db);
-    let key: CryptoKey;
-    let params: KdfParams;
-    if (meta === undefined) {
-      params = crearKdfParams(iterations);
-      key = await deriveVaultKey(options.password, {
-        iterations: params.iterations,
-        salt: saltDeParams(params),
-      });
-      const verifier = await encryptRecord(key, VERIFIER_ID, VERIFIER_PLAINTEXT);
-      await writeMeta(db, { kdf: params, verifier });
-    } else {
-      if (meta.verifier === undefined) {
-        throw new VaultCorruptMetaError();
+    return await withOpenLock(dbName, async () => {
+      const meta = await readMeta(db);
+      let key: CryptoKey;
+      let params: KdfParams;
+      let epoch: number;
+      if (meta === undefined) {
+        params = crearKdfParams(iterations);
+        epoch = 0;
+        key = await deriveVaultKey(options.password, {
+          iterations: params.iterations,
+          salt: saltDeParams(params),
+        });
+        const verifier = await encryptRecord(key, VERIFIER_ID, VERIFIER_PLAINTEXT);
+        await writeMeta(db, { kdf: params, verifier, epoch });
+      } else {
+        if (meta.verifier === undefined) {
+          throw new VaultCorruptMetaError();
+        }
+        params = meta.kdf;
+        validarKdfParams(params);
+        epoch = typeof meta.epoch === "number" ? meta.epoch : 0;
+        const salt = saltDeParams(params);
+        assertRecordVersion(meta.verifier);
+        key = await deriveVaultKey(options.password, {
+          iterations: params.iterations,
+          salt,
+        });
+        try {
+          await decryptRecord(key, meta.verifier, VERIFIER_ID);
+        } catch {
+          throw new WrongPasswordError();
+        }
       }
-      params = meta.kdf;
-      validarKdfParams(params);
-      const salt = saltDeParams(params);
-      assertRecordVersion(meta.verifier);
-      key = await deriveVaultKey(options.password, {
-        iterations: params.iterations,
-        salt,
+      return new Vault(key, db, dbName, factory, params, epoch, {
+        ...options,
+        inactivityMs: options.inactivityMs ?? 300_000,
       });
-      try {
-        await decryptRecord(key, meta.verifier, VERIFIER_ID);
-      } catch {
-        throw new WrongPasswordError();
-      }
-    }
-    return new Vault(key, db, dbName, factory, params, {
-      ...options,
-      inactivityMs: options.inactivityMs ?? 300_000,
     });
   } catch (error) {
     db.close();
