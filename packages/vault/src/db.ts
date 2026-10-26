@@ -20,6 +20,13 @@ export interface VaultMeta {
   kdf: KdfParams;
   /** Texto conocido cifrado: descifrarlo valida la contraseña. */
   verifier: EncryptedRecord;
+  /**
+   * Época del almacén: se incrementa en cada importación y en cada purga.
+   * Una sesión guarda la época con la que abrió y se niega a operar si la
+   * almacenada ya no coincide, porque su clave ya no descifra los datos.
+   * Las meta anteriores a este campo se tratan como época 0.
+   */
+  epoch?: number;
 }
 
 export function requestToPromise<T>(request: IDBRequest<T>): Promise<T> {

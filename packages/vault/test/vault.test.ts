@@ -129,10 +129,10 @@ describe("apertura y colecciones", () => {
     await vault.blobs.put("b-1", blob);
     expect(await vault.profiles.get("p-1")).toEqual(perfil);
     expect(await vault.blobs.get("b-1")).toEqual(blob);
-    expect(await vault.profiles.list()).toEqual([perfil]);
+    expect(await vault.profiles.list()).toEqual({ values: [perfil], errors: [] });
     await vault.profiles.delete("p-1");
     expect(await vault.profiles.get("p-1")).toBeUndefined();
-    expect(await vault.profiles.list()).toEqual([]);
+    expect(await vault.profiles.list()).toEqual({ values: [], errors: [] });
   });
 
   it("guarda y recupera documentos y radar tipados", async () => {
@@ -233,6 +233,7 @@ describe("bloqueo", () => {
     await expect(vault.settings.get("tema")).rejects.toThrow(VaultLockedError);
     const reabierta = await abrir(contexto);
     expect(await reabierta.settings.get("tema")).toEqual({ modo: "claro" });
+    expect(await reabierta.settings.list()).toEqual({ values: [{ modo: "claro" }], errors: [] });
   });
 
   it("bloquea por inactividad de forma determinista con reloj inyectado", async () => {
@@ -321,5 +322,34 @@ describe("bloqueo", () => {
     const { verifier: _verifier, kdf } = meta;
     await escribirMetaBruta(contexto.factoria, { kdf });
     await expect(abrir(contexto)).rejects.toThrow(VaultCorruptMetaError);
+  });
+
+  it("lista con degradación por registro: uno dañado no bloquea el resto", async () => {
+    const contexto = crearContexto();
+    const vault = await abrir(contexto);
+    await vault.settings.put("bueno-1", { dato: "A" });
+    await vault.settings.put("roto-1", { dato: "B" });
+    vault.lock();
+    const registro = await leerRegistroBruto(contexto.factoria, "roto-1");
+    registro.data[0] = (registro.data[0] ?? 0) ^ 0xff;
+    await escribirRegistroBruto(contexto.factoria, "roto-1", registro);
+    const reabierta = await abrir(contexto);
+    const resultado = await reabierta.settings.list();
+    expect(resultado.values).toEqual([{ dato: "A" }]);
+    expect(resultado.errors).toHaveLength(1);
+    expect(resultado.errors[0]?.id).toBe("roto-1");
+    expect(resultado.errors[0]?.error).toBeInstanceOf(VaultCorruptError);
+  });
+
+  it("dos aperturas simultáneas sobre un almacén vacío acuerdan los mismos parámetros", async () => {
+    const contexto = crearContexto();
+    const [primera, segunda] = await Promise.all([abrir(contexto), abrir(contexto)]);
+    expect(primera.kdfParams).toEqual(segunda.kdfParams);
+    const meta = await leerMetaBruta(contexto.factoria);
+    expect(meta.kdf.salt).toBe(primera.kdfParams.salt);
+    expect(meta.kdf.iterations).toBe(primera.kdfParams.iterations);
+    // Ambas sesiones comparten clave derivada: lo que escribe una lo lee la otra.
+    await primera.settings.put("tema", { modo: "claro" });
+    expect(await segunda.settings.get("tema")).toEqual({ modo: "claro" });
   });
 });

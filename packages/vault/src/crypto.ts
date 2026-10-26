@@ -81,6 +81,12 @@ function bytesDe(texto: string): VaultBytes {
   return new TextEncoder().encode(texto);
 }
 
+/** Verificador: texto conocido que solo descifra la contraseña correcta. */
+export const VERIFIER_PLAINTEXT: JsonValue = { verificador: "letra-grande-vault" };
+
+/** Identificador del verificador, autenticado como additionalData. */
+export const VERIFIER_ID = "verificador";
+
 /**
  * Cifra un valor JSON con un IV aleatorio nuevo de 12 bytes. El id del
  * registro se autentica como additionalData: no forma parte del texto
