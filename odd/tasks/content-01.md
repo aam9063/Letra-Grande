@@ -27,14 +27,16 @@ Dejar por escrito y en el repositorio cómo se verifica una ficha contra una fue
 
 ## Tareas
 
-- [ ] T1: `CONTRIBUTING.md` con el flujo de datos, el checklist de la sección 10 y el flujo de código.
-- [ ] T2: plantilla de issue "dato incorrecto" con fuente, fecha y qué dato falla.
-- [ ] T3: plantilla de issue "propuesta de ficha" con sector, comunidad y fuentes candidatas.
-- [ ] T4: revisar que el checklist coincide con lo que valida el CI y corregir la diferencia.
+- [x] T1: `CONTRIBUTING.md` con el flujo de datos, el checklist de la sección 10 y el flujo de código.
+- [x] T2: plantilla de issue "dato incorrecto" con fuente, fecha y qué dato falla.
+- [x] T3: plantilla de issue "propuesta de ficha" con sector, comunidad y fuentes candidatas.
+- [x] T4: revisar que el checklist coincide con lo que valida el CI y corregir la diferencia.
 
 ## Evidencia y progreso
 
-Pendiente de rellenar por quien implementa: lectura del validador y comandos ejecutados.
+- Reglas del validador comparadas una a una contra `packages/schema/src/common.ts`, `procedure.ts` y `scripts/validate-content.ts`: verified exige `verifiedOn`, `verifiedBy` y una fuente que no sea `tercero`; el `sourceId` debe existir y no repetirse; pasos numerados 1, 2, 3 sin saltos; el nombre del archivo debe ser `<id>.yaml` (las plantillas que empiezan por `_` quedan excluidas); ids únicos por carpeta; cada `escalation` debe existir en `content/authorities`; y a los 180 días sale un aviso, no un error. Sin diferencias entre la especificación y la implementación.
+- `pnpm check`: `Estilo OK.`, tipos y tests en verde, `Contenido OK: 0 ficha(s) válidas.`
+- Los tres documentos y plantillas están en español, sin rayas largas ni medias rayas, y sin datos reales.
 
 ## Siguiente paso
 
