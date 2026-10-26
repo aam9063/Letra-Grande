@@ -1,8 +1,16 @@
-// Tests de la app web (AI-01): proyecto node para el handler de la API
-// y proyecto jsdom para componentes de interfaz más adelante.
+// Dos proyectos: `node` para el handler de la API y las pruebas que leen
+// archivos del repositorio, y `jsdom` para los componentes de interfaz.
+// Los specs de Playwright (e2e/) no son tests unitarios: se excluyen.
+import { fileURLToPath } from "node:url";
 import { defineConfig } from "vitest/config";
 
 export default defineConfig({
+  esbuild: { jsx: "automatic" },
+  resolve: {
+    alias: {
+      "@": fileURLToPath(new URL("./src", import.meta.url)),
+    },
+  },
   test: {
     projects: [
       {
@@ -16,9 +24,10 @@ export default defineConfig({
         test: {
           name: "jsdom",
           environment: "jsdom",
+          globals: true,
+          setupFiles: ["./src/test/setup.ts"],
           include: ["src/**/*.test.tsx"],
-          // Aún no hay tests de componentes: AI-02 añadirá los primeros.
-          passWithNoTests: true,
+          exclude: ["**/node_modules/**", "e2e/**"],
         },
       },
     ],
