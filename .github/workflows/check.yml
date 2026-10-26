@@ -21,6 +21,13 @@ jobs:
 
   e2e:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+    # Imagen oficial de Playwright: trae Node, navegadores y dependencias del sistema.
+    # Evita `playwright install --with-deps` y su apt, que en runners Ubuntu se cuelga
+    # de forma intermitente y bloquea la entrega. La etiqueta debe seguir la versión
+    # de @playwright/test del lockfile.
+    container:
+      image: mcr.microsoft.com/playwright:v1.64.1-noble
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -29,8 +36,6 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      # Navegadores para Playwright, con dependencias del sistema en Ubuntu.
-      - run: pnpm --filter @letra-grande/web exec playwright install --with-deps
       # El proveedor mock de la IA se activa en el webServer de la configuración.
       # Las fixtures sintéticas se regeneran aquí: no se versionan sus binarios.
       - run: pnpm --filter @letra-grande/web fixtures
