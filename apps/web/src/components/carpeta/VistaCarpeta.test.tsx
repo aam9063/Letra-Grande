@@ -1,8 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { act, fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 
 const mocks = vi.hoisted(() => ({
   estado: { valor: "no-creada" },
+  parametros: { valor: new URLSearchParams() },
+  reemplazar: vi.fn(),
   oyentes: new Set<(estado: string) => void>(),
   crear: vi.fn(),
   desbloquear: vi.fn(),
@@ -42,19 +44,64 @@ vi.mock("./sesion", async () => {
 });
 
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ replace: vi.fn(), push: vi.fn() }),
-  useSearchParams: () => new URLSearchParams(),
+  useRouter: () => ({ replace: mocks.reemplazar, push: vi.fn() }),
+  useSearchParams: () => mocks.parametros.valor,
 }));
 
 import { VistaCarpeta } from "./VistaCarpeta";
 
 // Vista de la página Carpeta (UI-07): crea, desbloquea o muestra la sesión
 // abierta según el estado de la sesión compartida.
+describe("filtro de ?next de VistaCarpeta", () => {
+  const CASOS_PELIGROSOS = ["//evil.com", "https://evil.com", "\\evil.com"];
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mocks.oyentes.clear();
+    mocks.estado.valor = "cerrada";
+    mocks.parametros.valor = new URLSearchParams();
+    mocks.reemplazar.mockClear();
+  });
+
+  for (const maliciosa of CASOS_PELIGROSOS) {
+    it(`no navega a ${maliciosa} tras desbloquear`, async () => {
+      mocks.parametros.valor = new URLSearchParams([["next", maliciosa]]);
+      mocks.desbloquear.mockResolvedValue(undefined);
+      render(<VistaCarpeta />);
+
+      fireEvent.change(screen.getByLabelText("Contraseña"), {
+        target: { value: "frase-larga-de-prueba" },
+      });
+      fireEvent.click(screen.getByRole("button", { name: "Desbloquear" }));
+
+      // El filtro descarta la ruta: no se navega a ella y la sesión queda
+      // abierta en la vista por defecto.
+      expect(mocks.reemplazar).not.toHaveBeenCalledWith(maliciosa);
+      expect(mocks.reemplazar).not.toHaveBeenCalledWith("https://evil.com");
+    });
+  }
+
+  it("con ?next interno sí navega a la ruta pedida", async () => {
+    mocks.parametros.valor = new URLSearchParams([["next", "/hoy"]]);
+    mocks.desbloquear.mockResolvedValue(undefined);
+    render(<VistaCarpeta />);
+
+    fireEvent.change(screen.getByLabelText("Contraseña"), {
+      target: { value: "frase-larga-de-prueba" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Desbloquear" }));
+
+    await waitFor(() => expect(mocks.reemplazar).toHaveBeenCalledWith("/hoy"));
+  });
+});
+
 describe("VistaCarpeta", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mocks.oyentes.clear();
     mocks.estado.valor = "no-creada";
+    mocks.parametros.valor = new URLSearchParams();
+    mocks.reemplazar.mockClear();
   });
 
   it("sin carpeta creada muestra la pantalla de creación", () => {

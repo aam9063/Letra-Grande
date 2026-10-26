@@ -34,11 +34,15 @@ export function VistaCarpeta() {
     }
   }, [estado]);
 
-  // Solo rutas internas: sin saltos a sitios de fuera de la app. En entornos
-  // sin router montado (render de servidor, tests del shell) no hay parámetros.
+  // Solo rutas internas: sin saltos a sitios de fuera de la app. La barra
+  // invertida queda fuera porque «/\evil.com» no es una ruta de la app. En
+  // entornos sin router montado (render de servidor, tests del shell) no hay
+  // parámetros.
   const pedida = parametros?.get("next") ?? undefined;
   const destino =
-    pedida !== undefined && pedida.startsWith("/") && !pedida.startsWith("//") ? pedida : undefined;
+    pedida !== undefined && pedida.startsWith("/") && !pedida.startsWith("//") && !pedida.includes("\\")
+      ? pedida
+      : undefined;
 
   if (!montado) {
     return (

@@ -88,3 +88,14 @@ Arrancar T1 cuando UI-06 esté cerrada (su revisor está corriendo).
 
 - L1. «el onboarding y demás secciones como ajustes etc. ... El resto intenta
   seguir nuestro diseño» con el PDF (2): «Crea tu carpeta privada».
+- L2. Review gate (odd/reviews/UI-07.md, veredicto «aprobado con cambios»,
+  sin bloqueantes): una ronda aplicada. Test negativo del filtro «?next»
+  («//evil.com», «https://evil.com») y endurecimiento con la barra invertida
+  («/\evil.com», RED a GREEN). Refactor registrado como REF-UI-07 (patrón
+  contraseña + error aria-live + casilla duplicado entre BorradoTotal y la
+  carpeta). Notas documentadas sin cambio: window.location.assign tras
+  bloquear es aceptable y deseable; el botón deshabilitado sin contraseña
+  es pulido, no defecto AA. Implementación delegada a un escritor con
+  superficie de edición acotada y TDD (RED a GREEN en crear, desbloquear y
+  bloquear); el test del carril shell (rutas.test.tsx) lo adaptó el
+  integrador al contrato nuevo de la página.
