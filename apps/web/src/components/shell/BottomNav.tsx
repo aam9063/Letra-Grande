@@ -17,13 +17,22 @@ export function BottomNav() {
   const botonRef = useRef<HTMLButtonElement>(null);
   const hojaRef = useRef<HTMLDivElement>(null);
 
-  // Al cerrar (Escape o velo) el foco vuelve al botón que la abrió.
+  // Al abrir, el foco entra en la hoja; al cerrar, vuelve al botón.
   useEffect(() => {
     if (abierta) {
       hojaRef.current?.focus();
-    } else if (document.activeElement === null) {
-      botonRef.current?.focus();
     }
+  }, [abierta]);
+
+  // Escape a nivel de documento: el foco puede salir de la hoja con Tab y el
+  // oyente dentro de la hoja dejaría de recibirlo.
+  useEffect(() => {
+    if (!abierta) return;
+    function alPulsar(evento: KeyboardEvent) {
+      if (evento.key === "Escape") cerrar();
+    }
+    document.addEventListener("keydown", alPulsar);
+    return () => document.removeEventListener("keydown", alPulsar);
   }, [abierta]);
 
   // Navegar cierra la hoja: la página nueva nunca queda tapada.
@@ -73,7 +82,14 @@ export function BottomNav() {
       </nav>
 
       {abierta && (
-        <div className="lg-nav-velo" onClick={cerrar}>
+        <div
+          className="lg-nav-velo"
+          onClick={(evento) => {
+            // Solo un toque directo en el velo cierra: los clics dentro de la
+            // hoja burbujean hasta aquí y no deben descartarla por sorpresa.
+            if (evento.target === evento.currentTarget) cerrar();
+          }}
+        >
           <div
             ref={hojaRef}
             role="dialog"

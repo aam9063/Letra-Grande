@@ -14,6 +14,19 @@ test("en móvil la barra flotante muestra cuatro destinos y Más abre la hoja", 
   const rutas = await barra.getByRole("link").evaluateAll((as) => as.map((a) => a.getAttribute("href")));
   expect(rutas).toEqual(["/hoy", "/asistente", "/carpeta", "/reclamar"]);
 
+  // Objetivo táctil AA: ningún enlace de la barra baja de 44 px.
+  const lados = await barra
+    .getByRole("link")
+    .evaluateAll((as) =>
+      as.map((a) => {
+        const caja = a.getBoundingClientRect();
+        return Math.min(caja.width, caja.height);
+      }),
+    );
+  for (const lado of lados) {
+    expect(lado).toBeGreaterThanOrEqual(44);
+  }
+
   await page.getByRole("button", { name: "Más" }).click();
 
   const hoja = page.getByRole("dialog", { name: "Más módulos" });

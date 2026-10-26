@@ -103,3 +103,14 @@ T1 con tests en rojo.
   redondeado con aspecto liquid glass de apple [captura]».
 - L2. Decisiones: 3 tareas en serie; barra de 5 con «Más» e icono de tres
   puntos; ajustes «reales los posibles»; carpeta real después (UI-07).
+- L3. Review gate (odd/reviews/UI-04.md, veredicto «aprobado con cambios»):
+  una ronda aplicada. Bloqueante: el velo cerraba la hoja con cualquier clic
+  dentro de ella por burbujeo (solo el toque directo en el velo cierra).
+  Recomendados: Escape a nivel de documento (el foco puede salir de la hoja
+  con Tab), custodia e2e de 44 px en la barra, icono «Más» con los puntos
+  duplicados corregido y rama muerta del foco eliminada. Refactor registrado
+  como REF-UI-04 (Trazo duplicado, cubos CSS, hex de marca). Fuera de la
+  superficie declarada pero justificados y documentados: exclusión de
+  DesignUI en scripts/check-style.mjs y las filas REF en el backlog (el
+  fichero tiene cambios sin commit de otra sesión, se excluyen de los
+  commits).

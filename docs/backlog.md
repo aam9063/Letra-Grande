@@ -144,4 +144,5 @@ Estas tareas no se ejecutan dentro de la tarea que las origina: se registran aqu
 | REF-VAULT-02 | Review de VAULT-02 | Cuatro seguimientos: bloqueo entre pestañas con Web Locks, simulación de aborto a mitad de transacción, nota de memoria con blobs grandes y el doble cast del `payload`. |
 | REF-UI-03 | Review de UI-03, hallazgo 6 | El anillo de foco con color de acento es invisible sobre botones con fondo de acento (preexistente en la baseline). Definir un anillo de foco de doble tono. |
 | REF-UI-03 | Review de UI-03, hallazgo 7 | Duplicación menor en la landing: URLs de GitHub repetidas y `#26605C`/`#ECF5F4` en TS y CSS; centralizar en un módulo de constantes. |
+| REF-UI-04 | Review de UI-04, hallazgo 4 | Duplicación de shell: `Trazo` en BottomNav y Sidebar, cubos de logo CSS repetidos y hex de marca repetidos; extraer a módulo compartido. |
 | REF-UI-02 | Review de UI-02, hallazgo 5 | La comprobación de 375 px se hizo a mano y no quedó como spec: entra en `QA-07` (accesibilidad, responsive y offline). |

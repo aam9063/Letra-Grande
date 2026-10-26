@@ -18,4 +18,4 @@ export const iconosNav: Record<string, string> = {
 
 /** Icono del botón «Más» de la barra móvil: tres puntos horizontales. */
 export const iconoMas =
-  "M5 12v.01M12 12v.01M19 12v.01M6.5 13.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zM12 13.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zM17.5 13.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z";
+  "M5 13.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zM12 13.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zM19 13.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z";
