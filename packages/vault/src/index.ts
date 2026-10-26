@@ -27,8 +27,11 @@ export {
 export {
   Vault,
   VaultCorruptError,
+  VaultCorruptMetaError,
   VaultError,
   VaultLockedError,
+  VaultRecordVersionError,
+  VaultUnsupportedKdfError,
   WrongPasswordError,
   openVault,
   type BlobRecord,

@@ -12,6 +12,7 @@ import {
   deriveVaultKey,
   encryptRecord,
   KDF_ALGORITHM,
+  RECORD_VERSION,
   type EncryptedRecord,
   type KdfParams,
 } from "./crypto.js";
@@ -100,9 +101,29 @@ export class VaultCorruptError extends VaultError {
   }
 }
 
-interface StoredRecord extends EncryptedRecord {
-  version: number;
+/** Los metadatos del vault están incompletos o dañados. */
+export class VaultCorruptMetaError extends VaultError {
+  constructor() {
+    super("Los metadatos del vault están dañados: no se puede abrir de forma fiable.");
+  }
 }
+
+/** El registro usa una versión del formato que esta versión no entiende. */
+export class VaultRecordVersionError extends VaultError {
+  constructor() {
+    super("Un registro usa una versión del formato cifrado no compatible.");
+  }
+}
+
+/** Los parámetros de derivación guardados no son compatibles con esta versión. */
+export class VaultUnsupportedKdfError extends VaultError {
+  constructor() {
+    super("Los parámetros de derivación guardados no son compatibles con esta versión.");
+  }
+}
+
+/** Registro cifrado tal y como se guarda en IndexedDB. */
+type StoredRecord = EncryptedRecord;
 
 export class Vault {
   private key: CryptoKey | null;
@@ -191,13 +212,16 @@ export class Vault {
 
   private async get<T extends JsonValue>(store: DataStore, id: string): Promise<T | undefined> {
     const { key, db } = this.session();
+    // Leer también es actividad: reprograma el bloqueo antes de descifrar.
+    this.programarBloqueo();
     const tx = db.transaction(store, "readonly");
     const record = await requestToPromise(tx.objectStore(store).get(id) as IDBRequest<StoredRecord | undefined>);
     if (record === undefined) {
       return undefined;
     }
+    assertRecordVersion(record);
     try {
-      return await decryptRecord<T>(key, record);
+      return await decryptRecord<T>(key, record, id);
     } catch {
       throw new VaultCorruptError();
     }
@@ -205,7 +229,7 @@ export class Vault {
 
   private async put<T extends JsonValue>(store: DataStore, id: string, value: T): Promise<void> {
     const { key, db } = this.session();
-    const record: StoredRecord = await encryptRecord(key, value);
+    const record: StoredRecord = await encryptRecord(key, id, value);
     const tx = db.transaction(store, "readwrite");
     tx.objectStore(store).put(record, id);
     await transactionDone(tx);
@@ -222,22 +246,61 @@ export class Vault {
 
   private async list<T extends JsonValue>(store: DataStore): Promise<T[]> {
     const { key, db } = this.session();
+    // Listar también es actividad: reprograma el bloqueo antes de descifrar.
+    this.programarBloqueo();
     const tx = db.transaction(store, "readonly");
-    const records = await requestToPromise(
-      tx.objectStore(store).getAll() as IDBRequest<StoredRecord[]>,
-    );
-    try {
-      const valores = await Promise.all(records.map((record) => decryptRecord<T>(key, record)));
-      this.programarBloqueo();
-      return valores;
-    } catch {
+    const almacen = tx.objectStore(store);
+    const [records, ids] = await Promise.all([
+      requestToPromise(almacen.getAll() as IDBRequest<StoredRecord[]>),
+      requestToPromise(almacen.getAllKeys() as IDBRequest<IDBValidKey[]>),
+    ]);
+    if (records.length !== ids.length) {
       throw new VaultCorruptError();
     }
+    const valores: T[] = [];
+    for (let i = 0; i < records.length; i += 1) {
+      const id = ids[i];
+      const record = records[i];
+      if (typeof id !== "string" || record === undefined) {
+        throw new VaultCorruptError();
+      }
+      assertRecordVersion(record);
+      try {
+        valores.push(await decryptRecord<T>(key, record, id));
+      } catch {
+        throw new VaultCorruptError();
+      }
+    }
+    return valores;
   }
 }
 
 /** Verificador: texto conocido que solo descifra la contraseña correcta. */
 const VERIFIER_PLAINTEXT: JsonValue = { verificador: "letra-grande-vault" };
+
+/** Identificador del verificador, autenticado como additionalData. */
+const VERIFIER_ID = "verificador";
+
+/** Comprueba que el registro usa la versión del formato que esta versión entiende. */
+function assertRecordVersion(record: EncryptedRecord): void {
+  if (record.version !== RECORD_VERSION) {
+    throw new VaultRecordVersionError();
+  }
+}
+
+/**
+ * Valida los parámetros de derivación guardados ANTES de derivar: un vault de
+ * una versión futura debe dar "parámetros no compatibles", nunca "contraseña
+ * errónea".
+ */
+function validarKdfParams(params: KdfParams): void {
+  if (params.algorithm !== KDF_ALGORITHM) {
+    throw new VaultUnsupportedKdfError();
+  }
+  if (!Number.isInteger(params.iterations) || params.iterations <= 0) {
+    throw new VaultUnsupportedKdfError();
+  }
+}
 
 export async function openVault(options: OpenVaultOptions): Promise<Vault> {
   const dbName = options.dbName ?? "letra-grande-vault";
@@ -254,22 +317,25 @@ export async function openVault(options: OpenVaultOptions): Promise<Vault> {
         iterations: params.iterations,
         salt: saltDeParams(params),
       });
-      const verifier = await encryptRecord(key, VERIFIER_PLAINTEXT);
+      const verifier = await encryptRecord(key, VERIFIER_ID, VERIFIER_PLAINTEXT);
       await writeMeta(db, { kdf: params, verifier });
     } else {
+      if (meta.verifier === undefined) {
+        throw new VaultCorruptMetaError();
+      }
       params = meta.kdf;
+      validarKdfParams(params);
+      const salt = saltDeParams(params);
+      assertRecordVersion(meta.verifier);
       key = await deriveVaultKey(options.password, {
         iterations: params.iterations,
-        salt: saltDeParams(params),
+        salt,
       });
       try {
-        await decryptRecord(key, meta.verifier);
+        await decryptRecord(key, meta.verifier, VERIFIER_ID);
       } catch {
         throw new WrongPasswordError();
       }
-    }
-    if (params.algorithm !== KDF_ALGORITHM) {
-      throw new VaultError("Los parámetros de derivación guardados no son compatibles.");
     }
     return new Vault(key, db, dbName, factory, params, {
       ...options,
@@ -284,7 +350,7 @@ export async function openVault(options: OpenVaultOptions): Promise<Vault> {
 function saltDeParams(params: KdfParams): Uint8Array<ArrayBuffer> {
   const salt = decodeBase64(params.salt);
   if (salt.length !== 16) {
-    throw new VaultError("La sal guardada no tiene la longitud esperada.");
+    throw new VaultCorruptMetaError();
   }
   return salt;
 }

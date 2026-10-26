@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   DEFAULT_KDF_ITERATIONS,
+  RECORD_VERSION,
   decryptRecord,
   deriveVaultKey,
   encryptRecord,
@@ -26,8 +27,8 @@ describe("derivación de clave", () => {
     const salt = randomBytes(16);
     const keyA = await deriveVaultKey("contraseña-ficticia", { iterations: 1_000, salt });
     const keyB = await deriveVaultKey("contraseña-ficticia", { iterations: 1_000, salt });
-    const record = await encryptRecord(keyA, { titulo: "factura de prueba" });
-    const value = await decryptRecord(keyB, record);
+    const record = await encryptRecord(keyA, "registro-ficticio", { titulo: "factura de prueba" });
+    const value = await decryptRecord(keyB, record, "registro-ficticio");
     expect(value).toEqual({ titulo: "factura de prueba" });
   });
 
@@ -40,8 +41,8 @@ describe("derivación de clave", () => {
       iterations: 1_000,
       salt: randomBytes(16),
     });
-    const record = await encryptRecord(keyA, "dato ficticio");
-    await expect(decryptRecord(keyB, record)).rejects.toThrow();
+    const record = await encryptRecord(keyA, "registro-ficticio", "dato ficticio");
+    await expect(decryptRecord(keyB, record, "registro-ficticio")).rejects.toThrow();
   });
 });
 
@@ -51,12 +52,14 @@ describe("cifrado por registro", () => {
       iterations: 1_000,
       salt: randomBytes(16),
     });
-    const a = await encryptRecord(key, "mismo texto");
-    const b = await encryptRecord(key, "mismo texto");
+    const a = await encryptRecord(key, "registro-ficticio", "mismo texto");
+    const b = await encryptRecord(key, "registro-ficticio", "mismo texto");
     expect(a.iv).toHaveLength(12);
     expect(b.iv).toHaveLength(12);
     expect(Array.from(a.iv)).not.toEqual(Array.from(b.iv));
-    expect(a.version).toBe(1);
+    // Formato v2: AES-256-GCM + JSON + id autenticado como additionalData.
+    expect(a.version).toBe(RECORD_VERSION);
+    expect(RECORD_VERSION).toBe(2);
   });
 
   it("un registro manipulado no se descifra: lanza en vez de devolver basura", async () => {
@@ -64,13 +67,13 @@ describe("cifrado por registro", () => {
       iterations: 1_000,
       salt: randomBytes(16),
     });
-    const record = await encryptRecord(key, "dato ficticio");
+    const record = await encryptRecord(key, "registro-ficticio", "dato ficticio");
     // Simula una manipulación en el almacén: cambia el último byte del texto cifrado.
     const manipulado = new Uint8Array(record.data);
     const ultimo = manipulado.length - 1;
     manipulado[ultimo] = (manipulado[ultimo] ?? 0) ^ 0xff;
     await expect(
-      decryptRecord(key, { version: record.version, iv: record.iv, data: manipulado }),
+      decryptRecord(key, { version: record.version, iv: record.iv, data: manipulado }, "registro-ficticio"),
     ).rejects.toThrow();
   });
 
@@ -78,7 +81,7 @@ describe("cifrado por registro", () => {
     const salt = decodeBase64("AAAAAAAAAAAAAAAAAAAAAA==");
     const key = await deriveVaultKey("contraseña-ficticia", { iterations: 1_000, salt });
     const valor = { lista: [1, 2, 3], texto: "ficticio" };
-    const record = await encryptRecord(key, valor);
-    expect(await decryptRecord(key, record)).toEqual(valor);
+    const record = await encryptRecord(key, "registro-ficticio", valor);
+    expect(await decryptRecord(key, record, "registro-ficticio")).toEqual(valor);
   });
 });

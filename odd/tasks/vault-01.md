@@ -46,6 +46,8 @@ Implementar `@letra-grande/vault`: las colecciones `profiles`, `documents`, `blo
 - Las 600.000 iteraciones de PBKDF2 son el valor por defecto y el test lo afirma; en los tests se inyecta un valor bajo para no hacer la suite inusable.
 - `pnpm check` en la raíz en verde.
 
+Ronda de correcciones aplicada: lecturas reprograman el bloqueo, el id del registro se autentica como `additionalData` (versión 2 del formato), parámetros de derivación validados antes de derivar, errores concretos en los tests, metadatos corruptos con error propio y versión de registro leída y validada. Informe en `odd/reviews/vault-01.md`. Los hallazgos 5 y 7 del gate pasan a VAULT-02.
+
 ## Siguiente paso
 
 Desbloquea VAULT-02 y CARPETA-01.
