@@ -151,6 +151,44 @@ Tres versiones distintas, cada una con su dueño:
 
 Un cambio de esquema en `packages/schema` va en un PR propio, porque es el contrato que consumen todos los carriles.
 
-## 10. Pendiente en este documento
+## 10. Cálculo de plazos y exportación de calendario
 
-`packages/radar` todavía no existe. Cuando se implemente (RADAR-01), aquí se documentarán el cálculo de plazos por unidad, el tratamiento de los días hábiles como aproximación y el formato de exportación `.ics`.
+`packages/radar` es lógica pura: sin red, sin `Date.now()` y sin estado global. El reloj siempre es un parámetro, para que las pruebas sean deterministas.
+
+### `addDeadline(from, rule)`
+
+Recibe una fecha `AAAA-MM-DD` o un `Date` y una regla `{ amount, unit }` con la unidad del esquema. Devuelve `{ dueDate, aproximado }`.
+
+| Unidad | Cómo se suma | `aproximado` |
+|---|---|---|
+| `dias_naturales` | Suma días de calendario. | `false` |
+| `dias_habiles` | Cuenta desde el día siguiente saltando **solo** sábados y domingos. | `true` |
+| `meses` | Suma sobre año y mes y recorta el día al último del mes destino: `2026-01-31` más un mes es `2026-02-28`. | `false` |
+| `anios` | Igual que meses, con el año: `2028-02-29` más cuatro años es `2032-02-29`. | `false` |
+
+`aproximado` es exactamente la respuesta a "esto depende de un calendario que todavía no tenemos". Hoy solo lo activan los días hábiles, porque no hay calendario laboral por comunidad ni localidad: la interfaz debe mostrarlos como orientativos. Cuando exista ese calendario, la unidad pasará a ser exacta y el indicador desaparecerá para esa comunidad.
+
+La aritmética es en UTC y con validación de ida y vuelta: `2026-02-30` se rechaza en lugar de convertirse en marzo. `amount` debe ser un entero positivo.
+
+### Estado, orden y ventana
+
+- `deadlineStatus(item, today)` devuelve `vencido`, `hoy`, `proximo` (hasta 7 días) o `lejano`, y respeta `hecho` y `descartado`.
+- `sortRadarItems(items)` ordena ascendente por `dueDate`, es estable y deja los hechos y los descartados al final. Compara la cadena `AAAA-MM-DD`, cuyo formato garantiza el esquema.
+- `upcoming(items, days, today)` devuelve los pendientes dentro de la ventana y rechaza una ventana no entera o no positiva, en lugar de devolver una lista vacía en silencio.
+
+### `toIcs(items, options)`
+
+Genera un `.ics` con un `VEVENT` de **todo el día** por elemento pendiente.
+
+| Propiedad | Valor |
+|---|---|
+| `VERSION`, `PRODID`, `CALSCALE` | Cabecera del calendario. |
+| `UID` | `<id del elemento>@letra-grande`, estable entre exportaciones. |
+| `DTSTAMP` | El reloj inyectado, nunca la hora real implícita. |
+| `DTSTART;VALUE=DATE` | `dueDate`. |
+| `DTEND;VALUE=DATE` | El día siguiente, como exige un evento de día completo. |
+| `SUMMARY`, `DESCRIPTION` | Título y descripción, escapados. |
+
+Se escapa primero la barra invertida y después el punto y coma, la coma y los saltos de línea, en ese orden, como manda RFC 5545. Las líneas se pliegan a 75 octetos **incluido** el espacio de continuación, y el plegado mide en bytes UTF-8, nunca en caracteres, para no partir una letra acentuada. No se usa `TZID`: un evento de día completo no tiene zona horaria y añadirla es una fuente clásica de fechas desplazadas.
+
+Una fecha inválida en un elemento hace fallar la exportación en lugar de producir un calendario corrupto.

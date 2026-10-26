@@ -48,6 +48,8 @@ El radar es lo que hace volver a la app: una línea de tiempo con lo que vence. 
 - Garantías: un test recorre el código fuente y comprueba que no hay `fetch` ni `XMLHttpRequest`, y que los elementos de prueba no contienen patrones de email, teléfono ni documento.
 - `pnpm check` en la raíz en verde.
 
+Ronda de correcciones aplicada: plegado a 75 octetos reales contando el espacio de continuación (con dos tests que lo pinchan), validación de la ventana en `upcoming`, renombrado de `itemItem`, tests de lista vacía, de `amount` no positivo y de arrastre de año, y comentario sobre el orden por cadena. En esta misma rama se documenta el motor en `docs/data-model.md` y se actualizan `docs/ARCHITECTURE.md` y `docs/backlog.md`. Informe en `odd/reviews/radar-01.md`.
+
 ## Siguiente paso
 
 Desbloquea RADAR-02 (interfaz "Hoy") y CARPETA-01 (vincular un documento a un plazo).

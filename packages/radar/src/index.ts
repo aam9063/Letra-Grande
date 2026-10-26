@@ -151,12 +151,12 @@ function diasEntre(destino: string, origen: string): number {
  * `hoy`, `proximo` (dentro de 7 días, borde incluido) o `lejano`.
  */
 export function deadlineStatus(
-  itemItem: Pick<RadarItem, "dueDate" | "status">,
+  item: Pick<RadarItem, "dueDate" | "status">,
   today: string | Date,
 ): EstadoPlazo {
-  if (itemItem.status === "hecho") return "hecho";
-  if (itemItem.status === "descartado") return "descartado";
-  const dias = diasEntre(itemItem.dueDate, aFechaIso(aUtc(today, "today")));
+  if (item.status === "hecho") return "hecho";
+  if (item.status === "descartado") return "descartado";
+  const dias = diasEntre(item.dueDate, aFechaIso(aUtc(today, "today")));
   if (dias < 0) return "vencido";
   if (dias === 0) return "hoy";
   if (dias <= DIAS_PROXIMO) return "proximo";
@@ -167,6 +167,8 @@ export function deadlineStatus(
  * Devuelve una copia ordenada de la línea de tiempo: pendientes por fecha
  * ascendente y, a igual fecha, en el orden original (orden estable). Los
  * elementos `hecho` y `descartado` van al final. No muta el array recibido.
+ * Compara `dueDate` como cadena AAAA-MM-DD: el orden lexicográfico coincide
+ * con el cronológico porque el formato lo garantiza el esquema de RadarItem.
  */
 export function sortRadarItems<T extends Pick<RadarItem, "dueDate" | "status">>(items: T[]): T[] {
   const pendientes = items.filter((i) => i.status === "pendiente" || i.status === undefined);
@@ -179,13 +181,18 @@ export function sortRadarItems<T extends Pick<RadarItem, "dueDate" | "status">>(
 /**
  * Elementos pendientes dentro de la ventana de los próximos `days` días,
  * con los bordes incluidos (hoy y hoy más `days`). El vencido, el hecho
- * y el descartado quedan fuera.
+ * y el descartado quedan fuera. Compara `dueDate` como cadena AAAA-MM-DD:
+ * el orden y el recorte de ventana dependen de ese formato, garantizado
+ * por el esquema de RadarItem.
  */
 export function upcoming<T extends Pick<RadarItem, "dueDate" | "status">>(
   items: T[],
   days: number,
   today: string | Date,
 ): T[] {
+  if (!Number.isInteger(days) || days <= 0) {
+    throw new Error("days: se esperaba un entero positivo");
+  }
   const hoy = aFechaIso(aUtc(today, "today"));
   const fin = aFechaIso(aUtc(hoy, "today") + days * 86_400_000);
   return items.filter(
@@ -214,19 +221,24 @@ function escaparIcs(texto: string): string {
 }
 
 /**
- * Plega una línea a 75 octetos como máximo, sin partir caracteres
- * multibyte, con las líneas de continuación precedidas de un espacio.
+ * Plega una línea a 75 octetos como máximo contando el espacio inicial de
+ * las líneas de continuación (75 en la primera, 74 de contenido más el
+ * espacio en las siguientes), sin partir caracteres multibyte.
  */
 function plegarLinea(linea: string): string[] {
   const trozos: string[] = [];
   let actual = "";
   let octetos = 0;
+  // El tope de la primera línea es 75; en las de continuación el espacio
+  // inicial ocupa un octeto, así que el contenido cabe en 74.
+  let tope = 75;
   for (const caracter of linea) {
     const longitud = new TextEncoder().encode(caracter).length;
-    if (octetos + longitud > 75) {
+    if (octetos + longitud > tope) {
       trozos.push(actual);
       actual = "";
       octetos = 0;
+      tope = 74;
     }
     actual += caracter;
     octetos += longitud;
@@ -259,19 +271,19 @@ export function toIcs(items: RadarItem[], options: IcsOptions): string {
     lineas.push(`X-WR-CALNAME:${escaparIcs(options.calendarName)}`);
   }
 
-  for (const itemItem of items) {
-    if (itemItem.status !== "pendiente") continue;
+  for (const item of items) {
+    if (item.status !== "pendiente") continue;
     const dtstamp = aIcsDateTime(msAhora);
-    const dtstart = itemItem.dueDate.replaceAll("-", "");
-    const fin = aFechaIso(aUtc(itemItem.dueDate, "dueDate") + 86_400_000).replaceAll("-", "");
+    const dtstart = item.dueDate.replaceAll("-", "");
+    const fin = aFechaIso(aUtc(item.dueDate, "dueDate") + 86_400_000).replaceAll("-", "");
     lineas.push(
       "BEGIN:VEVENT",
-      `UID:${escaparIcs(`${itemItem.id}@letra-grande`)}`,
+      `UID:${escaparIcs(`${item.id}@letra-grande`)}`,
       `DTSTAMP:${dtstamp}`,
       `DTSTART;VALUE=DATE:${dtstart}`,
       `DTEND;VALUE=DATE:${fin}`,
-      `SUMMARY:${escaparIcs(itemItem.title)}`,
-      `DESCRIPTION:${escaparIcs(`Origen: ${itemItem.origin}`)}`,
+      `SUMMARY:${escaparIcs(item.title)}`,
+      `DESCRIPTION:${escaparIcs(`Origen: ${item.origin}`)}`,
       "END:VEVENT",
     );
   }

@@ -8,6 +8,8 @@ Estado vivo de las tareas de Letra Grande. El detalle de cada tarea vive en su d
 |---|---|---|
 | 0 | H-01 a H-10, D-01 | pendiente (humano) |
 | 1 | OPS-01, CORE-01, CORE-02, UI-01, OPS-04, AI-06, VAULT-01, UI-02, CONTENT-01, OPS-05, AI-01, AI-02, VAULT-02, OPS-04b, OPS-06 | hecho |
+| 1 (documentación) | CORE-03: `ARCHITECTURE.md` y `data-model.md` | hecho |
+| 2 | RADAR-01 hecho; DOCS-01 a DOCS-03, RADAR-02, CARPETA-01, AI-03 a AI-05, MOD-01 a MOD-03, CONTENT-02 a CONTENT-04 pendientes | en curso |
 
 ## Detalle de las olas
 

@@ -95,6 +95,23 @@ describe("addDeadline", () => {
     });
   });
 
+  it("rechaza días hábiles con amount 0 o negativo", () => {
+    expect(() => addDeadline("2026-02-09", { amount: 0, unit: "dias_habiles" })).toThrow();
+    expect(() => addDeadline("2026-02-09", { amount: -3, unit: "dias_habiles" })).toThrow();
+  });
+
+  it("arrastra el año al sumar meses desde el 31 de diciembre", () => {
+    expect(addDeadline("2026-12-31", { amount: 1, unit: "meses" })).toEqual({
+      dueDate: "2027-01-31",
+      aproximado: false,
+    });
+    // El día 31 se clamp al último día de febrero de 2027, que no es bisiesto.
+    expect(addDeadline("2026-12-31", { amount: 2, unit: "meses" })).toEqual({
+      dueDate: "2027-02-28",
+      aproximado: false,
+    });
+  });
+
   it("rechaza fechas y plazos inválidos", () => {
     expect(() => addDeadline("2026-13-01", { amount: 1, unit: "meses" })).toThrow();
     expect(() => addDeadline("no-es-fecha", { amount: 1, unit: "meses" })).toThrow();
@@ -146,6 +163,10 @@ describe("sortRadarItems", () => {
     expect(sortRadarItems(items).map((i) => i.id)).toEqual(["pend", "hecho", "desc"]);
   });
 
+  it("acepta una lista vacía", () => {
+    expect(sortRadarItems([])).toEqual([]);
+  });
+
   it("no muta el array original", () => {
     const items = [item({ id: "c", dueDate: "2026-03-01" }), item({ id: "a", dueDate: "2026-01-01" })];
     sortRadarItems(items);
@@ -164,6 +185,16 @@ describe("upcoming", () => {
 
   it("devuelve los pendientes dentro de la ventana, bordes incluidos", () => {
     expect(upcoming(items, 7, "2026-02-10").map((i) => i.id)).toEqual(["hoy", "dentro"]);
+  });
+
+  it("acepta una lista vacía", () => {
+    expect(upcoming([], 7, "2026-02-10")).toEqual([]);
+  });
+
+  it("rechaza days que no sea entero positivo", () => {
+    expect(() => upcoming(items, 0, "2026-02-10")).toThrow();
+    expect(() => upcoming(items, -7, "2026-02-10")).toThrow();
+    expect(() => upcoming(items, 1.5, "2026-02-10")).toThrow();
   });
 });
 
@@ -227,6 +258,45 @@ describe("toIcs", () => {
     expect(desplegado).toContain(
       "SUMMARY:Plazo muy largo con acentuación: comunicación\\, reclamación y documentación adicional",
     );
+  });
+
+  it("ninguna línea plegada supera 75 octetos, con el espacio de continuación incluido", () => {
+    // 160 caracteres ASCII: con el prefijo SUMMARY: la línea completa da más
+    // de dos líneas de continuación, el hueco que la versión anterior dejaba a 76 octetos.
+    const asciilargo = item({
+      id: "ascii-largo",
+      dueDate: "2026-03-01",
+      title: "a".repeat(160),
+    });
+    const icsAscii = toIcs([asciilargo], { now });
+    const lineasAscii = icsAscii.split("\r\n");
+    expect(lineasAscii.length).toBeGreaterThan(2);
+    for (const linea of lineasAscii) {
+      expect(new TextEncoder().encode(linea).length).toBeLessThanOrEqual(75);
+    }
+  });
+
+  it("pliega texto multibyte sin partir caracteres y recupera el texto al desplegar", () => {
+    const multibyte = item({
+      id: "multibyte",
+      dueDate: "2026-03-01",
+      title: "ñó".repeat(80),
+    });
+    const ics = toIcs([multibyte], { now });
+    const lineas = ics.split("\r\n");
+    for (const linea of lineas) {
+      expect(new TextEncoder().encode(linea).length).toBeLessThanOrEqual(75);
+    }
+    const desplegado = lineas.reduce((acc, l) => (l.startsWith(" ") ? acc + l.slice(1) : acc + l), "");
+    expect(desplegado).toContain(`SUMMARY:${"ñó".repeat(80)}`);
+  });
+
+  it("genera un calendario válido con una lista vacía", () => {
+    const ics = toIcs([], { now });
+    expect(ics).toContain("BEGIN:VCALENDAR");
+    expect(ics).toContain("VERSION:2.0");
+    expect(ics).toContain("END:VCALENDAR");
+    expect(ics).not.toContain("BEGIN:VEVENT");
   });
 
   it("usa salto de línea CRLF según RFC 5545", () => {
