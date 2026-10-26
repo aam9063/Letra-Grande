@@ -27,6 +27,7 @@ import {
   transactionDone,
   writeMeta,
   type DataStore,
+  type VaultMeta,
 } from "./db.js";
 import {
   createExportArtifact,
@@ -39,9 +40,11 @@ import {
   VaultError,
   VaultLockedError,
   VaultRecordVersionError,
+  VaultStaleSessionError,
   VaultUnsupportedKdfError,
   WrongPasswordError,
 } from "./errors.js";
+import { lockOtherSessions, registerSession, unregisterSession } from "./sessions.js";
 import { decodeBase64, type JsonValue } from "./serialize.js";
 import type { Profile, RadarItem, VaultDocument } from "@letra-grande/schema";
 
@@ -55,6 +58,7 @@ export {
   VaultLockedError,
   VaultNotEmptyError,
   VaultRecordVersionError,
+  VaultStaleSessionError,
   VaultUnsupportedExportError,
   VaultUnsupportedKdfError,
   WrongPasswordError,
@@ -137,6 +141,8 @@ export class Vault {
   private readonly timer: VaultTimer;
   private readonly onLock?: () => void;
   private lockHandle: unknown;
+  /** Época del almacén con la que se abrió esta sesión. */
+  private readonly epoch: number;
 
   constructor(
     key: CryptoKey,
@@ -144,6 +150,7 @@ export class Vault {
     dbName: string,
     factory: IDBFactory,
     params: KdfParams,
+    epoch: number,
     options: Required<Pick<OpenVaultOptions, "inactivityMs">> & OpenVaultOptions,
   ) {
     this.key = key;
@@ -151,9 +158,11 @@ export class Vault {
     this.dbName = dbName;
     this.factory = factory;
     this.params = params;
+    this.epoch = epoch;
     this.inactivityMs = options.inactivityMs;
     this.timer = options.timer ?? defaultTimer();
     this.onLock = options.onLock;
+    registerSession(dbName, this);
     this.programarBloqueo();
   }
 
@@ -180,6 +189,7 @@ export class Vault {
   lock(): void {
     this.timer.cancel(this.lockHandle);
     this.key = null;
+    unregisterSession(this.dbName, this);
     this.db?.close();
   }
 
@@ -194,11 +204,22 @@ export class Vault {
     });
   }
 
-  private session(): { key: CryptoKey; db: IDBDatabase } {
+  /**
+   * Sesión válida: con clave y con la época del almacén sin cambiar. Cada
+   * operación comprueba la época guardada en meta, porque una importación o
+   * una purga desde otra sesión (u otra pestaña) dejan esta clave inútil.
+   */
+  private async session(): Promise<{ key: CryptoKey; db: IDBDatabase }> {
     const key = this.key;
     const db = this.db;
     if (key === null || db === null) {
       throw new VaultLockedError();
+    }
+    const meta = await readMeta(db);
+    const epochAlmacenada =
+      meta === undefined ? undefined : typeof meta.epoch === "number" ? meta.epoch : 0;
+    if (epochAlmacenada !== this.epoch) {
+      throw new VaultStaleSessionError();
     }
     return { key, db };
   }
@@ -213,7 +234,7 @@ export class Vault {
   }
 
   private async get<T extends JsonValue>(store: DataStore, id: string): Promise<T | undefined> {
-    const { key, db } = this.session();
+    const { key, db } = await this.session();
     // Leer también es actividad: reprograma el bloqueo antes de descifrar.
     this.programarBloqueo();
     const tx = db.transaction(store, "readonly");
@@ -230,7 +251,7 @@ export class Vault {
   }
 
   private async put<T extends JsonValue>(store: DataStore, id: string, value: T): Promise<void> {
-    const { key, db } = this.session();
+    const { key, db } = await this.session();
     const record: StoredRecord = await encryptRecord(key, id, value);
     const tx = db.transaction(store, "readwrite");
     tx.objectStore(store).put(record, id);
@@ -239,7 +260,7 @@ export class Vault {
   }
 
   private async delete(store: DataStore, id: string): Promise<void> {
-    const { db } = this.session();
+    const { db } = await this.session();
     const tx = db.transaction(store, "readwrite");
     tx.objectStore(store).delete(id);
     await transactionDone(tx);
@@ -247,7 +268,7 @@ export class Vault {
   }
 
   private async list<T extends JsonValue>(store: DataStore): Promise<ListResult<T>> {
-    const { key, db } = this.session();
+    const { key, db } = await this.session();
     // Listar también es actividad: reprograma el bloqueo antes de descifrar.
     this.programarBloqueo();
     const tx = db.transaction(store, "readonly");
@@ -291,7 +312,7 @@ export class Vault {
    * vault a medias sin avisar.
    */
   async exportBackup(password: string): Promise<Uint8Array<ArrayBuffer>> {
-    const { key, db } = this.session();
+    const { key, db } = await this.session();
     this.programarBloqueo();
     const tx = db.transaction([...DATA_STORES], "readonly");
     // Todas las lecturas se piden en el mismo turno para que la transacción
@@ -333,19 +354,33 @@ export class Vault {
   }
 
   /**
-   * Borra todo: vacía las cinco colecciones y elimina los metadatos dentro
-   * de una única transacción atómica, y cierra la sesión. Tras purgar no
-   * queda ningún registro en el almacén y la siguiente apertura empieza
-   * desde cero con una contraseña nueva.
+   * Borra todo: vacía las cinco colecciones dentro de una única transacción
+   * atómica, incrementa la época de los metadatos y cierra la sesión.
+   *
+   * Los metadatos técnicos (parámetros de derivación y verificador) se
+   * conservan con la época aumentada: así ninguna sesión viva, ni aquí ni en
+   * otra pestaña, puede resucitar datos después de la purga, porque su época
+   * ya no coincide. Todos los datos personales desaparecen.
    */
   async purge(): Promise<void> {
-    const { db } = this.session();
+    const { db } = await this.session();
+    const meta = await readMeta(db);
+    if (meta === undefined || meta.verifier === undefined) {
+      throw new VaultCorruptMetaError();
+    }
+    const epochPrevia = typeof meta.epoch === "number" ? meta.epoch : 0;
+    const metaNueva: VaultMeta = {
+      kdf: meta.kdf,
+      verifier: meta.verifier,
+      epoch: epochPrevia + 1,
+    };
     const tx = db.transaction([META_STORE, ...DATA_STORES], "readwrite");
     for (const store of DATA_STORES) {
       tx.objectStore(store).clear();
     }
-    tx.objectStore(META_STORE).delete("vault");
+    tx.objectStore(META_STORE).put(metaNueva, "vault");
     await transactionDone(tx);
+    lockOtherSessions(this.dbName, this);
     this.lock();
   }
 }
@@ -406,20 +441,23 @@ export async function openVault(options: OpenVaultOptions): Promise<Vault> {
       const meta = await readMeta(db);
       let key: CryptoKey;
       let params: KdfParams;
+      let epoch: number;
       if (meta === undefined) {
         params = crearKdfParams(iterations);
+        epoch = 0;
         key = await deriveVaultKey(options.password, {
           iterations: params.iterations,
           salt: saltDeParams(params),
         });
         const verifier = await encryptRecord(key, VERIFIER_ID, VERIFIER_PLAINTEXT);
-        await writeMeta(db, { kdf: params, verifier });
+        await writeMeta(db, { kdf: params, verifier, epoch });
       } else {
         if (meta.verifier === undefined) {
           throw new VaultCorruptMetaError();
         }
         params = meta.kdf;
         validarKdfParams(params);
+        epoch = typeof meta.epoch === "number" ? meta.epoch : 0;
         const salt = saltDeParams(params);
         assertRecordVersion(meta.verifier);
         key = await deriveVaultKey(options.password, {
@@ -432,7 +470,7 @@ export async function openVault(options: OpenVaultOptions): Promise<Vault> {
           throw new WrongPasswordError();
         }
       }
-      return new Vault(key, db, dbName, factory, params, {
+      return new Vault(key, db, dbName, factory, params, epoch, {
         ...options,
         inactivityMs: options.inactivityMs ?? 300_000,
       });

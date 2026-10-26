@@ -69,3 +69,14 @@ export class VaultNotEmptyError extends VaultError {
     super("El almacén actual ya tiene contenido: confirma el reemplazo para importar la copia.");
   }
 }
+
+/**
+ * La sesión corresponde a una época anterior del almacén: alguien ha importado
+ * una copia o ha purgado, y la clave de esta sesión ya no descifra nada.
+ * Hay que reabrir el vault con la contraseña.
+ */
+export class VaultStaleSessionError extends VaultError {
+  constructor() {
+    super("La sesión ya no es válida: vuelve a abrir el vault con la contraseña.");
+  }
+}

@@ -11,11 +11,14 @@ import { DATA_STORES } from "../src/db.js";
 import { DEFAULT_KDF_ITERATIONS } from "../src/crypto.js";
 import {
   EXPORT_FORMAT_VERSION,
+  EXPORT_MAX_ITERATIONS,
   VaultCorruptExportError,
   VaultError,
   VaultLockedError,
   VaultNotEmptyError,
+  VaultStaleSessionError,
   VaultUnsupportedExportError,
+  VaultUnsupportedKdfError,
   WrongPasswordError,
   importVault,
   openVault,
@@ -133,6 +136,49 @@ async function recuentosBrutos(contexto: Contexto, dbName = "vault-test"): Promi
       tx.oncomplete = () => {
         db.close();
         resolve(resultado);
+      };
+      tx.onerror = () => reject(tx.error);
+    };
+    peticion.onerror = () => reject(peticion.error);
+  });
+}
+
+/** Metadatos leídos en crudo del almacén. */
+interface MetaBruta {
+  kdf: { algorithm: string; iterations: number; salt: string };
+  verifier?: unknown;
+  epoch?: number;
+}
+
+async function leerMetaBruta(contexto: Contexto, dbName = "vault-test"): Promise<MetaBruta> {
+  return new Promise((resolve, reject) => {
+    const peticion = contexto.factoria.open(dbName);
+    peticion.onsuccess = () => {
+      const db = peticion.result;
+      const tx = db.transaction("meta", "readonly");
+      const consulta = tx.objectStore("meta").get("vault") as IDBRequest<MetaBruta>;
+      consulta.onsuccess = () => {
+        db.close();
+        resolve(consulta.result);
+      };
+      consulta.onerror = () => reject(consulta.error);
+    };
+    peticion.onerror = () => reject(peticion.error);
+  });
+}
+
+async function escribirMetaBruta(contexto: Contexto, meta: MetaBruta): Promise<void> {
+  await new Promise<void>((resolve, reject) => {
+    const peticion = contexto.factoria.open("vault-test");
+    peticion.onsuccess = () => {
+      const db = peticion.result;
+      const tx = db.transaction("meta", "readwrite");
+      const consulta = tx.objectStore("meta").put(meta, "vault");
+      consulta.onsuccess = () => undefined;
+      consulta.onerror = () => reject(consulta.error);
+      tx.oncomplete = () => {
+        db.close();
+        resolve();
       };
       tx.onerror = () => reject(tx.error);
     };
@@ -364,6 +410,64 @@ describe("importación con validación previa", () => {
     await esperarContenido(restaurada, contenidoOrigen);
   });
 
+  it("manipular un byte de la sal de la cabecera invalida la copia", async () => {
+    const contexto = crearContexto();
+    const vault = await abrir(contexto);
+    await poblar(vault, contenidoFicticio());
+    const artefacto = await vault.exportBackup(CONTRASENA);
+    vault.lock();
+
+    // La sal empieza tras magic, versión, longitud, algoritmo e iteraciones.
+    const manipulada = artefacto.slice();
+    manipulada[32] = (manipulada[32] ?? 0) ^ 0xff;
+    await expect(
+      importVault(manipulada, CONTRASENA, {
+        dbName: "vault-test",
+        indexedDB: contexto.factoria,
+        iterations: 1_000,
+      }),
+    ).rejects.toThrow(WrongPasswordError);
+  });
+
+  it("manipular el número de iteraciones de la cabecera invalida la copia", async () => {
+    const contexto = crearContexto();
+    const vault = await abrir(contexto);
+    await poblar(vault, contenidoFicticio());
+    const artefacto = await vault.exportBackup(CONTRASENA);
+    vault.lock();
+
+    const manipulada = artefacto.slice();
+    new DataView(manipulada.buffer, manipulada.byteOffset, manipulada.byteLength).setUint32(28, 1_001);
+    await expect(
+      importVault(manipulada, CONTRASENA, {
+        dbName: "vault-test",
+        indexedDB: contexto.factoria,
+        iterations: 1_000,
+      }),
+    ).rejects.toThrow(WrongPasswordError);
+  });
+
+  it("una copia con iteraciones por encima del límite se rechaza antes de derivar", async () => {
+    const contexto = crearContexto();
+    const vault = await abrir(contexto);
+    await poblar(vault, contenidoFicticio());
+    const artefacto = await vault.exportBackup(CONTRASENA);
+    vault.lock();
+
+    const manipulada = artefacto.slice();
+    new DataView(manipulada.buffer, manipulada.byteOffset, manipulada.byteLength).setUint32(
+      28,
+      EXPORT_MAX_ITERATIONS + 1,
+    );
+    await expect(
+      importVault(manipulada, CONTRASENA, {
+        dbName: "vault-test",
+        indexedDB: contexto.factoria,
+        iterations: 1_000,
+      }),
+    ).rejects.toThrow(VaultUnsupportedKdfError);
+  });
+
   it("exportar con la sesión bloqueada falla con VaultLockedError", async () => {
     const contexto = crearContexto();
     const vault = await abrir(contexto);
@@ -384,7 +488,7 @@ describe("importación con validación previa", () => {
 });
 
 describe("purga total", () => {
-  it("purgar deja cero registros en todos los almacenes en crudo", async () => {
+  it("purgar deja cero registros de datos y la época incrementada en meta", async () => {
     const contexto = crearContexto();
     const vault = await abrir(contexto);
     await poblar(vault, contenidoFicticio());
@@ -393,11 +497,14 @@ describe("purga total", () => {
     expect(vault.locked).toBe(true);
 
     const recuentos = await recuentosBrutos(contexto);
-    for (const store of [...DATA_STORES, "meta"]) {
+    for (const store of DATA_STORES) {
       expect(recuentos[store]).toBe(0);
     }
+    expect(recuentos.meta).toBe(1);
+    const meta = await leerMetaBruta(contexto);
+    expect(meta.epoch).toBe(1);
 
-    // Tras purgar, una apertura nueva empieza de cero: listado vacío.
+    // Tras purgar, reabrir con la misma contraseña sigue funcionando: vacío.
     const reabierta = await abrir(contexto);
     for (const coleccion of [reabierta.profiles, reabierta.documents, reabierta.blobs, reabierta.radar]) {
       const resultado = await coleccion.list();
@@ -415,6 +522,77 @@ describe("purga total", () => {
     await vault.purge();
     expect(vault.locked).toBe(true);
     const recuentos = await recuentosBrutos(contexto);
-    expect(recuentos.meta).toBe(0);
+    for (const store of DATA_STORES) {
+      expect(recuentos[store]).toBe(0);
+    }
+  });
+
+  it("un purge de una sesión bloquea la otra sesión viva de la misma base", async () => {
+    const contexto = crearContexto();
+    const primera = await abrir(contexto);
+    const segunda = await abrir(contexto);
+    await primera.settings.put("tema", { modo: "claro" });
+
+    await primera.purge();
+
+    expect(primera.locked).toBe(true);
+    expect(segunda.locked).toBe(true);
+    await expect(segunda.settings.put("resucitado", { dato: 1 })).rejects.toThrow(VaultLockedError);
+  });
+});
+
+describe("sesiones obsoletas tras importar", () => {
+  it("un import con replace bloquea al instante las sesiones vivas de la base", async () => {
+    const contexto = crearContexto();
+    const origen = await abrir(contexto, "vault-origen");
+    const contenidoOrigen = contenidoFicticio();
+    await poblar(origen, contenidoOrigen);
+    const artefacto = await origen.exportBackup(CONTRASENA);
+    origen.lock();
+
+    const vieja = await abrir(contexto, "vault-test");
+    await vieja.settings.put("previo", { dato: "viejo" });
+    const otra = await abrir(contexto, "vault-test");
+
+    await importVault(artefacto, CONTRASENA, {
+      dbName: "vault-test",
+      indexedDB: contexto.factoria,
+      iterations: 1_000,
+      replace: true,
+    });
+
+    // Las sesiones vivas de la base quedan bloqueadas: ya no pueden escribir
+    // con la clave vieja encima de los datos recifrados.
+    expect(vieja.locked).toBe(true);
+    expect(otra.locked).toBe(true);
+    await expect(vieja.settings.put("nuevo", { dato: "nuevo" })).rejects.toThrow(VaultLockedError);
+    vieja.lock();
+    otra.lock();
+
+    const reabierta = await abrir(contexto, "vault-test");
+    await esperarContenido(reabierta, contenidoOrigen);
+    const meta = await leerMetaBruta(contexto);
+    expect(meta.epoch).toBe(1);
+  });
+
+  it("una sesión con la época desfasada se niega a operar aunque siga abierta", async () => {
+    const contexto = crearContexto();
+    const vault = await abrir(contexto);
+    await vault.settings.put("tema", { modo: "claro" });
+
+    // Simula un import o una purga desde otra pestaña: la época de meta
+    // avanza sin que esta sesión quede bloqueada en este proceso.
+    const meta = await leerMetaBruta(contexto);
+    await escribirMetaBruta(contexto, { ...meta, epoch: (meta.epoch ?? 0) + 1 });
+
+    await expect(vault.settings.put("nuevo", { dato: 1 })).rejects.toThrow(VaultStaleSessionError);
+    await expect(vault.settings.get("tema")).rejects.toThrow(VaultStaleSessionError);
+    await expect(vault.settings.list()).rejects.toThrow(VaultStaleSessionError);
+    expect(vault.locked).toBe(false);
+
+    // Reabrir con la contraseña restaura una sesión válida.
+    vault.lock();
+    const reabierta = await abrir(contexto);
+    expect(await reabierta.settings.get("tema")).toEqual({ modo: "claro" });
   });
 });

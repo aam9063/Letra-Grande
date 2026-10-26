@@ -49,6 +49,8 @@ Permitir que la persona pueda sacar su carpeta del dispositivo y volver a meterl
 - Borrado total: tras `purge()` los recuentos en crudo de las cinco colecciones y de `meta` son cero, la sesión queda bloqueada y la reapertura lista vacío.
 - Hallazgos heredados de VAULT-01: `list()` devuelve `{ values, errors }` con el error tipado por registro dañado, y `openVault` se serializa por nombre de base, de modo que dos aperturas concurrentes acuerdan los mismos parámetros.
 
+Ronda de correcciones aplicada: época en `meta` y `VaultStaleSessionError` para que una sesión vieja no escriba con la clave antigua tras importar o borrar, límite de 10 000 000 de iteraciones al importar, tests de cabecera manipulada y aborto de transacción tipado. La purga conserva un único registro técnico en `meta` (la época), sin datos personales. Informe en `odd/reviews/vault-02.md`.
+
 ## Siguiente paso
 
 Desbloquea la interfaz de copia de seguridad en la carpeta.

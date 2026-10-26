@@ -33,6 +33,7 @@ export {
   VaultLockedError,
   VaultNotEmptyError,
   VaultRecordVersionError,
+  VaultStaleSessionError,
   VaultUnsupportedExportError,
   VaultUnsupportedKdfError,
   WrongPasswordError,
@@ -51,6 +52,7 @@ export {
 export {
   EXPORT_FORMAT_VERSION,
   EXPORT_MAGIC,
+  EXPORT_MAX_ITERATIONS,
   EXPORT_PAYLOAD_VERSION,
   importVault,
   type ExportPayload,

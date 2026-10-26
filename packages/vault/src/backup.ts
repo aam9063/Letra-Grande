@@ -44,8 +44,10 @@ import {
   VaultNotEmptyError,
   VaultUnsupportedExportError,
   VaultError,
+  VaultUnsupportedKdfError,
   WrongPasswordError,
 } from "./errors.js";
+import { lockAllSessions } from "./sessions.js";
 import { decodeBase64, decodeJson, encodeJson, type JsonValue } from "./serialize.js";
 
 /** Secuencia que identifica un archivo de copia de Letra Grande. */
@@ -56,6 +58,13 @@ export const EXPORT_FORMAT_VERSION = 1;
 
 /** Versión de la estructura de la carga útil descifrada. */
 export const EXPORT_PAYLOAD_VERSION = 1;
+
+/**
+ * Límite superior de iteraciones PBKDF2 que se acepta en una copia: por
+ * encima de aquí, un archivo manipulado podría pedir miles de millones de
+ * iteraciones y congelar la pestaña antes de fallar.
+ */
+export const EXPORT_MAX_ITERATIONS = 10_000_000;
 
 const LONGITUD_MAGIC = 4;
 const LONGITUD_CABECERA_FIJA = LONGITUD_MAGIC + 4 + 2 + 4;
@@ -173,8 +182,11 @@ function parseContainer(artefacto: Uint8Array): ContenedorParseado {
   }
   const algorithm = new TextDecoder().decode(artefacto.slice(inicioAlgoritmo, inicioIteraciones));
   const iterations = vista.getUint32(inicioIteraciones);
-  if (algorithm !== KDF_ALGORITHM || !Number.isInteger(iterations) || iterations <= 0) {
+  if (algorithm !== KDF_ALGORITHM) {
     throw new VaultUnsupportedExportError();
+  }
+  if (!Number.isInteger(iterations) || iterations <= 0 || iterations > EXPORT_MAX_ITERATIONS) {
+    throw new VaultUnsupportedKdfError();
   }
   return {
     version,
@@ -295,7 +307,10 @@ export async function importVault(
       registros.set(store, pares);
     }
     const verifier = await encryptRecord(keyNueva, VERIFIER_ID, VERIFIER_PLAINTEXT);
-    const metaNueva: VaultMeta = { kdf: params, verifier };
+    const metaAnterior = await readMeta(db);
+    const epochPrevia =
+      metaAnterior === undefined || typeof metaAnterior.epoch !== "number" ? 0 : metaAnterior.epoch;
+    const metaNueva: VaultMeta = { kdf: params, verifier, epoch: epochPrevia + 1 };
 
     // Fase 4: una única transacción atómica: borrar, escribir meta y cargar.
     const tx = db.transaction([META_STORE, ...DATA_STORES], "readwrite");
@@ -309,7 +324,16 @@ export async function importVault(
         almacen.put(record, id);
       }
     }
-    await transactionDone(tx);
+    try {
+      await transactionDone(tx);
+    } catch {
+      // Un aborto (por ejemplo por cuota de almacenamiento) no debe llegar
+      // como Error genérico: la interfaz necesita tiparlo.
+      throw new VaultError("No se ha podido escribir la copia en el almacén: la escritura se ha abortado.");
+    }
+    // La época ha cambiado: todas las demás sesiones vivas de esta base
+    // quedan bloqueadas al instante dentro de este proceso.
+    lockAllSessions(dbName);
   } finally {
     db.close();
   }
