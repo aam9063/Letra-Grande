@@ -34,15 +34,20 @@ Permitir que la persona pueda sacar su carpeta del dispositivo y volver a meterl
 
 ## Tareas
 
-- [ ] T1: tests de ida y vuelta completa y de purga (RED).
-- [ ] T2: exportación cifrada con versión de formato y sin metadatos legibles.
-- [ ] T3: importación atómica con validación previa y error claro.
-- [ ] T4: purga completa de las cinco colecciones y de los blobs asociados.
-- [ ] T5: `pnpm check` en verde.
+- [x] T1: tests de ida y vuelta completa y de purga (RED).
+- [x] T2: exportación cifrada con versión de formato y sin metadatos legibles.
+- [x] T3: importación atómica con validación previa y error claro.
+- [x] T4: purga completa de las cinco colecciones y de los blobs asociados.
+- [x] T5: `pnpm check` en verde.
 
 ## Evidencia y progreso
 
-Pendiente de rellenar por quien implementa: comandos, número de tests y comprobación de que tras borrar no queda nada.
+- RED: quince tests fallando antes de implementar (el módulo de copia no cargaba, `list()` lanzaba con un registro dañado y dos aperturas simultáneas guardaban sales distintas: carrera reproducida).
+- GREEN: 36 de 36 tests del paquete en tres ficheros; `pnpm check` en la raíz en verde.
+- Artefacto de exportación: binario. Cabecera en claro con datos solo técnicos (firma `LGVX`, versión de formato, algoritmo e iteraciones de PBKDF2 y sal), IV de 12 bytes y carga cifrada con AES-256-GCM usando la cabecera completa como `additionalData`. La carga es el JSON de las cinco colecciones y sus ids. Un test busca apellidos ficticios, nombres de colección e ids dentro del artefacto y no encuentra nada.
+- Importación: se rechaza con `VaultNotEmptyError` si hay registros, salvo `replace: true`; con una copia de la misma contraseña se reinician metadatos y se recifra todo. Atomicidad: validación y descifrado completos en memoria antes de abrir escritura, y luego una única transacción que limpia las cinco colecciones y `meta` e inserta; cualquier fallo no toca nada.
+- Borrado total: tras `purge()` los recuentos en crudo de las cinco colecciones y de `meta` son cero, la sesión queda bloqueada y la reapertura lista vacío.
+- Hallazgos heredados de VAULT-01: `list()` devuelve `{ values, errors }` con el error tipado por registro dañado, y `openVault` se serializa por nombre de base, de modo que dos aperturas concurrentes acuerdan los mismos parámetros.
 
 ## Siguiente paso
 

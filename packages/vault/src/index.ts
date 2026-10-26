@@ -27,15 +27,20 @@ export {
 export {
   Vault,
   VaultCorruptError,
+  VaultCorruptExportError,
   VaultCorruptMetaError,
   VaultError,
   VaultLockedError,
+  VaultNotEmptyError,
   VaultRecordVersionError,
+  VaultUnsupportedExportError,
   VaultUnsupportedKdfError,
   WrongPasswordError,
   openVault,
   type BlobRecord,
   type DocumentRecord,
+  type ListEntryError,
+  type ListResult,
   type OpenVaultOptions,
   type ProfileRecord,
   type RadarRecord,
@@ -43,4 +48,12 @@ export {
   type TypedCollection,
   type VaultTimer,
 } from "./vault.js";
+export {
+  EXPORT_FORMAT_VERSION,
+  EXPORT_MAGIC,
+  EXPORT_PAYLOAD_VERSION,
+  importVault,
+  type ExportPayload,
+  type ImportVaultOptions,
+} from "./backup.js";
 export { decodeBase64, decodeJson, encodeBase64, encodeJson, type JsonValue } from "./serialize.js";
