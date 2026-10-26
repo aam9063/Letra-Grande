@@ -8,9 +8,11 @@
   "exports": { ".": "./src/index.ts" },
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "test": "vitest run --passWithNoTests"
+    "test": "vitest run",
+    "gallery": "vitest run src/gallery/generate.test.tsx"
   },
   "dependencies": {
+    "@letra-grande/schema": "workspace:*",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },
