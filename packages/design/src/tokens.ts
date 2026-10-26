@@ -1,6 +1,6 @@
 /**
  * Tokens de diseño de Letra Grande (sección 14 de docs/ARRANQUE.md).
- * D-01 sigue pendiente: el acento es provisional y la tipografía es del sistema.
+ * D-01 sigue pendiente: la tipografía es del sistema (Host Grotesk en T2 de UI-03).
  * Estos valores son la fuente de verdad; la hoja base (base.css) los declara
  * como custom properties y los tests comprueban el contraste AA.
  */
@@ -21,10 +21,10 @@ export const tokens = {
   colorLienzo: "#F7F7F8",
   /** Color de las tarjetas y paneles (superficie). */
   colorSuperficie: "#FFFFFF",
-  /** Acento provisional hasta cerrar D-01. Sin fuentes remotas. */
-  colorAcento: "#0B5FA5",
-  /** Color de texto sobre el acento (acción primaria). */
-  colorAcentoTexto: "#FFFFFF",
+  /** Acento de marca (teal, UI-03). Sin fuentes remotas. */
+  colorAcento: "#3E9B94",
+  /** Color de texto sobre el acento (acción primaria). Tinta: 5.5:1 AA. */
+  colorAcentoTexto: "#141414",
   /** Tamaño base de lectura. */
   tamanoBase: "16px",
 } as const;

@@ -10,12 +10,13 @@ import { destinos } from "../components/shell/destinos";
 const publico = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "public");
 
 describe("contrato navegación y ficheros", () => {
-  it("cada destino tiene su page.tsx en src/app", () => {
+  it("cada destino tiene su page.tsx en src/app/(app)", () => {
     for (const destino of destinos) {
       const ruta = join(
         dirname(fileURLToPath(import.meta.url)),
         "..",
         "app",
+        "(app)",
         destino.href.replace(/^\//, ""),
         "page.tsx",
       );
@@ -33,8 +34,8 @@ describe("manifiesto PWA", () => {
   it("declara name, short_name, start_url y display standalone", () => {
     expect(manifiesto.name).toBe("Letra Grande");
     expect(manifiesto.short_name).toBe("Letra Grande");
-    expect(manifiesto.id).toBe("/");
-    expect(manifiesto.start_url).toBe("/");
+    expect(manifiesto.id).toBe("/hoy");
+    expect(manifiesto.start_url).toBe("/hoy");
     expect(manifiesto.display).toBe("standalone");
   });
 
@@ -82,7 +83,7 @@ describe("service worker", () => {
     expect(lista).not.toBeNull();
 
     const urls = (lista?.[1]?.match(/"([^"]+)"/g) ?? []).map((u) => u.replaceAll('"', ""));
-    expect(urls).toEqual(["/", "/manifest.webmanifest", "/icon.svg", "/icon-maskable.svg"]);
+    expect(urls).toEqual(["/hoy", "/manifest.webmanifest", "/icon.svg", "/icon-maskable.svg"]);
   });
 
   it("no guarda nada en caché fuera del precache inicial (nunca datos de usuario)", () => {

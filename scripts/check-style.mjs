@@ -9,6 +9,9 @@ const EXT = new Set([".md", ".yaml", ".yml", ".ts", ".tsx", ".mjs", ".json"]);
 // Generado por herramientas, no se edita a mano y no sigue nuestras reglas:
 // `next dev` reescribe apps/web/AGENTS.md en cada arranque.
 const IGNORE_FILES = new Set(["apps/web/AGENTS.md"]);
+// Material de diseño de referencia (maquetas exportadas, UI-04): sus textos
+// siguen las reglas de la herramienta, no las nuestras.
+const IGNORE_DIRS = new Set(["DesignUI"]);
 const FORBIDDEN = [
   { char: String.fromCharCode(0x2014), name: "raya larga (em dash)" },
   { char: String.fromCharCode(0x2013), name: "media raya (en dash)" },
@@ -19,7 +22,7 @@ function walk(dir) {
   for (const entry of readdirSync(dir)) {
     if (IGNORE.has(entry)) continue;
     const full = join(dir, entry);
-    if (statSync(full).isDirectory()) { walk(full); continue; }
+    if (statSync(full).isDirectory()) { if (!IGNORE_DIRS.has(entry)) walk(full); continue; }
     if (!EXT.has(extname(entry)) || entry === "pnpm-lock.yaml") continue;
     if (IGNORE_FILES.has(relative(root, full).split("\\").join("/"))) continue;
     readFileSync(full, "utf8").split("\n").forEach((line, i) => {
