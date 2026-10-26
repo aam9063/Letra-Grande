@@ -9,7 +9,8 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 const TEMPLATE_PATH = "odd/reviews/_template.md";
 const REQUIRED_KEYS = ["tarea", "base", "revisado", "revisor", "veredicto"];
 const VALID_VERDICTS = ["aprobado", "aprobado con cambios", "rechazado"];
-const ID_PATTERN = /[A-Z]+-\d+/;
+// Insensible a mayusculas: un titulo "ops-05: ..." tambien lleva id de tarea.
+const ID_PATTERN = /[a-z]+-\d+/i;
 
 export function extractTaskId(title) {
   const match = ID_PATTERN.exec(title ?? "");
@@ -44,7 +45,8 @@ function missingFrontMatterKeys(lines) {
 // Funcion pura de cara a los tests: recibe titulo y directorio de informes,
 // no toca el entorno ni llama a process.exit (eso queda en la entrada CLI).
 export function checkReviewReport({ title, reviewsDir }) {
-  const id = extractTaskId(title);
+  // El archivo del informe siempre en minusculas: normalizamos el id del titulo.
+  const id = extractTaskId(title)?.toUpperCase();
   if (!id) {
     return {
       status: "skip",
@@ -84,6 +86,12 @@ export function checkReviewReport({ title, reviewsDir }) {
     return {
       status: "fail",
       message: `La linea veredicto de ${expectedPath} no es valida: "${verdict}". Valores validos: ${VALID_VERDICTS.join(", ")}.`,
+    };
+  }
+  if (verdict === "rechazado") {
+    return {
+      status: "fail",
+      message: `La review de ${expectedPath} termino en veredicto rechazado: una revision rechazada no puede fusionarse. Corrige los hallazgos bloqueantes, pide una nueva ronda solo con decision humana (seccion 22 de docs/ARRANQUE.md) y actualiza el informe.`,
     };
   }
 

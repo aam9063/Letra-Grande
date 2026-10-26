@@ -118,11 +118,20 @@ Para saber si el gate merece su coste:
 - Si lleva id, exige `odd/reviews/<id>.md` (la búsqueda del archivo no distingue mayúsculas) con las cinco claves del front matter (`tarea`, `base`, `revisado`, `revisor`, `veredicto`) y un veredicto válido (`aprobado`, `aprobado con cambios` o `rechazado`).
 - Si falta el informe o el front matter, la CI falla nombrando la ruta exacta y la plantilla.
 
-El workflow lo ejecuta con el título del PR. En local se puede probar así:
+El workflow lo ejecuta con el título del PR, y antes ejecuta los tests del propio script, de modo que una regresión en la extracción del id rompa la build. El trigger `pull_request` incluye `edited`: si se renombra el título después de una ejecución en verde, la comprobación se vuelve a evaluar. En local se puede probar así:
 
 ```bash
 node scripts/check-review-report.mjs "OPS-05: review gate en CI"
 ```
+
+## Limitaciones conocidas de la comprobación en CI
+
+- Si el título lleva dos ids de tarea (por ejemplo `OPS-05 y QA-08`), solo se comprueba el primero.
+- La comprobación no compara el front matter `base` y `revisado` del informe con el diff del PR: un id reutilizado de una tarea anterior pasaría con el informe antiguo. La persona que hace el merge es la última barrera.
+
+## La línea de riesgo en el PR
+
+La plantilla de PR lleva una línea de riesgo con una convención fija y legible por máquina: el literal es exactamente `Risk: item N` o `Risk: none`, en inglés. No se traduce: así lo espera la plantilla de `.github/PULL_REQUEST_TEMPLATE.md`.
 
 ## Pase de arquitectura por ola (QA-08)
 

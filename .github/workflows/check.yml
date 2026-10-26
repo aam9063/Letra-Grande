@@ -1,6 +1,7 @@
 name: check
 on:
   pull_request:
+    types: [opened, synchronize, reopened, edited]
   push:
     branches: [main, dev]
 
@@ -49,6 +50,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: Probar el script del informe de review
+        run: node --test scripts/check-review-report.test.mjs
       - name: Comprobar el informe de review
         run: node scripts/check-review-report.mjs
         env:

@@ -86,6 +86,45 @@ test("informe con titulo antes del front matter: pasa, como ops-01.md", () => {
   }
 });
 
+test("titulo con id en minusculas y sin informe: falla, no se salta la comprobacion", () => {
+  const result = checkReviewReport({ title: "ops-05: algo", reviewsDir: join(tmpdir(), "no-existe") });
+  assert.equal(result.status, "fail");
+  assert.match(result.message, /odd\/reviews\/ops-05\.md/);
+});
+
+test("ids CORE-01 y core-01 resuelven al mismo informe", () => {
+  const dir = withReviewsDir({ "core-01.md": VALID_REPORT.replace("TEST-99", "CORE-01") });
+  try {
+    assert.equal(checkReviewReport({ title: "CORE-01: algo", reviewsDir: dir }).status, "pass");
+    assert.equal(checkReviewReport({ title: "core-01: algo", reviewsDir: dir }).status, "pass");
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test("id en mayusculas y minusculas dentro de un titulo largo funciona", () => {
+  const dir = withReviewsDir({ "core-01.md": VALID_REPORT.replace("TEST-99", "CORE-01") });
+  try {
+    const result = checkReviewReport({ title: "fix(ui): CoRe-01 ayuda en la portada", reviewsDir: dir });
+    assert.equal(result.status, "pass");
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test("veredicto rechazado: falla porque no se puede fusionar", () => {
+  const report = VALID_REPORT.replace("veredicto: aprobado con cambios", "veredicto: rechazado");
+  const dir = withReviewsDir({ "test-99.md": report });
+  try {
+    const result = checkReviewReport({ title: "TEST-99: algo", reviewsDir: dir });
+    assert.equal(result.status, "fail");
+    assert.match(result.message, /rechazada/i);
+    assert.match(result.message, /fusionar/i);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
 test("entrada CLI: titulo con id y sin informe sale con codigo 1 y nombra el archivo", () => {
   const script = fileURLToPath(new URL("./check-review-report.mjs", import.meta.url));
   assert.throws(
@@ -104,8 +143,8 @@ test("entrada CLI: titulo sin id de tarea sale con codigo 0", () => {
   assert.match(stdout, /no aplica/i);
 });
 
-test("informe con veredicto valido: pasa con cada veredicto permitido", () => {
-  for (const verdict of ["aprobado", "aprobado con cambios", "rechazado"]) {
+test("informe con veredicto valido: pasa con aprobado y aprobado con cambios", () => {
+  for (const verdict of ["aprobado", "aprobado con cambios"]) {
     const report = VALID_REPORT.replace("veredicto: aprobado con cambios", `veredicto: ${verdict}`);
     const dir = withReviewsDir({ "test-99.md": report });
     try {
