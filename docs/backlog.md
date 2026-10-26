@@ -11,6 +11,7 @@ Estado vivo de las tareas de Letra Grande. El detalle de cada tarea vive en su d
 | 1 (documentación) | CORE-03: `ARCHITECTURE.md` y `data-model.md` | hecho |
 | 2 | RADAR-01 hecho; DOCS-01 a DOCS-03, RADAR-02, CARPETA-01, AI-03 a AI-05, MOD-01 a MOD-03, CONTENT-02 a CONTENT-04 pendientes | en curso |
 
+
 ## Detalle de las olas
 
 Cada tarea la ejecuta un agente en su carril. `Dep.` indica dependencias. Los criterios de aceptación son comprobables.
@@ -68,6 +69,11 @@ Cada tarea la ejecuta un agente en su carril. `Dep.` indica dependencias. Los cr
 | DOCS-03 | Clasificador de tipo de documento (factura, contrato, carta oficial, multa, ticket, póliza) | DOCS-01 | Precisión superior al 85 % en el conjunto sintético |
 | RADAR-01 | `packages/radar`: cálculo de fechas, estados, exportación `.ics` | CORE-01 | Tests de cada unidad de plazo; días hábiles marcados como aproximados |
 | RADAR-02 | UI "Hoy": línea de tiempo, crear manual, marcar hecho, exportar `.ics` | RADAR-01, UI-02 | El `.ics` se abre en Google Calendar, Apple y Outlook |
+| UI-03 | Landing pública en la raíz: maqueta aprobada, acento teal de marca y tipografía autoalojada; la app empieza en `/hoy` | UI-01, UI-02 | Igual al mockup; e2e de portada en verde; sin scroll horizontal a 375 px |
+| UI-04 | Shell responsive: sidebar de escritorio (Escritorio.dc.html) y barra móvil flotante glass con hoja «Más» | UI-02, UI-03 | Igual al diseño en escritorio; barra glass en móvil con 44 px y safe-area; sin scroll horizontal a 375 px |
+| UI-05 | Onboarding de primer arranque: bienvenida, comparativa con asistentes generales, seguridad con marcadores y paso de instalación PWA | UI-04 | Se muestra solo la primera vez; Saltar y terminar llevan a `/hoy`; e2e del flujo |
+| UI-06 | Ajustes: tamaño de letra funcional, borrado total con contraseña (VAULT-02) y «Próximamente» honesto | UI-04, UI-05 | El tamaño se aplica y persiste; la purga pide contraseña y `WrongPasswordError` no borra; AA |
+| UI-07 | Carpeta privada: crear, desbloquear y bloquear sobre el vault real | UI-06 | Contraseñas distintas no tocan datos; `WrongPasswordError` honesto; bloquear descarta la clave; sin red |
 | CARPETA-01 | UI "Carpeta": lista, ficha de documento, etiquetas, vincular plazo al radar | VAULT-01, DOCS-03, RADAR-01 | Flujo completo de subir un documento y ver su plazo en Hoy |
 | AI-03 | Asistente: índice de búsqueda BM25 con filtros sobre `content/`, chat con bloques y citas, aviso de caducidad | AI-01, AI-02, CONTENT-01 | Cada bloque muestra su fuente; sin fuentes, responde `outOfScope` |
 | AI-04 | Conjunto de 40 evaluaciones (sección 13.2) y ejecución nocturna en CI | AI-03 | Informe con las cuatro métricas; el CI falla si caen por debajo de los umbrales fijados |
@@ -142,6 +148,13 @@ Estas tareas no se ejecutan dentro de la tarea que las origina: se registran aqu
 | REF-AI-01 | Review de AI-01, hallazgo 1 | Mover el tiempo de espera del proveedor a la factoría de `@letra-grande/ai` (`ProviderFromEnvOptions.timeoutMs`) en lugar del decorador del proxy. |
 | REF-AI-06 | Review de AI-06, hallazgo 5 | Circuit breaker en half-open: limitar a una única sonda en vuelo para no lanzar una tormenta de pruebas al recuperarse. |
 | REF-VAULT-02 | Review de VAULT-02 | Cuatro seguimientos: bloqueo entre pestañas con Web Locks, simulación de aborto a mitad de transacción, nota de memoria con blobs grandes y el doble cast del `payload`. |
+| REF-UI-03 | Review de UI-03, hallazgo 6 | El anillo de foco con color de acento es invisible sobre botones con fondo de acento (preexistente en la baseline). Definir un anillo de foco de doble tono. |
+| REF-UI-03 | Review de UI-03, hallazgo 7 | Duplicación menor en la landing: URLs de GitHub repetidas y `#26605C`/`#ECF5F4` en TS y CSS; centralizar en un módulo de constantes. |
+| REF-UI-04 | Review de UI-04, hallazgo 4 | Duplicación de shell: `Trazo` en BottomNav y Sidebar, cubos de logo CSS repetidos y hex de marca repetidos; extraer a módulo compartido. |
+| REF-UI-05 | Review de UI-05, hallazgo 5 | Botones del onboarding duplicados de landing.css (incluido el blanco de L4) y tercera copia de `Trazo`; extraer a un módulo compartido de botones e iconos. |
+| REF-UI-06 | Review de UI-06, hallazgo 4 | El script anti-salto del layout duplica las fuentes de `FUENTES` sin custodia: derivar el mapa de `FUENTES` o añadir un test que compare ambos. |
+| REF-UI-02 | Review de UI-02, hallazgo 5 | La comprobación de 375 px se hizo a mano y no quedó como spec: entra en `QA-07` (accesibilidad, responsive y offline). |
+
 | REF-UI-02 | Review de UI-02, hallazgo 5 | La comprobación de 375 px se hizo a mano y no quedó como spec: entra en `QA-07` (accesibilidad, responsive y offline). |
 | REF-OPS-05b | Revisión de AI-03a | El comprobador de informes extrae el id del título con el patrón `[a-z]+-\d+`, así que una tarea con letra final (`AI-03a`) busca `ai-03.md` y no `ai-03a.md`. Ampliar el patrón a `[a-z]+-\d+[a-z]?` antes de que se repita. |
 | REF-OPS-05e | Review de OPS-05d | El job `review-report` hace checkout del merge ref del PR; cuando GitHub lo construye con retraso, el run de `ready_for_review` comprueba un estado anterior y no ve el informe. Fijar `ref: ${{ github.event.pull_request.head.sha }}` en el checkout del job. |
@@ -156,3 +169,4 @@ Decisión y diseño en [`desktop.md`](desktop.md). Solo Windows en el alcance in
 | DESK-02 | `apps/desktop`: ventana Electron con `contextIsolation`, `sandbox`, protocolo `app://`, superficie mínima en el preload, enlaces externos al navegador y CSP | DESK-01 | El binario abre la app, crea el vault, reinicia y el vault persiste; ninguna navegación sale de `app://` |
 | DESK-03 | Canal de entrega de Windows: `electron-builder` con NSIS, actualizador, artefacto en CI y firma cuando haya certificado | DESK-02 | Instalador descargable que se instala, actualiza y desinstala; el aviso de SmartScreen está documentado en la landing |
 | DESK-04 | macOS y Linux: firma y notarización en macOS, AppImage y `.deb` en Linux, con lo que cada uno exige | DESK-03, licencia de Apple | macOS abre sin bloqueo de Gatekeeper; Linux instala y actualiza por gestor o descarga |
+

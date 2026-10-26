@@ -3,12 +3,12 @@
   "short_name": "Letra Grande",
   "description": "Entiende tus facturas, contratos y cartas oficiales, y actúa a tiempo. Tus datos se quedan en tu dispositivo.",
   "lang": "es",
-  "id": "/",
-  "start_url": "/",
+  "id": "/hoy",
+  "start_url": "/hoy",
   "scope": "/",
   "display": "standalone",
   "background_color": "#F7F7F8",
-  "theme_color": "#0B5FA5",
+  "theme_color": "#3E9B94",
   "icons": [
     {
       "src": "/icon.svg",

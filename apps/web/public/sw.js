@@ -2,8 +2,10 @@
  * Service worker de Letra Grande.
  *
  * Estrategia de caché (documentada y versionada):
- * - Precache del shell: la portada, el manifiesto y los iconos. Con eso la app
- *   arranca sin conexión y enseña su estado pendiente.
+ * - Precache del shell: la app (/hoy), el manifiesto y los iconos. Con eso la
+ *   app instalada arranca sin conexión y enseña su estado pendiente. La raíz
+ *   es la landing pública (UI-03): no se precachea y, sin conexión, cualquier
+ *   navegación cae en /hoy, que es donde vive la aplicación.
  * - Las navegaciones son network-first con caché de respaldo: el HTML de la
  *   portada cambia en cada despliegue y, si se sirviera cache-first sin subir
  *   CACHE_VERSION, referencearía chunks que ya no existen. Primero red; si
@@ -17,8 +19,8 @@
  * - Para invalidar la caché antigua se cambia CACHE_VERSION: en activate se
  *   borra cualquier caché con otro nombre.
  */
-const CACHE_VERSION = "lg-shell-v1";
-const PRECACHE = ["/", "/manifest.webmanifest", "/icon.svg", "/icon-maskable.svg"];
+const CACHE_VERSION = "lg-shell-v2";
+const PRECACHE = ["/hoy", "/manifest.webmanifest", "/icon.svg", "/icon-maskable.svg"];
 const CACHE_FIRST = ["/manifest.webmanifest", "/icon.svg", "/icon-maskable.svg"];
 
 self.addEventListener("install", (event) => {
@@ -50,7 +52,7 @@ self.addEventListener("fetch", (event) => {
   if (event.request.mode === "navigate") {
     event.respondWith(
       fetch(event.request).catch(() =>
-        caches.match("/").then((respuesta) => respuesta ?? Response.error()),
+        caches.match("/hoy").then((respuesta) => respuesta ?? Response.error()),
       ),
     );
     return;

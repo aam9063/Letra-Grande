@@ -1,6 +1,6 @@
 /*
  * Hoja base de Letra Grande. Tokens de la sección 14 de docs/ARRANQUE.md.
- * D-01 pendiente: la tipografía es del sistema y el acento es provisional.
+ * D-01 pendiente: la tipografía es del sistema. Acento teal de UI-03.
  * Sin fuentes remotas, sin scripts de terceros.
  */
 
@@ -8,8 +8,8 @@
   --lg-tinta: #141414;
   --lg-lienzo: #F7F7F8;
   --lg-superficie: #FFFFFF;
-  --lg-acento: #0B5FA5; /* provisional hasta cerrar D-01 */
-  --lg-acento-texto: #FFFFFF;
+  --lg-acento: #3E9B94;
+  --lg-acento-texto: #141414;
   --lg-info-fondo: #E8F1FA;
   --lg-info-texto: #0B3D66;
   --lg-aviso-fondo: #FDF3D7;
