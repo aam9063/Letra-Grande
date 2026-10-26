@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { sesionCarpeta, useSesionCarpeta } from "@/components/carpeta/sesion";
 import { destinosPrincipales, modulosSidebar } from "./destinos";
 import { iconosNav } from "./iconos";
 
@@ -12,6 +13,16 @@ import { iconosNav } from "./iconos";
  */
 export function Sidebar() {
   const pathname = usePathname() ?? "/";
+  const estadoCarpeta = useSesionCarpeta();
+  const abierta = estadoCarpeta === "abierta";
+
+  function bloquear(): void {
+    // Cierra la sesión del vault (la clave se descarta) y lleva a la pantalla
+    // de desbloqueo. La recarga completa garantiza que toda la app arranca
+    // con la sesión ya cerrada.
+    sesionCarpeta.bloquear();
+    window.location.assign("/carpeta");
+  }
 
   return (
     <aside className="lg-sidebar">
@@ -76,10 +87,18 @@ export function Sidebar() {
             <strong>Carpeta cifrada.</strong> Todo se guarda solo en este dispositivo.
           </span>
         </p>
-        <Link href="/ajustes" className="lg-sidebar-ajustes">
-          <Trazo d={iconosNav["Ajustes"] ?? ""} pequena />
-          Ajustes
-        </Link>
+        <div className="lg-sidebar-pie-botones">
+          <Link href="/ajustes" className="lg-sidebar-ajustes">
+            <Trazo d={iconosNav["Ajustes"] ?? ""} pequena />
+            Ajustes
+          </Link>
+          {abierta ? (
+            <button type="button" className="lg-sidebar-bloquear" onClick={bloquear}>
+              <Trazo d="M6 11h12v10H6zM9 11V7a3 3 0 0 1 6 0v4" pequena />
+              Bloquear
+            </button>
+          ) : null}
+        </div>
       </div>
     </aside>
   );

@@ -13,10 +13,11 @@ import FamiliaPage from "../../app/(app)/familia/page";
 
 // Un módulo por ruta: el contrato de la Ola 2. Cada página se importa aquí
 // directamente y se comprueba su encabezado y su estado pendiente honesto.
+// Carpeta tiene contrato propio (UI-07: crear/desbloquear en lugar de
+// pendiente) y se verifica aparte.
 const RUTAS: Array<{ modulo: string; Page: () => ReactElement }> = [
   { modulo: "Hoy", Page: HoyPage },
   { modulo: "Asistente", Page: AsistentePage },
-  { modulo: "Carpeta", Page: CarpetaPage },
   { modulo: "Reclamar y bajas", Page: ReclamarPage },
   { modulo: "Vida", Page: VidaPage },
   { modulo: "Ayudas", Page: AyudasPage },
@@ -25,6 +26,20 @@ const RUTAS: Array<{ modulo: string; Page: () => ReactElement }> = [
 ];
 
 describe("rutas de módulo", () => {
+  it("Carpeta: sin carpeta creada muestra la pantalla de creación (UI-07)", () => {
+    render(<CarpetaPage />);
+
+    const h1 = screen.getAllByRole("heading", { level: 1 });
+    expect(h1).toHaveLength(1);
+    expect(h1[0]?.textContent).toContain("Carpeta");
+
+    // Pantalla de creación de UI-07 visible dentro de la página.
+    expect(screen.getByText("Crea tu carpeta privada")).not.toBeNull();
+
+    // Contrato nuevo de UI-07: ya no es una página pendiente.
+    expect(screen.queryByText(paginaPendiente)).toBeNull();
+  });
+
   for (const { modulo, Page } of RUTAS) {
     it(`${modulo}: un solo h1 con el nombre del módulo y estado pendiente honesto`, () => {
       render(<Page />);
