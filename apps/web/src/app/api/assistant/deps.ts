@@ -3,6 +3,7 @@
 // guarda en globalThis para que el recargado en caliente de desarrollo no lo borre.
 import {
   CircuitBreaker,
+  createContentRetriever,
   createProviderFromEnv,
   type LlmProvider,
   TokenBucketQuota,
@@ -57,10 +58,11 @@ export function createDefaultDeps(): AssistantDeps {
       now: () => Date.now(),
     }),
     deriveAnonymousId,
-    // La recuperación de fuentes (BM25) llega con AI-03: mientras tanto no se
-    // recupera ninguna fuente, así que ninguna afirmación tiene respaldo y el
-    // asistente responde outOfScope. Es la degradación honesta prevista.
-    retrieveSources: async () => [],
+    // Recuperación BM25 sobre content/ (AI-03a): se indexa una vez por proceso
+    // y la carpeta se localiza subiendo desde el cwd, así que funciona igual en
+    // next dev y en next start. Si no hay carpeta de contenido, responde sin
+    // fuentes: el asistente degrada a outOfScope, como prevé el proxy.
+    retrieveSources: createContentRetriever(),
   };
   globalForAssistant.__assistantDeps = deps;
   return deps;

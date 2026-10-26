@@ -27,3 +27,27 @@ export {
 export { CircuitBreaker, type CircuitBreakerOptions, type CircuitState } from "./circuit-breaker.js";
 export { DEFAULT_MAX_USERS, TokenBucketQuota, type TokenBucketOptions } from "./quota.js";
 export { DailyBudget, type DailyBudgetOptions } from "./budget.js";
+export { tokenize, SPANISH_STOPWORDS } from "./retrieval/tokenize.js";
+export {
+  BM25_B,
+  BM25_K1,
+  DEFAULT_LIMIT,
+  DEFAULT_MIN_SCORE,
+  buildIndex,
+  search,
+  type FichaTipo,
+  type FichasInput,
+  type IndexedDocument,
+  type ScoredDocument,
+  type SearchFilters,
+  type SearchIndex,
+  type SearchOptions,
+} from "./retrieval/index.js";
+export { findContentRoot, loadContentIndex, type LoadedContentIndex } from "./retrieval/loader.js";
+export {
+  SIN_VERIFICAR,
+  createContentRetriever,
+  type ContentRetriever,
+  type ContentRetrieverOptions,
+  type RetrievedSourceData,
+} from "./retrieval/retriever.js";

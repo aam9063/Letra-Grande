@@ -34,12 +34,21 @@ El asistente ya valida respuestas contra fuentes, pero hoy el recuperador devuel
 - [x] `search(query, filtros)`: BM25 con `k1` y `b` documentados, filtros por sector, región y tipo, y umbral mínimo de puntuación.
 - [x] Adaptador que lee `content/`, construye el índice una vez y responde `retrieveSources`.
 - [x] Cableado en `deps.ts` del proxy, sustituyendo el recuperador vacío.
-- [ ] Tests: ranking, acentos y mayúsculas, filtros, consulta vacía, sin coincidencias y propagación de título y URL para la cita.
+- [x] Tests: ranking, acentos y mayúsculas, filtros, consulta vacía, sin coincidencias y propagación de título y URL para la cita.
 - [ ] `pnpm check` y `pnpm e2e` en verde.
 
 ## Evidencia y progreso
 
-Pendiente de rellenar por quien implementa.
+- RED: los dos ficheros de test nuevos fallaron con módulos inexistentes.
+- GREEN: 84 tests en `packages/ai`, 23 de ellos nuevos; `pnpm check` y `pnpm e2e` (8 de 8) en verde.
+- Tokenizador: minúsculas, sin acentos, corte por todo lo que no sea letra o dígito, 119 palabras vacías y descarte de tokens de uno o dos caracteres, números sueltos incluidos.
+- BM25 con `k1 = 1.2` y `b = 0.75`. Umbral mínimo de 0.5: un término que aparece en la mitad del corpus o que no aparece puntúa por debajo, así que una consulta sin coincidencias reales devuelve vacío en lugar de la ficha menos mala. Límite de 8 fragmentos por consulta.
+- Documentos por ficha y por sección citable (cada paso, plazo, aviso y grupo de canales), con título propio para la cita: `Empresa: baja`, `Trámite: paso 2`.
+- Orden por puntuación descendente y, en empate, por `sourceId` en orden de unidades de código, sin `localeCompare`, para que sea idéntico en cualquier plataforma.
+- Cargador: lee `content/{companies,authorities,procedures}/*.yaml` con `yaml`, valida con los esquemas de `@letra-grande/schema`, salta los archivos inválidos sin romper y expone cuántos saltó, sin registrar contenido. Índice cacheado por raíz de contenido durante la vida del proceso.
+- Adaptador: resuelve `content/` subiendo por el árbol desde el directorio de trabajo, de modo que funciona igual en `next dev` y en `next start`.
+- Dependencia añadida: `yaml` en `packages/ai`, ya presente en el workspace a través de `packages/schema`, para el cargador.
+- Estado del contenido: en `content/` solo hay tres plantillas ficticias con `verified: false`, así que hoy las fuentes recuperadas llegan marcadas como no verificadas hasta que existan fichas reales.
 
 ## Siguiente paso
 
