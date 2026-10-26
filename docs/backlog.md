@@ -124,3 +124,12 @@ Cada tarea la ejecuta un agente en su carril. `Dep.` indica dependencias. Los cr
 | REL-02 | Lanzamiento público: web, demo con datos ficticios, contacto con medios y asociaciones | REL-01 | Lanzamiento solo si QA-01, QA-03 y QA-04 están cerrados |
 
 ---
+
+## Refactors y notas registrados por las reviews
+
+Estas tareas no se ejecutan dentro de la tarea que las origina: se registran aquí y se priorizan aparte.
+
+| ID | Origen | Qué revisar |
+|---|---|---|
+| REF-OPS-01 | Review de OPS-01, hallazgo 3 | Dependencias declaradas por adelantado en `apps/web` (`vitest`, `jsdom`, `@testing-library/react`, `cross-env`): confirmar en OPS-04 y en UI-02 cuáles se usan y retirar las que sobren. |
+| REF-OPS-01b | Review de OPS-01, hallazgo 4 | Si algún paquete de `packages/` se va a publicar, hará falta build propio: hoy `main` y `types` apuntan a `./src/index.ts`. |

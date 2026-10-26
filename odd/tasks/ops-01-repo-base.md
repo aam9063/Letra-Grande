@@ -40,6 +40,10 @@ Raíz del repositorio (configuración y documentación), `scripts/`, `.github/wo
 
 ## Evidencia y progreso
 
+Verificación: `pnpm check` (estilo, tipos, tests y validación de contenido) y `pnpm build` en verde en local, y la CI en verde en el PR. Informe del review gate: `odd/reviews/ops-01.md` (aprobado con cambios; dos hallazgos recomendados aplicados en esta misma rama).
+
+
+
 Decisiones tomadas durante la tarea:
 
 1. `packages/radar` y `packages/extract` no se crean vacíos: un paquete sin tests ni código obligaría a usar `--passWithNoTests` de forma permanente o a inventar un test vacío. Se crean en sus tareas de la Ola 2.
