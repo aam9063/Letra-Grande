@@ -88,7 +88,8 @@ privacidad y cómo colaborar, y da paso a la app. Se replica el mockup
 - T1: RED observado (tokens.test 1 failed) antes de cambiar tokens; GREEN con
   `pnpm check` completo.
 - T4/T5: RED observado (8 failed en 4 navegadores) antes de la página; GREEN
-  con `pnpm e2e` (16 passed: 8 smoke + 8 network-guard).
+  con `pnpm e2e` (16 passed: 3 smoke y 1 guardián de red por cada uno de los
+  4 proyectos).
 - Capturas de comparación con el mockup a 1440 px revisadas: héroe a dos
   columnas, privacidad, cierre y footer fieles.
 
@@ -121,3 +122,13 @@ T6 (backlog y docs) y T7 (review gate).
   de la landing heredaba max-width 42 rem del globals.css de la app (anulado);
   Firefox no estira el main de un flex en columna (width: 100%); faltaban el
   globo oscuro de la pregunta del chat y las sombras del héroe.
+- L6. Review gate (odd/reviews/UI-03.md, veredicto «aprobado con cambios»):
+  una ronda aplicada. Bloqueante: la PWA (start_url, precache y fallback
+  offline) apuntaba a la raíz, que ahora es la landing; alineado con S2
+  (start_url y fallback /hoy, CACHE_VERSION v2). Recomendados baratos:
+  enlaces del footer a 44 px, iconos PWA al teal, documentación aquí de la
+  desviación «Ver cómo colaborar» (la maqueta enlazaba a una página Instalar
+  que no existe en el alcance). Refactors opcionales registrados como
+  REF-UI-03 en el backlog. Verificación de la fuente variable: el CSS de
+  Google Fonts declara font-weight: 400 800 para el woff2 descargado, es
+  variable.
