@@ -1,0 +1,126 @@
+# Escritorio con Electron
+
+Documento de decisión y de diseño del descargable de Letra Grande. Corresponde a la decisión D-11 del documento de arranque. Decide la plataforma, fija las reglas que no se negocian y deja escrito qué falta. La PWA sigue siendo el mismo producto en el navegador: no se sustituye, se envuelve.
+
+## 1. Decisión
+
+| Tema | Decisión |
+|---|---|
+| Envoltorio | **Electron**, con `electron-builder` para empaquetar |
+| Alcance inicial | **Solo Windows**, instalador NSIS |
+| macOS y Linux | Después, con el trabajo de firma que describe la sección 8 |
+| Asistente de IA | **Llama al proxy alojado**. El binario **no** lleva ninguna clave |
+| PWA | Se mantiene. Misma base de código, dos entregas |
+| Distribución | Descargable desde la landing, sin tiendas |
+
+Por qué Electron y no Tauri: el renderer es el mismo Chromium que ya cubren las pruebas de Playwright, así que lo que funciona en `pnpm e2e` funciona en el binario. OCR con WASM y trabajadores, IndexedDB y WebCrypto se comportan igual que en las pruebas, y no dependemos de la versión de WebView de cada sistema. El coste es el tamaño del instalador, y ese coste se acepta.
+
+## 2. Regla que no se rompe: la clave de IA no viaja en el binario
+
+Una clave dentro de un `.exe` se extrae con `strings` en un minuto. Si el escritorio la llevara:
+
+- cualquiera podría usar la cuota de todos;
+- se incumpliría la condición de NaN de clave personal e intransferible (H-08);
+- se caería la garantía de que el servidor es el único que habla con el proveedor.
+
+Por eso el escritorio **no empaqueta el proxy**: apunta a la URL del proxy alojado y envía texto ya enmascarado, exactamente como el navegador. La única diferencia es de dónde sale la petición.
+
+Consecuencia que hay que decir en la interfaz: **sin conexión, el asistente no responde**. La carpeta, el radar, las fichas y las plantillas siguen funcionando.
+
+## 3. Arquitectura
+
+```
+apps/desktop/            Electron: proceso principal, preload y empaquetado
+  src/main.ts            ventana, protocolo app://, actualizador, menú, ciclo de vida
+  src/preload.ts         superficie mínima expuesta al renderer
+  electron-builder.yml   objetivos de empaquetado por plataforma
+
+apps/web/                el mismo renderer que la PWA
+  next.config.ts         dos salidas: servidor (web) y exportación estática (escritorio)
+```
+
+El renderer es el build estático de `apps/web`. El proceso principal lo sirve por un protocolo propio, `app://letra-grande`, y no con `file://`. Esto no es un detalle: en Chromium, `file://` da un origen opaco y deja IndexedDB y WebCrypto en un estado poco fiable. Con un protocolo propio el origen es estable y el vault funciona igual que en la web.
+
+### Por qué exportación estática y no cargar la web alojada
+
+Cargar `https://letragrande.app` dentro de una ventana sería un navegador con marco. Perdería lo que buscamos: funcionar sin conexión, tener el vault en almacenamiento propio de la app y actualizar por el canal del escritorio. La exportación estática viaja dentro del binario; el asistente es lo único que sale a la red.
+
+La ruta de API no se puede exportar de forma estática, y no hace falta: el escritorio no la usa, llama al proxy alojado por su URL pública.
+
+### Almacenamiento
+
+IndexedDB, igual que en la PWA, pero en el directorio de datos de la aplicación (`app.getPath("userData")`). Esto cierra el riesgo real de la PWA: **el navegador no puede desalojar el vault**. Se mantiene la copia cifrada como red de seguridad, ahora guardada en una carpeta real del sistema.
+
+## 4. Seguridad del envoltorio
+
+El proceso principal es código privilegiado. Reglas mínimas, todas verificables en revisión:
+
+- `contextIsolation: true`, `nodeIntegration: false`, `sandbox: true`.
+- El `preload` expone una superficie mínima y explícita: versión de la app, ruta de la copia cifrada elegida por la persona y evento de actualización disponible. Nada de `ipcRenderer` en crudo.
+- `will-navigate` y `setWindowOpenHandler` bloquean navegación fuera de `app://`; los enlaces externos se abren en el navegador del sistema.
+- CSP estricta en la respuesta del protocolo propio, con `connect-src` limitado al proxy configurado.
+- Sin telemetría, sin analytics, sin scripts remotos. Lo mismo que en la web.
+- Una sola instancia por usuario.
+- El actualizador solo acepta paquetes firmados; sin firma, no hay actualización silenciosa.
+
+## 5. Diferencia con la PWA en el comportamiento
+
+| Aspecto | PWA | Escritorio |
+|---|---|---|
+| Service worker | Sí, cachea el shell | **No**. El binario ya es local y el ciclo de actualización es otro |
+| Aviso de almacenamiento | Sí: el navegador puede desalojar | No hace falta |
+| Copia cifrada | Descarga del navegador | Diálogo nativo a una carpeta real |
+| Instalación | "Instalar app" del navegador | Instalador NSIS |
+| Actualizaciones | Al recargar | `electron-updater`, con aviso y reinicio |
+| Asistente | Requiere conexión | Requiere conexión |
+
+El registro del service worker se desactiva cuando la app corre en el escritorio, detectado por una variable inyectada en el protocolo (no por la presencia de `process`, que es justo lo que sandbox elimina).
+
+## 6. Qué hay que cambiar en el código
+
+1. `apps/web/next.config.ts`: soportar dos salidas. Con una variable de entorno, `output: "export"` y sin `webpack` personalizado si la exportación lo permite; sin ella, el build de servidor actual. Es el cambio más delicado y va primero.
+2. `apps/web/src/components/shell/ServiceWorkerRegistrar.tsx`: no registrar nada en modo escritorio.
+3. Un módulo de configuración con la URL base del proxy, con valor por entorno y sin secretos.
+4. La copia cifrada: en escritorio usa el diálogo nativo; en web, descarga.
+5. `apps/desktop`: proceso principal, preload, protocolo `app://`, actualizador, menú en español y empaquetado.
+
+Nada de esto toca el vault, la privacidad, el radar ni el motor de contenido: el escritorio reusa esos paquetes sin cambios.
+
+## 7. Estado y pruebas
+
+- `pnpm check` y `pnpm e2e` siguen siendo la puerta de la web. No se relajan.
+- El binario se verifica con una prueba de humo por sistema: abre, muestra la portada, crea el vault, reinicia y el vault sigue ahí, y la copia cifrada se puede exportar e importar.
+- Las pruebas de Playwright siguen cubriendo el renderer, que es el mismo Chromium.
+- La compilación es matriz por sistema en CI con `electron-builder`; Windows primero.
+
+## 8. Windows ahora, macOS y Linux después
+
+**Windows (alcance inicial)**
+
+- Instalador NSIS, sin firma al principio.
+- Sin firma, Windows SmartScreen muestra "Editor desconocido" en la primera ejecución. No bloquea la instalación, pero asusta. Un certificado de firma de código lo reduce, aunque desde 2024 los certificados EV ya no dan confianza instantánea: la reputación se gana con descargas.
+- El actualizador funciona igual; su firma es la del paquete.
+
+**macOS (cuando se decida)**
+
+- Distribuir fuera del App Store **no requiere** licencia de Apple ni cuenta de tienda.
+- Para que la app abra sin bloqueo hace falta **firmar y notarizar**, y eso **sí** exige el Apple Developer Program, 99 USD al año. Sin eso, Gatekeeper bloquea la primera ejecución y el usuario tiene que ir a Ajustes del Sistema, Privacidad y Seguridad, y pulsar "Abrir igualmente". Desde macOS 15 ya no basta el clic derecho y abrir.
+- El actualizador automático en macOS exige app firmada, así que sin la licencia no hay actualizaciones silenciosas: habría que publicar cada versión y pedir descarga manual.
+- Requiere una máquina macOS para compilar y firmar.
+
+**Linux (cuando se decida)**
+
+- AppImage o `.deb`, sin firma obligatoria.
+- El actualizador automático no está soportado por Electron en Linux: se actualiza por el gestor de paquetes o descargando de nuevo.
+
+## 9. Riesgos y límites
+
+- **Tamaño del instalador**: entre 120 y 200 MB. Es el precio de llevar Chromium. Se acepta a cambio de paridad con las pruebas.
+- **Superficie de seguridad mayor**: el proceso principal es código privilegiado. La lista de la sección 4 es obligatoria, no una recomendación.
+- **Confianza del usuario en Windows**: sin firma, el aviso de SmartScreen cuesta instalaciones. Está en el backlog como tarea de entrega, no de código.
+- **Dos salidas de build**: si la exportación estática se rompe, la web sigue funcionando y el escritorio no. La CI debe construir las dos.
+- **El asistente no funciona sin red**: es consecuencia de la decisión de no llevar clave en el binario.
+
+## 10. Tareas
+
+Las tareas están en `docs/backlog.md` con prefijo `DESK-`: preparación del build de dos salidas, aplicación de escritorio, canal de entrega de Windows y, más adelante, macOS y Linux con firma.
