@@ -89,9 +89,13 @@ Next.js 16 con App Router y TypeScript 7. Ocho rutas de módulo (`hoy`, `asisten
 
 El service worker cachea solo el shell (raíz, manifiesto e iconos), sirve las navegaciones con estrategia network-first y **nunca** cachea respuestas del asistente ni blobs de documentos. El manifiesto declara `id` para que la identidad de la PWA sea estable.
 
-### Paquetes de la Ola 2
+### `packages/radar`: plazos y calendario
 
-`packages/radar` (cálculo de plazos y exportación `.ics`) y `packages/extract` (PDF, OCR y extractores) todavía no existen: se crean en sus tareas, que es cuando tienen código y tests que los justifiquen.
+Lógica pura: `addDeadline` suma un plazo por unidad (días naturales, días hábiles, meses o años) y declara cuándo el resultado es aproximado, `deadlineStatus` y `sortRadarItems` ordenan la línea de tiempo y `toIcs` exporta los pendientes a un calendario de todo el día. Sin red, sin reloj implícito y sin dependencias. El detalle está en [`data-model.md`](data-model.md), sección 10.
+
+### Paquete de la Ola 2 pendiente
+
+`packages/extract` (PDF, OCR y extractores) todavía no existe: se crea en su tarea, que es cuando tiene código y tests que lo justifiquen.
 
 ## 5. Flujo de una pregunta al asistente
 
@@ -110,7 +114,7 @@ Hasta que exista AI-03, el recuperador devuelve vacío y el endpoint responde `o
 1. El archivo se lee en local (`pdf.js` para texto, OCR en el navegador para fotos).
 2. `packages/extract` extrae campos y los declara como leídos o no leídos.
 3. `packages/schema` valida el registro, `packages/vault` lo cifra y lo guarda.
-4. Un plazo extraído crea un `RadarItem` con su fecha; el radar lo ordena y permite exportarlo a `.ics`.
+4. Un plazo extraído crea un `RadarItem` con la fecha que calcula `addDeadline` de `packages/radar`; el radar lo ordena y `toIcs` lo exporta a un calendario de todo el día.
 
 Nada de este flujo hace una petición de red, y hay un test de e2e que falla si aparece alguna.
 
