@@ -37,7 +37,14 @@ Implementar `@letra-grande/privacy` según la sección 9: `detect`, `mask`, `unm
 
 ## Evidencia y progreso
 
-Pendiente de rellenar por quien implementa: comandos ejecutados, número de tests y cobertura.
+- RED: los 14 vectores de la sección 9 fallando (`mask is not a function`, detecciones vacías).
+- GREEN: 14 de 14; después 28 de 28 con los casos límite.
+- Cobertura del paquete: 99,58 % de sentencias, 95 % de ramas, 100 % de funciones, 99,58 % de líneas, con umbral de 90 % configurado en `vitest.config.ts`.
+- `pnpm check` en la raíz en verde.
+- Única dependencia nueva: `@vitest/coverage-v8`, justificada por el criterio de cobertura del 90 %.
+- Prioridad implementada: términos conocidos, IBAN, CUPS, tarjeta, email, documento, teléfono; a igual prioridad, longitud descendente y luego posición; los solapes se descartan.
+- Interpretación reportada, no silenciosa: Luhn actúa como puerta del patrón tarjeta (si falla, no hay detección), tal como pide el vector `4111 1111 1111 1112`; documento e IBAN inválidos sí se detectan con `valid: false` y se enmascaran igualmente.
+- El mapping de un término conocido guarda el valor canónico del término, para que todas sus variantes de caso compartan el mismo marcador.
 
 ## Siguiente paso
 
