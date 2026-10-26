@@ -148,4 +148,5 @@ Estas tareas no se ejecutan dentro de la tarea que las origina: se registran aqu
 | REF-UI-03 | Review de UI-03, hallazgo 7 | Duplicación menor en la landing: URLs de GitHub repetidas y `#26605C`/`#ECF5F4` en TS y CSS; centralizar en un módulo de constantes. |
 | REF-UI-04 | Review de UI-04, hallazgo 4 | Duplicación de shell: `Trazo` en BottomNav y Sidebar, cubos de logo CSS repetidos y hex de marca repetidos; extraer a módulo compartido. |
 | REF-UI-05 | Review de UI-05, hallazgo 5 | Botones del onboarding duplicados de landing.css (incluido el blanco de L4) y tercera copia de `Trazo`; extraer a un módulo compartido de botones e iconos. |
+| REF-UI-06 | Review de UI-06, hallazgo 4 | El script anti-salto del layout duplica las fuentes de `FUENTES` sin custodia: derivar el mapa de `FUENTES` o añadir un test que compare ambos. |
 | REF-UI-02 | Review de UI-02, hallazgo 5 | La comprobación de 375 px se hizo a mano y no quedó como spec: entra en `QA-07` (accesibilidad, responsive y offline). |

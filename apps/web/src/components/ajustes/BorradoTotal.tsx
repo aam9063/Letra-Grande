@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Callout } from "@letra-grande/design/client";
 import { WrongPasswordError } from "@letra-grande/vault";
 import { purgarTodo } from "./borrado";
+import { CLAVE_ONBOARDING } from "@/components/onboarding/primer-arranque";
 import { restablecerTamanoLetra } from "./tamano-letra";
 
 type Estado = "reposo" | "confirmado" | "borrando" | "hecho";
@@ -19,8 +20,18 @@ export function BorradoTotal() {
   const [estado, setEstado] = useState<Estado>("reposo");
   const [clave, setClave] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const campoRef = useRef<HTMLInputElement>(null);
+  const botonRef = useRef<HTMLButtonElement>(null);
 
   const ocupado = estado === "borrando";
+
+  // La confirmación abre con el foco en la contraseña; al cancelar, vuelve al
+  // botón que la desencadenó.
+  useEffect(() => {
+    if (estado === "confirmado") {
+      campoRef.current?.focus();
+    }
+  }, [estado]);
 
   function abrir(): void {
     setEstado("confirmado");
@@ -32,6 +43,7 @@ export function BorradoTotal() {
     setEstado("reposo");
     setClave("");
     setError(null);
+    botonRef.current?.focus();
   }
 
   async function confirmar(): Promise<void> {
@@ -43,6 +55,9 @@ export function BorradoTotal() {
     try {
       await purgarTodo(clave);
       restablecerTamanoLetra();
+      // La app queda como recién instalada: también el onboarding vuelve a
+      // mostrarse en la siguiente visita.
+      localStorage.removeItem(CLAVE_ONBOARDING);
       setEstado("hecho");
     } catch (error) {
       if (error instanceof WrongPasswordError) {
@@ -69,7 +84,7 @@ export function BorradoTotal() {
         se puede deshacer.
       </p>
       {estado === "reposo" ? (
-        <button type="button" className="lg-peligro" onClick={abrir}>
+        <button type="button" ref={botonRef} className="lg-peligro" onClick={abrir}>
           Borrar todos mis datos
         </button>
       ) : (
@@ -81,6 +96,7 @@ export function BorradoTotal() {
             Contraseña de la carpeta
           </label>
           <input
+            ref={campoRef}
             id="lg-borrado-clave"
             className="lg-borrado-clave"
             type="password"
@@ -88,11 +104,11 @@ export function BorradoTotal() {
             value={clave}
             onChange={(evento) => setClave(evento.target.value)}
           />
-          {error !== null ? (
-            <p className="lg-borrado-error" aria-live="assertive">
-              {error}
-            </p>
-          ) : null}
+          {/* Contenedor persistente: si se monta solo con el error, algunos
+              lectores de pantalla no lo anuncian. */}
+          <p className="lg-borrado-error" aria-live="assertive">
+            {error}
+          </p>
           <div className="lg-borrado-botones">
             <button
               type="button"

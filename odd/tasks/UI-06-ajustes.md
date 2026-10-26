@@ -109,3 +109,14 @@ T1 con tests en rojo.
   diseño (2) y la decisión L2 de UI-04: «Reales los posibles (tamaño de letra
   y borrado total funcionales; lectura fácil, idioma y proveedor de IA como
   Próximamente)».
+- L2. Review gate (odd/reviews/UI-06.md, veredicto «aprobado con cambios»,
+  sin bloqueantes): una ronda aplicada. Tras la purga se limpia también la
+  bandera del onboarding (la app queda exactamente como recién instalada),
+  la región aria-live del error es persistente (contenedor siempre montado),
+  la confirmación abre con el foco en la contraseña y al cancelar vuelve al
+  botón, y se retiró el bloque prefers-reduced-motion sin efecto. Refactor
+  registrado como REF-UI-06 (SCRIPT_TAMANO duplica FUENTES sin custodia).
+  Notas documentadas: aria-label en la tarjeta de tamaño (patrón h2 en las
+  demás), desviación estética menor del chip seleccionado (tinta sobre
+  acento, 5,5:1 AA). Implementación delegada a un escritor con superficie
+  de edición acotada y TDD (RED a GREEN en preferencia y purga).

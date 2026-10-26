@@ -613,11 +613,3 @@ h1 {
   flex-wrap: wrap;
   gap: calc(var(--lg-espacio) * 3);
 }
-
-@media (prefers-reduced-motion: reduce) {
-  .lg-chip-etiqueta,
-  .lg-interruptor,
-  .lg-interruptor::after {
-    transition: none;
-  }
-}
