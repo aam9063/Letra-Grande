@@ -138,3 +138,10 @@ Estas tareas no se ejecutan dentro de la tarea que las origina: se registran aqu
 | REF-OPS-04 | Review de OPS-04, hallazgo 2 | El guardián de red solo escucha `page.on("request")`: valorar escuchar también `context.on("request")` para cubrir peticiones del service worker antes de los specs de privacidad de la Ola 2. |
 | REF-OPS-04b | Review de OPS-04, hallazgo 3 | `process.env as Record<string, string>` en `playwright.config.ts` oculta valores indefinidos en el entorno del `webServer`. |
 | REF-OPS-06 | Review de OPS-06, hallazgo 1 | Salir de webpack: migrar a Turbopack cuando soporte `extensionAlias`, o reescribir los especificadores `.js` de los paquetes del workspace por `bundler`-friendly. Hoy `next dev --webpack` y `next build --webpack` son la salida prevista. |
+| REF-UI-01 | Review de UI-01, hallazgo 4 | Cuatro componentes de bloque idénticos salvo la etiqueta: extraer uno genérico con etiqueta y clase por `kind`. |
+| REF-AI-01 | Review de AI-01, hallazgo 1 | Mover el tiempo de espera del proveedor a la factoría de `@letra-grande/ai` (`ProviderFromEnvOptions.timeoutMs`) en lugar del decorador del proxy. |
+| REF-AI-06 | Review de AI-06, hallazgo 5 | Circuit breaker en half-open: limitar a una única sonda en vuelo para no lanzar una tormenta de pruebas al recuperarse. |
+| REF-VAULT-02 | Review de VAULT-02 | Cuatro seguimientos: bloqueo entre pestañas con Web Locks, simulación de aborto a mitad de transacción, nota de memoria con blobs grandes y el doble cast del `payload`. |
+| REF-UI-03 | Review de UI-03, hallazgo 6 | El anillo de foco con color de acento es invisible sobre botones con fondo de acento (preexistente en la baseline). Definir un anillo de foco de doble tono. |
+| REF-UI-03 | Review de UI-03, hallazgo 7 | Duplicación menor en la landing: URLs de GitHub repetidas y `#26605C`/`#ECF5F4` en TS y CSS; centralizar en un módulo de constantes. |
+| REF-UI-02 | Review de UI-02, hallazgo 5 | La comprobación de 375 px se hizo a mano y no quedó como spec: entra en `QA-07` (accesibilidad, responsive y offline). |
