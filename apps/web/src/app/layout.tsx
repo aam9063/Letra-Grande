@@ -29,13 +29,21 @@ export const viewport: Viewport = {
   themeColor: "#3E9B94",
 };
 
-// Layout raíz mínimo: html, fuente y service worker. El shell de la app
-// (aviso de independencia y navegación) vive en (app), y la landing en
-// (landing) se renderiza sin él.
+// Layout raíz mínimo: html, fuente, service worker y tamaño de letra. El
+// shell de la app (aviso de independencia y navegación) vive en (app), y la
+// landing en (landing) se renderiza sin él.
+
+// Tamaño de letra (UI-06, S1): se aplica antes del primer pintado para evitar
+// saltos. Misma lógica que tamano-letra.ts, copiada mínima porque un script
+// inline no puede importar módulos de la app. Solo una bandera local: sin
+// datos personales y sin llamadas de red.
+const SCRIPT_TAMANO = `(function(){try{var t=localStorage.getItem("lg-tamano-letra");var f={normal:"100%",grande:"112.5%","muy-grande":"125%"};var s=f[t];if(s)document.documentElement.style.fontSize=s;}catch(e){}})();`;
+
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="es" className={hostGrotesk.variable}>
+    <html lang="es" className={hostGrotesk.variable} suppressHydrationWarning>
       <body>
+        <script dangerouslySetInnerHTML={{ __html: SCRIPT_TAMANO }} />
         {children}
         <ServiceWorkerRegistrar />
       </body>

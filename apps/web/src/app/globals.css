@@ -395,3 +395,229 @@ h1 {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Ajustes (UI-06): tarjetas sobre el lienzo, chips de selección e
+   interruptores del sistema de diseño. Unidades relativas: el escalado del
+   tamaño de letra se aplica a toda la página. */
+.lg-ajustes {
+  background: var(--lg-lienzo);
+  border-radius: var(--lg-radio);
+  display: grid;
+  gap: calc(var(--lg-espacio) * 4);
+}
+
+.lg-ajustes h1 {
+  margin-bottom: 0;
+}
+
+.lg-ajustes-tarjeta {
+  background: var(--lg-superficie);
+  border: 1px solid var(--lg-lienzo);
+  border-radius: var(--lg-radio);
+  padding: calc(var(--lg-espacio) * 4);
+}
+
+.lg-ajustes-tarjeta h2 {
+  margin: 0 0 calc(var(--lg-espacio) * 2);
+  font-size: 1.125rem;
+  line-height: 1.3;
+}
+
+.lg-ajustes-tarjeta p {
+  margin: 0 0 calc(var(--lg-espacio) * 2);
+}
+
+.lg-ajustes-fila {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: calc(var(--lg-espacio) * 4);
+  flex-wrap: wrap;
+}
+
+.lg-ajustes-fila p:last-child {
+  margin-bottom: 0;
+}
+
+.lg-ajustes-control {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--lg-espacio) * 3);
+  min-height: var(--lg-objetivo);
+}
+
+.lg-ajustes-proxima {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--lg-objetivo);
+  padding: 0 calc(var(--lg-espacio) * 3);
+  border: 2px solid var(--lg-lienzo);
+  border-radius: 999px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--lg-tinta);
+  background: var(--lg-lienzo);
+}
+
+.lg-ajustes-valor {
+  font-weight: 700;
+}
+
+.lg-ajustes-campo {
+  border: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.lg-ajustes-leyenda {
+  padding: 0;
+  margin: 0 0 calc(var(--lg-espacio) * 2);
+  font-weight: 700;
+}
+
+/* Chips de selección (radios nativos): el estado se comunica con borde,
+   fondo y una marca textual, nunca solo con color. */
+.lg-chip-grupo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--lg-espacio) * 2);
+}
+
+.lg-chip {
+  position: relative;
+  display: inline-flex;
+}
+
+.lg-chip input {
+  position: absolute;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  cursor: pointer;
+}
+
+.lg-chip-etiqueta {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--lg-objetivo);
+  padding: 0 calc(var(--lg-espacio) * 4);
+  border: 2px solid var(--lg-lienzo);
+  border-radius: 999px;
+  font-weight: 400;
+}
+
+.lg-chip input:checked + .lg-chip-etiqueta {
+  border-color: var(--lg-acento);
+  background: var(--lg-acento);
+  font-weight: 700;
+}
+
+.lg-chip input:checked + .lg-chip-etiqueta::before {
+  content: "✓ ";
+}
+
+.lg-chip input:focus-visible + .lg-chip-etiqueta {
+  outline: 3px solid var(--lg-acento);
+  outline-offset: 2px;
+}
+
+.lg-chip-nombre {
+  margin-right: 0.25rem;
+}
+
+.lg-chip-ayuda {
+  font-size: 0.875rem;
+}
+
+/* Interruptor deshabilitado de Próximamente: control nativo, nunca un
+   control que no haga nada, y el chip comunica el estado. */
+.lg-interruptor {
+  width: 3rem;
+  height: 1.5rem;
+  min-width: 3rem;
+  min-height: 1.5rem;
+  appearance: none;
+  border-radius: 999px;
+  background: var(--lg-lienzo);
+  border: 2px solid #d5d5dc;
+  position: relative;
+  margin: 0;
+}
+
+.lg-interruptor::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0.25rem;
+  transform: translateY(-50%);
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  background: var(--lg-superficie);
+  border: 1px solid #d5d5dc;
+}
+
+/* Borrado total: el único flujo destructivo del shell. */
+.lg-borrado-texto {
+  max-width: 40rem;
+}
+
+.lg-peligro {
+  min-width: var(--lg-objetivo);
+  min-height: var(--lg-objetivo);
+  padding: 0 calc(var(--lg-espacio) * 4);
+  font: inherit;
+  font-weight: 700;
+  color: var(--lg-superficie);
+  background: var(--lg-peligro-texto);
+  border: 2px solid var(--lg-peligro-texto);
+  border-radius: var(--lg-radio);
+}
+
+.lg-peligro:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.lg-borrado-confirmacion {
+  display: grid;
+  gap: calc(var(--lg-espacio) * 3);
+  max-width: 30rem;
+}
+
+.lg-borrado-etiqueta {
+  font-weight: 700;
+}
+
+.lg-borrado-clave {
+  min-height: var(--lg-objetivo);
+  padding: 0 calc(var(--lg-espacio) * 3);
+  font: inherit;
+  border: 2px solid #d5d5dc;
+  border-radius: var(--lg-radio);
+}
+
+.lg-borrado-clave:focus-visible {
+  outline: 3px solid var(--lg-acento);
+  outline-offset: 2px;
+}
+
+.lg-borrado-error {
+  color: var(--lg-peligro-texto);
+  font-weight: 700;
+}
+
+.lg-borrado-botones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--lg-espacio) * 3);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lg-chip-etiqueta,
+  .lg-interruptor,
+  .lg-interruptor::after {
+    transition: none;
+  }
+}
