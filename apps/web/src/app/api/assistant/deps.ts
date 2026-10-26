@@ -57,6 +57,10 @@ export function createDefaultDeps(): AssistantDeps {
       now: () => Date.now(),
     }),
     deriveAnonymousId,
+    // La recuperación de fuentes (BM25) llega con AI-03: mientras tanto no se
+    // recupera ninguna fuente, así que ninguna afirmación tiene respaldo y el
+    // asistente responde outOfScope. Es la degradación honesta prevista.
+    retrieveSources: async () => [],
   };
   globalForAssistant.__assistantDeps = deps;
   return deps;

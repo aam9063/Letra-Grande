@@ -14,7 +14,13 @@ export function Citas({ citations, fuentes }: { citations: Citation[]; fuentes?:
         return (
           <p key={`${cita.sourceId}-${i}`} className="lg-cita">
             {"Fuente: "}
-            {fuente ? <a href={fuente.url}>{fuente.titulo}</a> : <cite>{cita.sourceId}</cite>}
+            {fuente ? (
+              <a href={fuente.url} rel="noopener noreferrer" target="_blank">
+                {fuente.titulo}
+              </a>
+            ) : (
+              <cite>{cita.sourceId}</cite>
+            )}
             {cita.quote ? <span>{`, "${cita.quote}"`}</span> : null}
           </p>
         );
