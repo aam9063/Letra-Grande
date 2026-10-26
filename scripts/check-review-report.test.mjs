@@ -155,3 +155,61 @@ test("informe con veredicto valido: pasa con aprobado y aprobado con cambios", (
     }
   }
 });
+
+test("una tarea con letra final acepta el informe con el id base", () => {
+  const dir = withReviewsDir({ "ai-03.md": VALID_REPORT.replace("TEST-99", "AI-03") });
+  try {
+    const result = checkReviewReport({ title: "AI-03a: recuperacion bm25", reviewsDir: dir });
+    assert.equal(result.status, "pass");
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test("una tarea con letra final acepta el informe con el id completo", () => {
+  const dir = withReviewsDir({ "ai-03a.md": VALID_REPORT.replace("TEST-99", "AI-03a") });
+  try {
+    const result = checkReviewReport({ title: "AI-03a: recuperacion bm25", reviewsDir: dir });
+    assert.equal(result.status, "pass");
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test("un informe de otra tarea falla y dice de quien es y quien lo reclama", () => {
+  const dir = withReviewsDir({ "ai-03.md": VALID_REPORT.replace("TEST-99", "OPS-04") });
+  try {
+    const result = checkReviewReport({ title: "AI-03a: recuperacion bm25", reviewsDir: dir });
+    assert.equal(result.status, "fail");
+    assert.match(result.message, /OPS-04/);
+    assert.match(result.message, /ai-03a/i);
+    assert.match(result.message, /pertenece a la tarea/);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test("con ambos informes gana el del id completo: ai-03a aprobado, ai-03 rechazado", () => {
+  const dir = withReviewsDir({
+    "ai-03a.md": VALID_REPORT.replace("TEST-99", "AI-03a"),
+    "ai-03.md": VALID_REPORT.replace("TEST-99", "AI-03").replace("veredicto: aprobado con cambios", "veredicto: rechazado"),
+  });
+  try {
+    const result = checkReviewReport({ title: "AI-03a: recuperacion bm25", reviewsDir: dir });
+    assert.equal(result.status, "pass");
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test("sin ninguno de los dos nombres falla y nombra ambos", () => {
+  const dir = withReviewsDir({ "otra.md": VALID_REPORT });
+  try {
+    const result = checkReviewReport({ title: "AI-03a: recuperacion bm25", reviewsDir: dir });
+    assert.equal(result.status, "fail");
+    assert.match(result.message, /ai-03a\.md/);
+    assert.match(result.message, /ai-03\.md/);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
