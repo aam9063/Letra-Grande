@@ -17,9 +17,10 @@ export default defineConfig({
           name: "jsdom",
           environment: "jsdom",
           include: ["src/**/*.test.tsx"],
-          // Aún no hay tests de componentes: AI-02 añadirá los primeros.
-          passWithNoTests: true,
         },
+        // El tsconfig de la app usa jsx "preserve" para Next: aquí se compila
+        // con el runtime automático de React para los tests de componentes.
+        esbuild: { jsx: "automatic" },
       },
     ],
   },

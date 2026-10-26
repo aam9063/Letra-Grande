@@ -1,4 +1,6 @@
-// Tests del handler de /api/assistant con proveedor simulado, sin red (AI-01).
+// Tests del handler de /api/assistant con proveedor simulado, sin red (AI-01 y AI-02).
+// AI-02: el proveedor responde con el JSON del catálogo cerrado, el handler valida
+// contra las fuentes recuperadas, reintenta una vez y cae en outOfScope con honestidad.
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   LlmError,
@@ -15,7 +17,24 @@ import {
   type AssistantDeps,
 } from "./handler";
 
-const MOCK_REPLY = "Según la ficha de prueba: esta es la respuesta simulada del proveedor.";
+// Fuente recuperada de prueba: el texto es lo que respalda cifras y citas.
+const FUENTE_PRUEBA = {
+  id: "fuente-prueba",
+  titulo: "Ficha de prueba",
+  url: "https://example.com/ficha",
+  texto: "El plazo de reclamación es de 30 días. La reclamación es gratuita.",
+};
+
+const BLOQUE_VALIDO = {
+  kind: "fact",
+  claim: "El plazo de reclamación es de 30 días.",
+  citations: [{ sourceId: "fuente-prueba", quote: "El plazo de reclamación es de 30 días." }],
+};
+
+// Respuesta del catálogo cerrado que se espera del proveedor, como texto JSON.
+function respuestaModelo(bloques: unknown[] = [BLOQUE_VALIDO]): string {
+  return JSON.stringify({ question: "¿Cuántos días tengo?", outOfScope: false, blocks: bloques });
+}
 
 function makeDeps(options?: {
   quota?: TokenBucketQuota;
@@ -27,7 +46,7 @@ function makeDeps(options?: {
     async complete(input) {
       calls.push(input);
       const inner = options?.provider;
-      if (inner === undefined) return { text: MOCK_REPLY };
+      if (inner === undefined) return { text: respuestaModelo() };
       return inner.complete(input);
     },
   };
@@ -44,6 +63,7 @@ function makeDeps(options?: {
           now: () => Date.now(),
         }),
       deriveAnonymousId,
+      retrieveSources: async () => [FUENTE_PRUEBA],
     },
   };
 }
@@ -100,12 +120,26 @@ describe("POST /api/assistant", () => {
     const question = "¿Puedo reclamar la factura {{documento_1}} sin respuesta del emisor?";
     const response = await handleAssistant(makeRequest({ question }), deps);
     expect(response.status).toBe(200);
-    const body = (await response.json()) as { reply: string };
-    expect(body.reply).toBe(MOCK_REPLY);
+    const body = (await response.json()) as {
+      answer: { outOfScope: boolean; question: string; blocks: { kind: string; claim: string }[] };
+      fuentes: Record<string, { titulo: string; url: string }>;
+    };
+    expect(body.answer.outOfScope).toBe(false);
+    expect(body.answer.blocks).toHaveLength(1);
+    expect(body.answer.blocks[0]?.claim).toBe("El plazo de reclamación es de 30 días.");
+    expect(body.fuentes["fuente-prueba"]).toEqual({
+      titulo: "Ficha de prueba",
+      url: "https://example.com/ficha",
+    });
     expect(calls).toHaveLength(1);
-    expect(calls[0]?.messages).toEqual([{ role: "user", content: question }]);
-    expect(typeof calls[0]?.system).toBe("string");
-    expect(JSON.stringify(body)).not.toContain(question);
+    expect(calls[0]?.messages[0]).toEqual({ role: "user", content: question });
+    // Las fuentes recuperadas viajan en un mensaje propio para que el modelo cote.
+    expect(calls[0]?.messages.at(-1)?.content).toContain("fuente-prueba");
+    expect(calls[0]?.messages.at(-1)?.content).toContain("30 días");
+    // La respuesta se devuelve al mismo cliente que preguntó: solo en
+    // answer.question se refleja la pregunta. Los errores nunca la repiten
+    // (lo comprueba el test de DNI sin enmascarar).
+    expect(body.answer.question).toBe(question);
   });
 
   it("rechaza un cuerpo que no es JSON válido", async () => {
@@ -240,8 +274,8 @@ describe("POST /api/assistant", () => {
       deps,
     );
     expect(response.status).toBe(200);
-    const body = (await response.json()) as { reply: string };
-    expect(body.reply).toBe(MOCK_REPLY);
+    const body = (await response.json()) as { answer: { outOfScope: boolean } };
+    expect(body.answer.outOfScope).toBe(false);
     expect(calls).toHaveLength(1);
   });
 
@@ -258,7 +292,7 @@ describe("POST /api/assistant", () => {
         name: "fake",
         complete: async () => {
           if (fail) throw new LlmError("server", "fallo simulado");
-          return { text: MOCK_REPLY };
+          return { text: respuestaModelo() };
         },
       },
     });
@@ -301,6 +335,172 @@ describe("POST /api/assistant", () => {
       const logged = spy.mock.calls.map((args) => args.map(String).join(" ")).join("\n");
       expect(logged).not.toContain(marker);
     }
+  });
+});
+
+describe("validación de la respuesta del modelo contra las fuentes (AI-02)", () => {
+  it("degrada a outOfScope cuando una cifra del bloque no aparece en la fuente citada", async () => {
+    const invalido = respuestaModelo([
+      {
+        kind: "fact",
+        claim: "El plazo es de 45 días naturales.",
+        citations: [{ sourceId: "fuente-prueba" }],
+      },
+    ]);
+    const { deps, calls } = makeDeps({
+      provider: { name: "fake", complete: async () => ({ text: invalido }) },
+    });
+    const response = await handleAssistant(makeRequest({ question: "¿Cuántos días tengo?" }), deps);
+    expect(response.status).toBe(200);
+    const body = (await response.json()) as {
+      answer: { outOfScope: boolean; blocks: unknown[] };
+    };
+    expect(body.answer.outOfScope).toBe(true);
+    expect(body.answer.blocks).toEqual([]);
+    // Un reintento único: como máximo dos llamadas al proveedor.
+    expect(calls).toHaveLength(2);
+  });
+
+  it("degrada a outOfScope cuando el modelo cita una fuente desconocida", async () => {
+    const invalido = respuestaModelo([
+      {
+        kind: "fact",
+        claim: "El plazo de reclamación es de 30 días.",
+        citations: [{ sourceId: "fuente-inexistente" }],
+      },
+    ]);
+    const { deps, calls } = makeDeps({
+      provider: { name: "fake", complete: async () => ({ text: invalido }) },
+    });
+    const response = await handleAssistant(makeRequest({ question: "¿Cuántos días tengo?" }), deps);
+    expect(response.status).toBe(200);
+    const body = (await response.json()) as {
+      answer: { outOfScope: boolean; blocks: unknown[] };
+    };
+    expect(body.answer.outOfScope).toBe(true);
+    expect(body.answer.blocks).toEqual([]);
+    expect(calls).toHaveLength(2);
+  });
+
+  it("degrada a outOfScope cuando la respuesta lleva dos avisos", async () => {
+    const invalido = respuestaModelo([
+      {
+        kind: "warning",
+        claim: "Atención: el plazo es de 30 días.",
+        citations: [{ sourceId: "fuente-prueba" }],
+      },
+      {
+        kind: "warning",
+        claim: "Atención: la reclamación es gratuita.",
+        citations: [{ sourceId: "fuente-prueba" }],
+      },
+    ]);
+    const { deps, calls } = makeDeps({
+      provider: { name: "fake", complete: async () => ({ text: invalido }) },
+    });
+    const response = await handleAssistant(makeRequest({ question: "¿Cuántos días tengo?" }), deps);
+    expect(response.status).toBe(200);
+    const body = (await response.json()) as {
+      answer: { outOfScope: boolean; blocks: unknown[] };
+    };
+    expect(body.answer.outOfScope).toBe(true);
+    expect(body.answer.blocks).toEqual([]);
+    expect(calls).toHaveLength(2);
+  });
+
+  it("degrada a outOfScope cuando el modelo no responde con el JSON del catálogo", async () => {
+    const { deps, calls } = makeDeps({
+      provider: {
+        name: "fake",
+        complete: async () => ({ text: "Texto plano sin JSON ni bloques." }),
+      },
+    });
+    const response = await handleAssistant(makeRequest({ question: "¿Cuántos días tengo?" }), deps);
+    expect(response.status).toBe(200);
+    const body = (await response.json()) as {
+      answer: { outOfScope: boolean; blocks: unknown[] };
+    };
+    expect(body.answer.outOfScope).toBe(true);
+    expect(body.answer.blocks).toEqual([]);
+    expect(calls).toHaveLength(2);
+  });
+
+  it("reintenta una vez con el error de validación y sin repetir la respuesta completa del modelo", async () => {
+    const invalido = respuestaModelo([
+      {
+        kind: "fact",
+        claim: "El plazo es de 45 días naturales.",
+        citations: [{ sourceId: "fuente-prueba" }],
+      },
+    ]);
+    let llamada = 0;
+    const { deps, calls } = makeDeps({
+      provider: {
+        name: "fake",
+        complete: async () => {
+          llamada += 1;
+          return { text: llamada === 1 ? invalido : respuestaModelo() };
+        },
+      },
+    });
+    const response = await handleAssistant(makeRequest({ question: "¿Cuántos días tengo?" }), deps);
+    expect(response.status).toBe(200);
+    expect(calls).toHaveLength(2);
+    const reintento = calls[1];
+    expect(reintento).toBeDefined();
+    const ultimo = reintento?.messages.at(-1);
+    expect(ultimo?.content).toContain("45");
+    // No se devuelve la respuesta completa del modelo al proveedor: solo los errores.
+    expect(ultimo?.content).not.toContain("naturales");
+    expect(ultimo?.content).not.toContain('"blocks"');
+    expect(ultimo?.content).not.toContain("citations");
+  });
+
+  it("devuelve los bloques validados cuando el reintento corrige la respuesta", async () => {
+    const invalido = respuestaModelo([
+      {
+        kind: "fact",
+        claim: "El plazo es de 45 días naturales.",
+        citations: [{ sourceId: "fuente-prueba" }],
+      },
+    ]);
+    let llamada = 0;
+    const { deps, calls } = makeDeps({
+      provider: {
+        name: "fake",
+        complete: async () => {
+          llamada += 1;
+          return { text: llamada === 1 ? invalido : respuestaModelo() };
+        },
+      },
+    });
+    const response = await handleAssistant(makeRequest({ question: "¿Cuántos días tengo?" }), deps);
+    expect(response.status).toBe(200);
+    const body = (await response.json()) as {
+      answer: { outOfScope: boolean; blocks: { kind: string; claim: string }[] };
+    };
+    expect(body.answer.outOfScope).toBe(false);
+    expect(body.answer.blocks).toHaveLength(1);
+    expect(calls).toHaveLength(2);
+  });
+
+  it("acepta una respuesta del propio modelo que declara outOfScope", async () => {
+    const { deps, calls } = makeDeps({
+      provider: {
+        name: "fake",
+        complete: async () => ({
+          text: JSON.stringify({ question: "¿X?", outOfScope: true, blocks: [] }),
+        }),
+      },
+    });
+    const response = await handleAssistant(makeRequest({ question: "¿X?" }), deps);
+    expect(response.status).toBe(200);
+    const body = (await response.json()) as {
+      answer: { outOfScope: boolean; blocks: unknown[] };
+    };
+    expect(body.answer.outOfScope).toBe(true);
+    expect(body.answer.blocks).toEqual([]);
+    expect(calls).toHaveLength(1);
   });
 });
 

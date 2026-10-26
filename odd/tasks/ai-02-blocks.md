@@ -33,15 +33,21 @@ El endpoint del asistente deja de devolver `{ reply: string }` y pasa a devolver
 
 ## Tareas
 
-- [ ] T1: tests de validación contra fuentes: cifra no respaldada, fuente desconocida, exceso de avisos (RED).
-- [ ] T2: integración en el endpoint con un reintento y `outOfScope` como salida segura.
-- [ ] T3: renderizador de los seis `kind` con la cita visible y enlace a la fuente.
-- [ ] T4: caso de texto con marcado en un `claim` y estado vacío explicado.
-- [ ] T5: `pnpm check` en verde.
+- [x] T1: tests de validación contra fuentes: cifra no respaldada, fuente desconocida, exceso de avisos (RED).
+- [x] T2: integración en el endpoint con un reintento y `outOfScope` como salida segura.
+- [x] T3: renderizador de los seis `kind` con la cita visible y enlace a la fuente.
+- [x] T4: caso de texto con marcado en un `claim` y estado vacío explicado.
+- [x] T5: `pnpm check` en verde.
 
 ## Evidencia y progreso
 
-Pendiente de rellenar por quien implementa: comandos, número de tests y cómo comprobó que ningún bloque se pinta sin validar.
+- RED: nueve tests de servidor fallando (cifra no respaldada, fuente desconocida, dos avisos, JSON fuera del catálogo, reintento, aceptación de `outOfScope` y dos del contrato anterior de `reply`) y el test de componente sin módulo.
+- GREEN: 33 de 33 en `apps/web`; `pnpm check`, `pnpm build` y `pnpm e2e` en verde.
+- Contrato: la respuesta 200 pasa de `{ reply: string }` a `{ answer: AssistantAnswer, fuentes: Record<sourceId, { titulo, url }> }`. Los códigos de error no cambian y ninguno repite el contenido recibido.
+- Reintento: como máximo dos llamadas al proveedor; la segunda envía solo los errores de validación, nunca la respuesta completa del modelo, comprobado con aserciones sobre el cuerpo enviado. Si vuelve a fallar, 200 con `outOfScope: true` y sin bloques.
+- Fuentes: `retrieveSources` devuelve id, título, URL y texto; el texto valida las cifras y el título con la URL construyen el catálogo de citas enlazadas. Hasta AI-03 devuelve vacío, así que el endpoint responde `outOfScope`: degradación honesta y documentada.
+- Ningún bloque se pinta sin validar: la vista solo consume respuestas ya validadas y el HTML dentro de un `claim` se pinta como texto.
+- `passWithNoTests` retirado del proyecto `jsdom`, que ya tiene tests reales.
 
 ## Siguiente paso
 
