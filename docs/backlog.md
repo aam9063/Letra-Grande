@@ -143,3 +143,4 @@ Estas tareas no se ejecutan dentro de la tarea que las origina: se registran aqu
 | REF-AI-06 | Review de AI-06, hallazgo 5 | Circuit breaker en half-open: limitar a una única sonda en vuelo para no lanzar una tormenta de pruebas al recuperarse. |
 | REF-VAULT-02 | Review de VAULT-02 | Cuatro seguimientos: bloqueo entre pestañas con Web Locks, simulación de aborto a mitad de transacción, nota de memoria con blobs grandes y el doble cast del `payload`. |
 | REF-UI-02 | Review de UI-02, hallazgo 5 | La comprobación de 375 px se hizo a mano y no quedó como spec: entra en `QA-07` (accesibilidad, responsive y offline). |
+| REF-OPS-05b | Revisión de AI-03a | El comprobador de informes extrae el id del título con el patrón `[a-z]+-\d+`, así que una tarea con letra final (`AI-03a`) busca `ai-03.md` y no `ai-03a.md`. Ampliar el patrón a `[a-z]+-\d+[a-z]?` antes de que se repita. |
