@@ -40,6 +40,8 @@ Datos de macOS verificados antes de escribirlos, porque cambian: distribuir fuer
 
 Detalle técnico que condiciona la implementación y queda escrito: el renderer no se puede servir con `file://`, porque Chromium le da un origen opaco y deja IndexedDB y WebCrypto poco fiables. Va por un protocolo propio, `app://letra-grande`.
 
+Ronda de correcciones aplicada: la fila D-11 ya existe en el documento de arranque (el guard anterior se confundió con `MOD-11`), reglas de permisos y de confianza del canal de actualización añadidas, corrección del actualizador en Linux, el `webpack` de `extensionAlias` se mantiene en las dos salidas y el mecanismo de detección de escritorio queda nombrado. Informe en `odd/reviews/desk-00.md`.
+
 ## Siguiente paso
 
 `DESK-01`, el build de dos salidas en `apps/web`, que es el cambio más delicado y no toca ni la PWA ni la ruta de API.

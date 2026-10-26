@@ -61,6 +61,8 @@ El proceso principal es código privilegiado. Reglas mínimas, todas verificable
 - CSP estricta en la respuesta del protocolo propio, con `connect-src` limitado al proxy configurado.
 - Sin telemetría, sin analytics, sin scripts remotos. Lo mismo que en la web.
 - Una sola instancia por usuario.
+- **Permisos denegados por defecto.** `setPermissionRequestHandler` y `setPermissionCheckHandler` rechazan cámara, micrófono, geolocalización, notificaciones y portapapeles salvo que una función concreta lo necesite y se justifique en revisión. Con documentos personales dentro, una página comprometida pidiendo permisos es un vector real.
+- **Canal de actualización con confianza explícita.** La firma del paquete no protege del secuestro del feed: la URL de actualizaciones es fija y va por HTTPS, se exige firma también en el manifiesto de actualización y el certificado de firma se guarda en el gestor de secretos del CI, nunca en el repositorio.
 - El actualizador solo acepta paquetes firmados; sin firma, no hay actualización silenciosa.
 
 ## 5. Diferencia con la PWA en el comportamiento
@@ -74,11 +76,11 @@ El proceso principal es código privilegiado. Reglas mínimas, todas verificable
 | Actualizaciones | Al recargar | `electron-updater`, con aviso y reinicio |
 | Asistente | Requiere conexión | Requiere conexión |
 
-El registro del service worker se desactiva cuando la app corre en el escritorio, detectado por una variable inyectada en el protocolo (no por la presencia de `process`, que es justo lo que sandbox elimina).
+El registro del service worker se desactiva cuando la app corre en el escritorio. El mecanismo previsto es una constante del build estático (`import.meta.env.DESKTOP`), que `next build` fija para la salida de escritorio y deja vacía en la web: no depende de `process`, que es justo lo que `sandbox` elimina del renderer.
 
 ## 6. Qué hay que cambiar en el código
 
-1. `apps/web/next.config.ts`: soportar dos salidas. Con una variable de entorno, `output: "export"` y sin `webpack` personalizado si la exportación lo permite; sin ella, el build de servidor actual. Es el cambio más delicado y va primero.
+1. `apps/web/next.config.ts`: soportar dos salidas. Con una variable de entorno, `output: "export"`; sin ella, el build de servidor actual. El `webpack` de `extensionAlias` se mantiene en las dos, porque los paquetes del workspace siguen siendo fuentes TypeScript con especificadores `.js` y la exportación no lo cambia. Es el cambio más delicado y va primero.
 2. `apps/web/src/components/shell/ServiceWorkerRegistrar.tsx`: no registrar nada en modo escritorio.
 3. Un módulo de configuración con la URL base del proxy, con valor por entorno y sin secretos.
 4. La copia cifrada: en escritorio usa el diálogo nativo; en web, descarga.
@@ -111,7 +113,7 @@ Nada de esto toca el vault, la privacidad, el radar ni el motor de contenido: el
 **Linux (cuando se decida)**
 
 - AppImage o `.deb`, sin firma obligatoria.
-- El actualizador automático no está soportado por Electron en Linux: se actualiza por el gestor de paquetes o descargando de nuevo.
+- El actualizador automático no está soportado por el módulo `autoUpdater` de Electron en Linux. Con `electron-updater` sí funciona para AppImage; en `.deb` se actualiza por el gestor de paquetes o descargando de nuevo.
 
 ## 9. Riesgos y límites
 

@@ -1574,6 +1574,7 @@ qué dijo la review y qué queda pendiente.
 | D-08 | Qué comunidades cubrir primero | La tuya (Comunitat Valenciana), por poder verificar mejor el contenido |
 | D-09 | Modelo del implementador y del revisor | Modelos distintos. Decidir con la métrica de hallazgos aceptados (sección 22.6) |
 | D-10 | Quién aprueba los merges | Siempre una persona (H-10), aunque la review sea favorable |
+| D-11 | Escritorio descargable: ¿Tauri, Electron o solo PWA? | **Decidido**: Electron, con el proxy de IA alojado y Windows primero; la PWA se mantiene. Detalle en `desktop.md`. |
 
 ---
 
