@@ -12,6 +12,8 @@ function claveEstable(kind: PiiKind, valor: string): string {
     case "tarjeta":
       return valor.replace(/[\s-]/g, "");
     case "telefono":
+      // La clave son solo los últimos 9 dígitos: dos números que los compartan comparten marcador.
+      // Se acepta para números españoles (+34 opcional delante).
       return valor.replace(/\D/g, "").slice(-9);
     case "email":
       return valor.toLowerCase();

@@ -16,11 +16,15 @@ const PRIORIDAD: readonly PiiKind[] = [
 ];
 
 // Patrones con límites Unicode para no engullir partes de palabras o de números mayores.
-const RE_IBAN = /(?<![\p{L}\p{N}])ES\d{2}(?: ?[A-Z0-9]{4}){5}(?![\p{L}\p{N}])/gu;
-const RE_CUPS = /(?<![\p{L}\p{N}])ES ?\d{4}(?: ?\d{4}){3} ?[A-Z]{2}\d[A-Z](?: ?[A-Z0-9]{2})?(?![\p{L}\p{N}])/gu;
+// IBAN: se acepta el prefijo en mayúsculas o minúsculas; la validación y la clave del marcador normalizan a mayúsculas.
+const RE_IBAN = /(?<![\p{L}\p{N}])ES\d{2}(?: ?[A-Z0-9]{4}){5}(?![\p{L}\p{N}])/giu;
+const RE_CUPS = /(?<![\p{L}\p{N}])ES ?\d{4}(?: ?\d{4}){3} ?[A-Z]{2}\d[A-Z](?: ?[A-Z0-9]{2})?(?![\p{L}\p{N}])/giu;
 const RE_TARJETA = /(?<![\p{N}\p{L}])\d(?:[ -]?\d){12,18}(?![\p{N}\p{L}])/gu;
 const RE_EMAIL = /(?<![A-Za-z0-9._%+-])[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g;
-const RE_DOCUMENTO = /(?<![\p{L}\p{N}])(?:[XYZ]\d{7}|\d{8})[A-Z](?![\p{L}\p{N}])/gu;
+// Documento: la letra vale en mayúsculas o minúsculas cuando va pegada a los dígitos; si hay espacio
+// separador, solo mayúscula (por eso la frase "el 12345678 a las 10" no se detecta y "12345678 A" sí).
+const RE_DOCUMENTO =
+  /(?<![\p{L}\p{N}])(?:[XYZxyz]\d{7}[A-Za-z]|[XYZ]\d{7} [A-Z]|\d{8}[A-Za-z]|\d{8} [A-Z])(?![\p{L}\p{N}])/gu;
 const RE_TELEFONO = /(?<![\p{N}\p{L}])(?:\+34 ?)?[6789]\d{2}(?: ?\d{2}){3}(?![\p{N}\p{L}])/gu;
 
 /** Candidato interno: añade el valor canónico que se guardará en el mapping. */
@@ -28,8 +32,9 @@ export interface Candidato extends Detection {
   canonico: string;
 }
 
+// Se escapan los metacaracteres, incluidas las llaves: en modo u una llave suelta rompe el RegExp.
 function escapar(texto: string): string {
-  return texto.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return texto.replace(/[.*+?^${}()|[\]\\}]/g, "\\$&");
 }
 
 /** Genera los candidatos crudos, en orden de prioridad. La tarjeta falla Luhn no se propone: no es una tarjeta. */

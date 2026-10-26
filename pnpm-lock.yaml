@@ -106,10 +106,6 @@ importers:
         version: 3.2.7(@types/node@22.20.5)(jsdom@25.0.1)(tsx@4.23.15)(yaml@2.9.1)
 
   packages/privacy:
-    dependencies:
-      '@letra-grande/schema':
-        specifier: workspace:*
-        version: link:../schema
     devDependencies:
       '@vitest/coverage-v8':
         specifier: ^3.0.0

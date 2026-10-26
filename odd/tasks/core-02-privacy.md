@@ -29,11 +29,11 @@ Implementar `@letra-grande/privacy` según la sección 9: `detect`, `mask`, `unm
 
 ## Tareas
 
-- [ ] T1: tests de los vectores de la sección 9 (RED).
-- [ ] T2: `detect` con prioridad, validaciones y solapes.
-- [ ] T3: `mask`, `unmask` e `isSafeToSend` con placeholders estables.
-- [ ] T4: cobertura del paquete por encima del 90 % y `--passWithNoTests` eliminado.
-- [ ] T5: `pnpm check` en verde.
+- [x] T1: tests de los vectores de la sección 9 (RED).
+- [x] T2: `detect` con prioridad, validaciones y solapes.
+- [x] T3: `mask`, `unmask` e `isSafeToSend` con placeholders estables.
+- [x] T4: cobertura del paquete por encima del 90 % y `--passWithNoTests` eliminado.
+- [x] T5: `pnpm check` en verde.
 
 ## Evidencia y progreso
 
@@ -45,6 +45,8 @@ Implementar `@letra-grande/privacy` según la sección 9: `detect`, `mask`, `unm
 - Prioridad implementada: términos conocidos, IBAN, CUPS, tarjeta, email, documento, teléfono; a igual prioridad, longitud descendente y luego posición; los solapes se descartan.
 - Interpretación reportada, no silenciosa: Luhn actúa como puerta del patrón tarjeta (si falla, no hay detección), tal como pide el vector `4111 1111 1111 1112`; documento e IBAN inválidos sí se detectan con `valid: false` y se enmascaran igualmente.
 - El mapping de un término conocido guarda el valor canónico del término, para que todas sus variantes de caso compartan el mismo marcador.
+
+Ronda de correcciones aplicada: patrones tolerantes a minúsculas (IBAN, CUPS y letra de DNI/NIE pegada a los dígitos), desempate por longitud probado, dependencia muerta eliminada, escape de `}` explícito y colisión de teléfono documentada. Informe en `odd/reviews/core-02.md`.
 
 ## Siguiente paso
 

@@ -202,4 +202,68 @@ describe("Casos límite", () => {
     expect(mask(masked).masked).toBe(masked);
     expect(mask(masked).mapping).toEqual({});
   });
+
+  it("12345678z en minúsculas se detecta como documento válido", () => {
+    const dets = detect("dni: 12345678z");
+    expect(dets).toHaveLength(1);
+    expect(dets[0]?.kind).toBe("documento");
+    expect(dets[0]?.valid).toBe(true);
+    expect(mask("dni: 12345678z").masked).toBe("dni: {{documento_1}}");
+  });
+
+  it("12345678z y 12345678Z comparten marcador", () => {
+    expect(mask("12345678z y 12345678Z").masked).toBe("{{documento_1}} y {{documento_1}}");
+  });
+
+  it("x1234567l en minúsculas se detecta como NIE válido", () => {
+    const dets = detect("x1234567l");
+    expect(dets).toHaveLength(1);
+    expect(dets[0]?.kind).toBe("documento");
+    expect(dets[0]?.valid).toBe(true);
+  });
+
+  it("es91 2100 0418 4502 0005 1332 en minúsculas se detecta como iban válido", () => {
+    const dets = detect("es91 2100 0418 4502 0005 1332");
+    expect(dets).toHaveLength(1);
+    expect(dets[0]?.kind).toBe("iban");
+    expect(dets[0]?.valid).toBe(true);
+  });
+
+  it("el iban en minúsculas comparte marcador con el iban en mayúsculas", () => {
+    const texto = "es91 2100 0418 4502 0005 1332 y ES91 2100 0418 4502 0005 1332";
+    const { masked } = mask(texto);
+    expect(masked).toBe("{{iban_1}} y {{iban_1}}");
+  });
+
+  it("un CUPS en minúsculas se detecta", () => {
+    const dets = detect("es0123456789012345zp1x");
+    expect(dets).toHaveLength(1);
+    expect(dets[0]?.kind).toBe("cups");
+  });
+
+  it("con A mayúscula pegada al bloque de 8 dígitos sí se detecta: compensación documentada", () => {
+    const dets = detect("el 12345678 A las 10");
+    expect(dets).toHaveLength(1);
+    expect(dets[0]?.kind).toBe("documento");
+    expect(mask("el 12345678 A las 10").masked).toBe("el {{documento_1}} las 10");
+  });
+
+  it("ante solape de dos términos conocidos de igual prioridad gana el más largo", () => {
+    const opts = {
+      knownTerms: [
+        { kind: "nombre" as const, value: "Ana" },
+        { kind: "nombre" as const, value: "Ana García" },
+      ],
+    };
+    const { masked, mapping } = mask("Ficha de Ana García", opts);
+    expect(masked).toBe("Ficha de {{nombre_1}}");
+    expect(mapping["{{nombre_1}}"]).toBe("Ana García");
+  });
+
+  it("un término conocido con llaves se escapa y se enmascara bien", () => {
+    const opts = { knownTerms: [{ kind: "otro" as const, value: "Expediente }2024{" }] };
+    const { masked, mapping } = mask("Caso Expediente }2024{ cerrado", opts);
+    expect(masked).toBe("Caso {{otro_1}} cerrado");
+    expect(mapping["{{otro_1}}"]).toBe("Expediente }2024{");
+  });
 });
