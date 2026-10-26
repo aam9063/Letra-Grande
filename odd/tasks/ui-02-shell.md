@@ -29,15 +29,21 @@ Dar a Letra Grande su carcasa: layout con navegación inferior, una ruta por mó
 
 ## Tareas
 
-- [ ] T1: shell con navegación inferior accesible y tests de roles y destinos (RED).
-- [ ] T2: ocho rutas de módulo con encabezado propio y estado "pendiente" honesto.
-- [ ] T3: manifiesto, iconos y service worker con estrategia de caché documentada y versionada.
-- [ ] T4: `transpilePackages` para `@letra-grande/design`, `vitest` configurado y script `test` del paquete.
-- [ ] T5: `pnpm check` y `pnpm build` en verde, sin scroll horizontal a 375 px.
+- [x] T1: shell con navegación inferior accesible y tests de roles y destinos (RED).
+- [x] T2: ocho rutas de módulo con encabezado propio y estado "pendiente" honesto.
+- [x] T3: manifiesto, iconos y service worker con estrategia de caché documentada y versionada.
+- [x] T4: `transpilePackages` para `@letra-grande/design`, `vitest` configurado y script `test` del paquete.
+- [x] T5: `pnpm check` y `pnpm build` en verde, sin scroll horizontal a 375 px.
 
 ## Evidencia y progreso
 
-Pendiente de rellenar por quien implementa: comandos, número de tests, comprobación de 375 px.
+- RED: siete ficheros de test en rojo antes de implementar (componentes, rutas, manifiesto y service worker).
+- GREEN: 22 de 22 tests con vitest en `apps/web`; `pnpm check`, `pnpm build` (12 rutas estáticas) y `pnpm e2e` en verde.
+- Navegación: `nav` con etiqueta "Secciones", lista de ocho destinos con `aria-current="page"` y objetivos de al menos 44 px mediante el token de diseño.
+- Aviso de independencia en el layout raíz, visible en todas las rutas.
+- Service worker propio, versión `lg-shell-v1`, precachea solo el shell (raíz, manifiesto e iconos), cachea únicamente respuestas de rutas precacheadas y nunca escribe datos de usuario; un test comprueba que no hay `cache.put` de contenido.
+- 375 px comprobado con Playwright y la build de producción: `scrollWidth` no supera el ancho en cuatro rutas.
+- Deuda detectada y trasladada: el barril de `@letra-grande/design` reexporta la galería (que usa `react-dom/server` y `node:fs`), así que importar componentes de diseño desde el navegador rompe la build. Hasta arreglarlo, el aviso replica las clases del `Callout`. Se corrige en la ronda de correcciones, separando el barril de cliente.
 
 ## Siguiente paso
 
