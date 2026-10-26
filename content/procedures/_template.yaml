@@ -1,0 +1,34 @@
+id: tramite-ejemplo
+title: Trámite de ejemplo (ficha ficticia)
+audience: consumidor
+sector: otros
+summary: Resumen de una o dos frases de qué consigue este trámite.
+steps:
+  - n: 1
+    text: Primer paso, redactado en imperativo amable.
+    sourceId: fuente-1
+  - n: 2
+    text: Segundo paso.
+    sourceId: fuente-1
+documents:
+  - text: Documento necesario.
+    sourceId: fuente-1
+deadlines:
+  - id: plazo-ejemplo
+    label: Plazo de ejemplo
+    kind: plazo_legal
+    amount: 10
+    unit: dias_naturales
+    from: recepción de la notificación
+    sourceId: fuente-1
+warnings: []
+legalBasis: []
+sources:
+  - id: fuente-1
+    title: Fuente de ejemplo
+    url: https://example.com/fuente
+    kind: oficial
+    retrievedOn: "2026-10-26"
+verification:
+  verified: false
+  note: Plantilla ficticia. Los plazos son inventados para probar el esquema.

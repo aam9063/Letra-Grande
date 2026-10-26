@@ -37,7 +37,12 @@ Implementar `@letra-grande/schema` completo: ficha de empresa, organismo, trámi
 
 ## Evidencia y progreso
 
-Pendiente de rellenar por quien implementa: comandos ejecutados, número de tests y su resultado.
+- RED: 21 tests fallando con `TypeError: Cannot read properties of undefined (reading 'safeParse')`, porque los módulos de `src/` todavía no existían.
+- GREEN: 21 de 21 en verde tras implementar los seis módulos.
+- `pnpm check` en la raíz: estilo, tipos y tests en verde.
+- `pnpm content:validate`: `Contenido OK: 3 ficha(s) válidas.`, las tres plantillas pasan por el validador real de la sección 8.7.
+- Test pendiente del documento cubierto: el número de orden de un paso no se cuenta como cifra de la afirmación.
+- Ajustes respecto al documento: `StepBlock` se importa como valor y se tipa con `z.infer<typeof StepBlock>` (en zod 4 es un valor, no un tipo), y el test del número de paso usa los pasos 1 y 2 porque un paso suelto con `n: 3` violaría la numeración correlativa.
 
 ## Siguiente paso
 

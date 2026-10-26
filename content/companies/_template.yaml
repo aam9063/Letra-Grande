@@ -1,0 +1,20 @@
+id: empresa-ejemplo
+name: Empresa Ejemplo S.A. (ficha ficticia)
+sector: otros
+channels:
+  atencionCliente:
+    - kind: web
+      value: https://example.com/atencion
+      sourceId: web-empresa
+  reclamacion: []
+  baja: []
+escalation: []
+sources:
+  - id: web-empresa
+    title: Web de ejemplo
+    url: https://example.com/
+    kind: empresa
+    retrievedOn: "2026-10-26"
+verification:
+  verified: false
+  note: Plantilla ficticia. No contiene datos reales.
