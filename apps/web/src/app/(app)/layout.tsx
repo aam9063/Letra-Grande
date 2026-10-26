@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { Callout } from "@letra-grande/design/client";
 import Link from "next/link";
+import { GateOnboarding } from "@/components/onboarding/GateOnboarding";
 import { BottomNav } from "@/components/shell/BottomNav";
 import { Sidebar } from "@/components/shell/Sidebar";
 
@@ -11,6 +12,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
   return (
     <div className="lg-shell">
       <Sidebar />
+      <GateOnboarding />
       <div className="lg-principal">
         <Link href="/hoy" className="lg-cabecera-movil">
           <span className="lg-cabecera-movil-cubo" aria-hidden="true">

@@ -1,5 +1,11 @@
 import { expect, test } from "@playwright/test";
 
+// El onboarding ya se vio: el gate no redirige a /onboarding en estas pruebas
+// del shell (la bandera es la misma de UI-05).
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem("lg-onboarding-hecho", "1"));
+});
+
 // El shell responsive (UI-04): barra flotante glass en móvil, sidebar en
 // escritorio y hoja «Más» accesible. Se fija el viewport en cada prueba para
 // que los cuatro proyectos de navegador midan lo mismo.

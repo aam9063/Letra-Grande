@@ -3,7 +3,10 @@ import { describe, expect, it, vi } from "vitest";
 import { usePathname } from "next/navigation";
 import AppLayout from "../../app/(app)/layout";
 
-vi.mock("next/navigation", () => ({ usePathname: vi.fn(() => "/hoy") }));
+vi.mock("next/navigation", () => ({
+  usePathname: vi.fn(() => "/hoy"),
+  useRouter: vi.fn(() => ({ replace: vi.fn() })),
+}));
 
 describe("AppLayout", () => {
   it("muestra el aviso de independencia en el layout de la app, visible desde cualquier ruta", () => {

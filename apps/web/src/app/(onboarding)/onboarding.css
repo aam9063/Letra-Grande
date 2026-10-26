@@ -1,0 +1,292 @@
+/* Onboarding de primer arranque (UI-05): pantalla completa fuera del shell,
+   con los valores del sistema de diseño (tinta, lienzo, superficie, acento). */
+
+.lg-ob {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  max-width: 52rem;
+  margin: 0 auto;
+  padding: 1.5rem 1.25rem 2rem;
+  background: var(--lg-lienzo);
+  color: var(--lg-tinta);
+  font-size: 1.125rem;
+  line-height: 1.5;
+}
+
+.lg-ob-cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.lg-ob-puntos {
+  display: flex;
+  gap: 0.375rem;
+}
+
+.lg-ob-punto {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: #d5d5dc;
+}
+
+.lg-ob-punto-activo {
+  width: 1.75rem;
+  background: var(--lg-tinta);
+}
+
+.lg-ob-saltar {
+  min-height: var(--lg-objetivo);
+  border: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #55555f;
+  cursor: pointer;
+}
+
+.lg-ob-seccion {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.lg-ob-seccion h1 {
+  margin: 1rem 0 0;
+  font-size: clamp(2.125rem, 5vw, 3.25rem);
+  line-height: 1.1;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+}
+
+.lg-ob-subtitulo {
+  margin: 0.75rem 0 0;
+  font-size: 1.1875rem;
+  color: #3a3a42;
+  max-width: 40rem;
+}
+
+/* Paso 1: tarjetas numeradas. */
+.lg-ob-tarjetas {
+  margin-top: 2.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+}
+
+.lg-ob-tarjeta {
+  flex: 1 1 15rem;
+  min-width: 0;
+  background: var(--lg-superficie);
+  border: 1px solid #e3e3e8;
+  border-radius: 1.25rem;
+  padding: 1.5rem;
+}
+
+.lg-ob-tarjeta-cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #55555f;
+}
+
+.lg-ob-icono {
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 0.875rem;
+  background: #ecf5f4;
+  color: #26605c;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lg-ob-tarjeta h2 {
+  margin: 1rem 0 0;
+  font-size: 1.375rem;
+  line-height: 1.2;
+  font-weight: 700;
+}
+
+.lg-ob-tarjeta p {
+  margin: 0.5rem 0 0;
+  font-size: 1.0625rem;
+  color: #3a3a42;
+}
+
+/* Paso 2: tabla comparativa. */
+.lg-ob-tabla {
+  margin-top: 2rem;
+  background: var(--lg-superficie);
+  border: 1px solid #e3e3e8;
+  border-radius: 1.25rem;
+  overflow: hidden;
+}
+
+.lg-ob-fila {
+  display: grid;
+  grid-template-columns: minmax(7rem, 1fr) 1fr 1.2fr;
+}
+
+.lg-ob-fila + .lg-ob-fila {
+  border-top: 1px solid #ececf0;
+}
+
+.lg-ob-fila > span {
+  padding: 0.875rem 1rem;
+  font-size: 1rem;
+  line-height: 1.4;
+}
+
+.lg-ob-tema {
+  font-weight: 700;
+}
+
+.lg-ob-general {
+  color: #55555f;
+}
+
+.lg-ob-columna-propia,
+.lg-ob-propio {
+  background: #ecf5f4;
+  font-weight: 700;
+  color: #141414;
+}
+
+.lg-ob-fila-cabecera > span {
+  font-weight: 700;
+  font-size: 0.9375rem;
+  color: #55555f;
+}
+
+.lg-ob-propio {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-start;
+}
+
+.lg-ob-propio svg {
+  margin-top: 0.1875rem;
+  color: #135c2e;
+}
+
+/* Paso 3: relato de seguridad. */
+.lg-ob-relato {
+  margin-top: 2rem;
+  background: var(--lg-superficie);
+  border: 1px solid #e3e3e8;
+  border-radius: 1.25rem;
+  padding: 1.5rem;
+}
+
+.lg-ob-contador {
+  margin: 0 0 1rem;
+  font-size: 1.25rem;
+}
+
+.lg-ob-contador strong {
+  font-size: 3.5rem;
+  line-height: 1;
+  font-weight: 700;
+  color: #26605c;
+  margin-right: 0.5rem;
+  vertical-align: -0.375rem;
+}
+
+.lg-ob-relato-lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.lg-ob-relato-lista li {
+  display: flex;
+  gap: 0.875rem;
+  align-items: flex-start;
+}
+
+.lg-ob-relato-lista strong {
+  display: block;
+  font-size: 1.0625rem;
+}
+
+.lg-ob-relato-lista p {
+  margin: 0;
+  font-size: 1rem;
+  color: #55555f;
+}
+
+/* Paso 4: instalación. */
+.lg-ob-instalacion {
+  margin-top: 2rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+}
+
+.lg-ob-instalacion > div {
+  flex: 1 1 16rem;
+  min-width: 0;
+  background: var(--lg-superficie);
+  border: 1px solid #e3e3e8;
+  border-radius: 1.25rem;
+  padding: 1.5rem;
+}
+
+.lg-ob-instalacion h2 {
+  margin: 0 0 0.75rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.lg-ob-instalacion ol {
+  margin: 0;
+  padding-left: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  font-size: 1.0625rem;
+}
+
+/* Acciones finales. */
+.lg-ob-acciones {
+  margin-top: 2.5rem;
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.lg-ob-boton-solido {
+  min-height: 3.25rem;
+  padding: 0 2.25rem;
+  border: none;
+  border-radius: 1rem;
+  background: var(--lg-acento);
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 1.1875rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.lg-ob-boton-secundario {
+  min-height: 3.25rem;
+  padding: 0 1.75rem;
+  border: 2px solid var(--lg-tinta);
+  border-radius: 1rem;
+  background: var(--lg-superficie);
+  color: var(--lg-tinta);
+  font-family: inherit;
+  font-size: 1.125rem;
+  font-weight: 700;
+  cursor: pointer;
+}
