@@ -1,33 +1,18 @@
-// Validador mínimo del contenido, provisional. CORE-01 lo sustituye por el de la sección 8.7.
-import { readdirSync, readFileSync } from "node:fs";
-import { join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { parse } from "yaml";
+import { Authority, Company, Procedure } from "../src";
+import { validateContent } from "../src/validate-content-core";
 
 const root = fileURLToPath(new URL("../../../content", import.meta.url));
-const collections = ["companies", "authorities", "procedures"];
-const problems: string[] = [];
-let count = 0;
 
-for (const dir of collections) {
-  let files: string[] = [];
-  try {
-    files = readdirSync(join(root, dir)).filter((f) => /\.ya?ml$/.test(f));
-  } catch {
-    continue;
-  }
-  for (const file of files) {
-    try {
-      parse(readFileSync(join(root, dir, file), "utf8"));
-      count += 1;
-    } catch (error) {
-      problems.push(`${dir}/${file}: YAML inválido: ${(error as Error).message}`);
-    }
-  }
-}
+const result = validateContent(root, [
+  { dir: "companies", schema: Company },
+  { dir: "authorities", schema: Authority },
+  { dir: "procedures", schema: Procedure },
+]);
 
-if (problems.length > 0) {
-  console.error(problems.join("\n"));
+for (const w of result.warnings) console.warn(`AVISO ${w}`);
+if (result.errors.length > 0) {
+  console.error(`\n${result.errors.length} error(es) de contenido:\n` + result.errors.map((e) => `  - ${e}`).join("\n"));
   process.exit(1);
 }
-console.log(`Contenido OK: ${count} ficha(s) válidas.`);
+console.log(`Contenido OK: ${result.validCount} ficha(s) válidas.`);
