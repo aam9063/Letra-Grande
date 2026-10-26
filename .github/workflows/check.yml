@@ -1,6 +1,7 @@
 name: check
 on:
   pull_request:
+    types: [opened, synchronize, reopened, edited]
   push:
     branches: [main, dev]
 
@@ -18,9 +19,18 @@ jobs:
       - run: pnpm check
       - run: pnpm build
 
-
   e2e:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+    # Imagen oficial de Playwright: trae Node, navegadores y dependencias del sistema.
+    # Evita `playwright install --with-deps` y su apt, que en runners Ubuntu se cuelga
+    # de forma intermitente y bloquea la entrega. La etiqueta debe seguir la versión
+    # de @playwright/test del lockfile.
+    container:
+      image: mcr.microsoft.com/playwright:v1.64.1-noble
+      # Firefox necesita ipc compartido y un usuario sin privilegios: como root,
+      # el sandbox de Firefox falla con EPERM al crear el espacio de nombres.
+      options: --ipc=host --user 1001
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -29,8 +39,6 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      # Navegadores para Playwright, con dependencias del sistema en Ubuntu.
-      - run: pnpm --filter @letra-grande/web exec playwright install --with-deps
       # El proveedor mock de la IA se activa en el webServer de la configuración.
       # Las fixtures sintéticas se regeneran aquí: no se versionan sus binarios.
       - run: pnpm --filter @letra-grande/web fixtures
@@ -41,3 +49,18 @@ jobs:
           name: playwright-report
           path: apps/web/playwright-report
           retention-days: 7
+
+  review-report:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Probar el script del informe de review
+        run: node --test scripts/check-review-report.test.mjs
+      - name: Comprobar el informe de review
+        run: node scripts/check-review-report.mjs
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
