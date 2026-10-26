@@ -6,7 +6,7 @@ import type { LlmCompleteInput, LlmProvider, TokenBucketQuota } from "@letra-gra
 import { detect } from "@letra-grande/privacy";
 
 // Prompt provisional: los prompts definitivos y el guardarraíles los define AI-05.
-const SYSTEM_PROMPT =
+export const SYSTEM_PROMPT =
   "Eres el asistente de Letra Grande. Explica facturas, contratos y cartas oficiales con frases cortas y cita la fuente usada.";
 const MAX_TOKENS = 512;
 
@@ -49,6 +49,30 @@ function errorResponse(code: AssistantErrorCode, status: number): Response {
   return Response.json(body, { status });
 }
 
+// Lectura acotada del cuerpo: corta en cuanto los bytes acumulados superan el límite,
+// sin drenar el resto del stream (con Transfer-Encoding: chunked no hay Content-Length).
+async function readBodyText(request: Request, maxBytes: number): Promise<string | undefined> {
+  const stream = request.body;
+  if (stream === null) return "";
+  const reader = stream.getReader();
+  const decoder = new TextDecoder();
+  let bytes = 0;
+  let text = "";
+  try {
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      bytes += value.byteLength;
+      if (bytes > maxBytes) return undefined;
+      text += decoder.decode(value, { stream: true });
+    }
+    return text + decoder.decode();
+  } finally {
+    // Cancela el stream para no seguir recibiendo el resto del cuerpo.
+    void reader.cancel().catch(() => {});
+  }
+}
+
 function readQuestion(body: unknown): string | undefined {
   if (typeof body !== "object" || body === null || Array.isArray(body)) return undefined;
   const question = (body as { question?: unknown }).question;
@@ -61,13 +85,13 @@ export async function handleAssistant(request: Request, deps: AssistantDeps): Pr
     return errorResponse("payload_too_large", 413);
   }
 
-  let raw: string;
+  let raw: string | undefined;
   try {
-    raw = await request.text();
+    raw = await readBodyText(request, MAX_BODY_BYTES);
   } catch {
     return errorResponse("invalid_body", 400);
   }
-  if (raw.length > MAX_BODY_BYTES) {
+  if (raw === undefined) {
     return errorResponse("payload_too_large", 413);
   }
 
@@ -91,7 +115,12 @@ export async function handleAssistant(request: Request, deps: AssistantDeps): Pr
     return errorResponse("unmasked_data", 422);
   }
 
-  if (!deps.quota.tryConsume(deps.deriveAnonymousId(request.headers))) {
+  // El token se comprueba antes de llamar al proveedor, pero solo se consume si la
+  // llamada tiene éxito: un fallo o un circuito abierto no cuesta cuota. En carrera,
+  // otra petición podría agotar el cubo entre la comprobación y el consumo: el token
+  // no se consume y la respuesta ya generada se devuelve igual (coste ya incurrido).
+  const anonymousId = deps.deriveAnonymousId(request.headers);
+  if (deps.quota.available(anonymousId) <= 0) {
     return errorResponse("rate_limited", 429);
   }
 
@@ -102,6 +131,7 @@ export async function handleAssistant(request: Request, deps: AssistantDeps): Pr
   };
   try {
     const result = await deps.provider.complete(input);
+    deps.quota.tryConsume(anonymousId);
     const ok: AssistantOkBody = { reply: result.text };
     return Response.json(ok);
   } catch {

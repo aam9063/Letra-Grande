@@ -46,6 +46,8 @@ Exponer un único endpoint de servidor que reciba texto ya enmascarado, lo vuelv
 - Sin logs de contenido: el handler no llama a `console` en ningún camino; un test espía `log`, `warn`, `error`, `info` y `debug` durante una petición correcta y otra fallida con una pregunta marcada y comprueba que ninguna salida la contiene.
 - Nota para AI-02: el proyecto `jsdom` de `apps/web/vitest.config.ts` usa `passWithNoTests` hasta que AI-02 añada tests de componentes; AI-02 debe quitar esa bandera al añadirlos.
 
+Ronda de correcciones aplicada: tiempo de espera explícito de 30 s, lectura acotada del cuerpo también sin `Content-Length`, límite medido en bytes, cuota que no se cobra cuando el proveedor falla y test que congela que la pregunta nunca llega al mensaje de sistema. `REF-AI-01` registrado. Informe en `odd/reviews/ai-01.md`.
+
 ## Siguiente paso
 
 Desbloquea AI-03 y AI-05.

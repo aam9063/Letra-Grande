@@ -7,7 +7,13 @@ import {
   type LlmProvider,
 } from "@letra-grande/ai";
 import { deriveAnonymousId } from "./anonymous-id";
-import { MAX_QUESTION_CHARS, handleAssistant, type AssistantDeps } from "./handler";
+import { PROVIDER_TIMEOUT_MS, withTimeout } from "./deps";
+import {
+  MAX_QUESTION_CHARS,
+  SYSTEM_PROMPT,
+  handleAssistant,
+  type AssistantDeps,
+} from "./handler";
 
 const MOCK_REPLY = "Según la ficha de prueba: esta es la respuesta simulada del proveedor.";
 
@@ -48,6 +54,26 @@ function makeRequest(body: unknown, headers?: Record<string, string>): Request {
     headers: { "content-type": "application/json", ...headers },
     body: typeof body === "string" ? body : JSON.stringify(body),
   });
+}
+
+// Emoji de prueba: 4 bytes en UTF-8 pero 2 unidades UTF-16, útil para distinguir bytes de unidades.
+const EMOJI = "\u{1F4C9}";
+const encoder = new TextEncoder();
+
+function chunkedRequest(chunks: string[]): Request {
+  const stream = new ReadableStream<Uint8Array>({
+    start(controller) {
+      for (const chunk of chunks) controller.enqueue(encoder.encode(chunk));
+      controller.close();
+    },
+  });
+  const init: RequestInit & { duplex: "half" } = {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: stream,
+    duplex: "half",
+  };
+  return new Request("http://localhost:3000/api/assistant", init);
 }
 
 afterEach(() => {
@@ -172,6 +198,84 @@ describe("POST /api/assistant", () => {
     expect(response.status).toBe(503);
     const body = (await response.json()) as { error: { code: string } };
     expect(body.error.code).toBe("service_unavailable");
+  });
+
+  it("responde 503 cuando el proveedor no responde y se agota el tiempo de espera", async () => {
+    // Proveedor que nunca resuelve y solo reacciona a la señal de aborto, como el adaptador real.
+    const hanging: LlmProvider = {
+      name: "fake",
+      complete: (input) =>
+        new Promise((_, reject) => {
+          input.signal?.addEventListener("abort", () => reject(LlmError.aborted()));
+        }),
+    };
+    const timed = withTimeout(hanging, 20);
+    const { deps, calls } = makeDeps({ provider: timed });
+    const response = await handleAssistant(makeRequest({ question: "{{documento_1}}" }), deps);
+    expect(response.status).toBe(503);
+    const body = (await response.json()) as { error: { code: string } };
+    expect(body.error.code).toBe("service_unavailable");
+    expect(calls).toHaveLength(1);
+  });
+
+  it("usa un tiempo de espera de 30 000 ms para el proveedor", () => {
+    expect(PROVIDER_TIMEOUT_MS).toBe(30_000);
+  });
+
+  it("rechaza un cuerpo fragmentado mayor que el límite en bytes sin content-length", async () => {
+    const { deps, calls } = makeDeps();
+    const padded = JSON.stringify({ question: "hola", padding: EMOJI.repeat(10_000) });
+    const response = await handleAssistant(chunkedRequest([padded]), deps);
+    expect(response.status).toBe(413);
+    const body = (await response.json()) as { error: { code: string } };
+    expect(body.error.code).toBe("payload_too_large");
+    expect(calls).toHaveLength(0);
+  });
+
+  it("acepta un cuerpo multibyte justo por debajo del límite en bytes", async () => {
+    const { deps, calls } = makeDeps();
+    // 5 000 emoji: unos 20 000 bytes de cuerpo, justo por debajo de los 20 KiB.
+    const response = await handleAssistant(
+      makeRequest({ question: "hola", padding: EMOJI.repeat(5_000) }),
+      deps,
+    );
+    expect(response.status).toBe(200);
+    const body = (await response.json()) as { reply: string };
+    expect(body.reply).toBe(MOCK_REPLY);
+    expect(calls).toHaveLength(1);
+  });
+
+  it("un fallo del proveedor no consume cuota del usuario anónimo", async () => {
+    let fail = true;
+    const { deps, calls } = makeDeps({
+      quota: new TokenBucketQuota({
+        capacity: 1,
+        refillCount: 1,
+        refillIntervalMs: 60_000,
+        now: () => Date.now(),
+      }),
+      provider: {
+        name: "fake",
+        complete: async () => {
+          if (fail) throw new LlmError("server", "fallo simulado");
+          return { text: MOCK_REPLY };
+        },
+      },
+    });
+    const failed = await handleAssistant(makeRequest({ question: "{{documento_1}}" }), deps);
+    expect(failed.status).toBe(503);
+    fail = false;
+    const retry = await handleAssistant(makeRequest({ question: "{{documento_1}}" }), deps);
+    expect(retry.status).toBe(200);
+    expect(calls).toHaveLength(2);
+  });
+
+  it("el cuerpo de la petición nunca llega al system prompt", async () => {
+    const marker = "MARCADOR-EN-LA-PREGUNTA";
+    const { deps, calls } = makeDeps();
+    await handleAssistant(makeRequest({ question: `¿Qué es ${marker}?` }), deps);
+    expect(calls[0]?.system).toBe(SYSTEM_PROMPT);
+    expect(calls[0]?.system).not.toContain(marker);
   });
 
   it("no registra el contenido de la pregunta en consola, ni en éxito ni en fallo", async () => {
