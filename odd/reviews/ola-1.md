@@ -43,7 +43,7 @@ En `docs/backlog.md`, tabla de refactores: `REF-OPS-01`, `REF-OPS-01b`, `REF-OPS
 
 ## Estado de las tareas humanas de la Ola 0
 
-Siguen abiertas, ninguna bloquea la Ola 2 salvo donde se indica: H-01 (nombre y marca), H-02 (revisión legal), H-03 (proveedor y cuotas), H-04 (licencia del contenido y moderación), H-05 (asociación de consumidores), H-06 (avisos: `.ics` en el MVP), H-07 (verificación de fichas, bloquea el lanzamiento), H-08 (condiciones de NaN, bloquea producción de la IA), H-09 (resuelto en la práctica: el entorno funciona), H-10 (protección de `main`, pendiente en GitHub) y D-01 (acento y tipografía, hoy con valores provisionales aislados en tokens).
+Siguen abiertas, ninguna bloquea la Ola 2 salvo donde se indica: H-01 (nombre y marca), H-02 (revisión legal), H-03 (proveedor y cuotas), H-04 (licencia del contenido y moderación), H-05 (asociación de consumidores), H-06 (avisos: `.ics` en el MVP), H-07 (verificación de fichas, bloquea el lanzamiento), H-08 (condiciones de NaN, bloquea producción de la IA), H-09 (resuelto en la práctica: el entorno funciona), H-10 (hecho: `dev` y `main` protegidas) y D-01 (acento y tipografía, hoy con valores provisionales aislados en tokens).
 
 ## Protección de ramas
 

@@ -45,10 +45,14 @@ Comprobaciones activas en `dev` y en `main`:
 | Force push | Prohibido |
 | Borrado de la rama | Prohibido |
 | Aplicado a administradores | Sí |
+| Descarte de revisiones obsoletas | Sí |
+| Resolución de conversaciones antes de mergear | Sí |
 
 Primera prueba, con `enforce_admins` desactivado: el push directo **pasó**. Es el hallazgo importante de la tarea: la protección sin esa opción no protege al dueño del repositorio, que es quien la necesita. Segunda prueba, con `enforce_admins` activo: rechazo con `GH006: Protected branch update failed`, "Changes must be made through a pull request" y "3 of 3 required status checks are expected".
 
 Incidente conocido: el commit de la primera prueba (`8cda87f`, vacío y sin cambios de contenido) quedó en la historia de `dev`, porque quitarlo exige reescribir esa rama y la herramienta del agente no permite operaciones destructivas de git. No afecta a nada y se explica aquí para que nadie lo confunda con trabajo real. Quitarlo requiere, desde una terminal normal: habilitar temporalmente el force push en la protección, hacer `git push --force-with-lease origin 779d0f5:dev` y volver a deshabilitarlo.
+
+Ronda de correcciones aplicada: H-10 deja de figurar como pendiente en el informe de ola, el backlog aclara que la aprobación no la exige GitHub, y la tabla añade las dos reglas que faltaban. Informe en `odd/reviews/h-10.md`.
 
 ## Siguiente paso
 
