@@ -11,6 +11,7 @@ Estado vivo de las tareas de Letra Grande. El detalle de cada tarea vive en su d
 | 1 (documentación) | CORE-03: `ARCHITECTURE.md` y `data-model.md` | hecho |
 | 2 | RADAR-01 hecho; DOCS-01 a DOCS-03, RADAR-02, CARPETA-01, AI-03 a AI-05, MOD-01 a MOD-03, CONTENT-02 a CONTENT-04 pendientes | en curso |
 
+
 ## Detalle de las olas
 
 Cada tarea la ejecuta un agente en su carril. `Dep.` indica dependencias. Los criterios de aceptación son comprobables.
