@@ -18,6 +18,14 @@ Las plantillas de issue están en `.github/ISSUE_TEMPLATE/`. No pongas datos per
 
 Tiempo estimado: 10 a 15 minutos por ficha. Este es el trabajo que no se comprime con agentes: pueden preparar borradores y buscar fuentes, pero la verificación final la hace una persona.
 
+Para los pasos 5 y 6 necesitas un poco de preparación, aunque no programas:
+
+1. Clona el repositorio.
+2. Instala Node 22 o posterior y pnpm.
+3. Ejecuta `pnpm install` en la raíz. Después ya puedes lanzar `pnpm check` y `pnpm content:validate`.
+
+Cómo abrir el pull request del paso 6 se explica paso a paso en la sección 2, Contribuir código.
+
 1. Abre la fuente **oficial o de la propia empresa** en su versión actual. Guarda la URL.
 2. Comprueba cada dato (canal, teléfono, plazo, importe) contra esa fuente. Nunca contra un foro o un comparador.
 3. Rellena `sources` con título, URL, tipo y fecha de consulta.
@@ -31,8 +39,9 @@ Antes de abrir el PR, ejecuta `pnpm check` en la raíz. Dentro corre `pnpm conte
 
 - Cada ficha es YAML válido y cumple el esquema de su colección (`companies`, `authorities`, `procedures`).
 - `verified: true` exige `verifiedOn`, `verifiedBy` y al menos una fuente de tipo `oficial` o `empresa`. Una fuente de tipo `tercero` no basta para verificar.
-- Cada `sourceId` (canales, pasos, documentos, plazos) apunta a una fuente de la misma ficha. Los ids de fuente no se repiten dentro de una ficha.
+- Cada `sourceId` (canales, pasos, documentos, plazos, avisos `warnings`, `cost` y `permanencia`) apunta a una fuente de la misma ficha. Los ids de fuente no se repiten dentro de una ficha.
 - Los pasos de un trámite van numerados 1, 2, 3... sin saltos ni repeticiones.
+- Un organismo con ámbito `autonomico` o `local` necesita su campo `region`.
 - El archivo se llama `<id>.yaml` igual que el `id` de la ficha. Las plantillas, que empiezan por `_`, quedan fuera de esta regla.
 - Los ids no se repiten dentro de la misma carpeta.
 - Cada id de `escalation` existe como organismo en `content/authorities`.

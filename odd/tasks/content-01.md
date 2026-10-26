@@ -38,6 +38,8 @@ Dejar por escrito y en el repositorio cómo se verifica una ficha contra una fue
 - `pnpm check`: `Estilo OK.`, tipos y tests en verde, `Contenido OK: 0 ficha(s) válidas.`
 - Los tres documentos y plantillas están en español, sin rayas largas ni medias rayas, y sin datos reales.
 
+Ronda de correcciones aplicada: enumeración completa de campos con `sourceId` (avisos, coste y permanencia), regla de `region`, prerrequisitos para quien no programa y referencia cruzada al flujo de PR. Informe en `odd/reviews/content-01.md`.
+
 ## Siguiente paso
 
 Desbloquea `CONTENT-02`, `CONTENT-03` y `CONTENT-04`.
