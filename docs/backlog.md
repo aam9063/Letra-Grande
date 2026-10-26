@@ -7,7 +7,7 @@ Estado vivo de las tareas de Letra Grande. El detalle de cada tarea vive en su d
 | Ola | Tareas | Estado |
 |---|---|---|
 | 0 | H-01 a H-10, D-01 | pendiente (humano) |
-| 1 | OPS-01, CORE-01, CORE-02, UI-01, OPS-04, AI-06, VAULT-01, UI-02, CONTENT-01, OPS-05, AI-01, AI-02, VAULT-02 | en curso |
+| 1 | OPS-01, CORE-01, CORE-02, UI-01, OPS-04, AI-06, VAULT-01, UI-02, CONTENT-01, OPS-05, AI-01, AI-02, VAULT-02, OPS-04b, OPS-06 | hecho |
 
 ## Detalle de las olas
 
@@ -52,7 +52,7 @@ Cada tarea la ejecuta un agente en su carril. `Dep.` indica dependencias. Los cr
 | VAULT-02 | Exportar e importar copia cifrada y "borrar todo" | VAULT-01 | Ida y vuelta sin pérdida; tras borrar no queda nada en IndexedDB |
 | AI-01 | Proxy de IA sin estado: rate limit, sin logs de cuerpo, rechaza PII residual | CORE-02, AI-06 | Test: petición con DNI es rechazada; ningún log contiene el texto |
 | AI-02 | Renderizador de bloques en UI y validación de servidor (`validateAnswerAgainstSources`) | CORE-01, UI-01 | Respuesta con cifra inventada se descarta; cada `kind` tiene componente |
-| CONTENT-01 | Guía y checklist de verificación, plantilla de PR de datos, issue templates | CORE-01 | Plantillas en `.github/`; `CONTRIBUTING.md` con el flujo |
+| CONTENT-01 | Guía y checklist de verificación e issue templates (la plantilla de PR pertenece a OPS-05) | CORE-01 | Plantillas de issue en `.github/`; `CONTRIBUTING.md` con el flujo |
 | OPS-04 | Playwright: configuración, cuatro proyectos, fixtures sintéticas, guardián de red, CI con informe y trazas (sección 23) | OPS-01 | `pnpm e2e` pasa con un smoke test en los cuatro proyectos; el CI sube el informe |
 | OPS-05 | Review gate: `docs/review-gate.md`, plantilla de informe, plantilla de PR con casilla de review, script que falla si falta `odd/reviews/<id>.md` en un PR con id (sección 22) | OPS-01, H-09 | Un PR de prueba sin informe falla y con informe pasa |
 | AI-06 | Capa de proveedor: interfaz `LlmProvider`, adaptadores `nan` (compatible con OpenAI) y `mock`, política de errores y reintentos, cuota por usuario, `.env.example` (sección 24) | CORE-01 | Tests con servidor simulado: un 429 se reintenta y un 401 no; el modo `mock` es determinista |
@@ -136,3 +136,8 @@ Estas tareas no se ejecutan dentro de la tarea que las origina: se registran aqu
 | REF-OPS-04 | Review de OPS-04, hallazgo 2 | El guardián de red solo escucha `page.on("request")`: valorar escuchar también `context.on("request")` para cubrir peticiones del service worker antes de los specs de privacidad de la Ola 2. |
 | REF-OPS-04b | Review de OPS-04, hallazgo 3 | `process.env as Record<string, string>` en `playwright.config.ts` oculta valores indefinidos en el entorno del `webServer`. |
 | REF-OPS-06 | Review de OPS-06, hallazgo 1 | Salir de webpack: migrar a Turbopack cuando soporte `extensionAlias`, o reescribir los especificadores `.js` de los paquetes del workspace por `bundler`-friendly. Hoy `next dev --webpack` y `next build --webpack` son la salida prevista. |
+| REF-UI-01 | Review de UI-01, hallazgo 4 | Cuatro componentes de bloque idénticos salvo la etiqueta: extraer uno genérico con etiqueta y clase por `kind`. |
+| REF-AI-01 | Review de AI-01, hallazgo 1 | Mover el tiempo de espera del proveedor a la factoría de `@letra-grande/ai` (`ProviderFromEnvOptions.timeoutMs`) en lugar del decorador del proxy. |
+| REF-AI-06 | Review de AI-06, hallazgo 5 | Circuit breaker en half-open: limitar a una única sonda en vuelo para no lanzar una tormenta de pruebas al recuperarse. |
+| REF-VAULT-02 | Review de VAULT-02 | Cuatro seguimientos: bloqueo entre pestañas con Web Locks, simulación de aborto a mitad de transacción, nota de memoria con blobs grandes y el doble cast del `payload`. |
+| REF-UI-02 | Review de UI-02, hallazgo 5 | La comprobación de 375 px se hizo a mano y no quedó como spec: entra en `QA-07` (accesibilidad, responsive y offline). |
