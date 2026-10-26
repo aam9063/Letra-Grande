@@ -29,15 +29,22 @@ Implementar `@letra-grande/vault`: las colecciones `profiles`, `documents`, `blo
 
 ## Tareas
 
-- [ ] T1: tests de apertura, cifrado y descifrado con `fake-indexeddb` (RED).
-- [ ] T2: derivación de clave (PBKDF2 600 000, sal de 16 bytes, parámetros persistidos) y `CryptoKey` no extraíble.
-- [ ] T3: cifrado AES-256-GCM por registro con IV de 12 bytes y autenticación comprobada.
-- [ ] T4: colecciones tipadas, cierre de sesión y bloqueo por inactividad.
-- [ ] T5: `--passWithNoTests` eliminado y `pnpm check` en verde.
+- [x] T1: tests de apertura, cifrado y descifrado con `fake-indexeddb` (RED).
+- [x] T2: derivación de clave (PBKDF2 600 000, sal de 16 bytes, parámetros persistidos) y `CryptoKey` no extraíble.
+- [x] T3: cifrado AES-256-GCM por registro con IV de 12 bytes y autenticación comprobada.
+- [x] T4: colecciones tipadas, cierre de sesión y bloqueo por inactividad.
+- [x] T5: `--passWithNoTests` eliminado y `pnpm check` en verde.
 
 ## Evidencia y progreso
 
-Pendiente de rellenar por quien implementa: comandos, número de tests y comprobación de que la clave no es extraíble.
+- RED: dos ficheros de test fallando con `Cannot find module '../src/vault.js'`.
+- GREEN: 16 de 16 tests.
+- La clave se deriva con `extractable: false` y el test afirma que no es extraíble y que `JSON.stringify` devuelve un objeto vacío; nunca se persiste ni se serializa, vive solo en la instancia en memoria.
+- Bloqueo por inactividad con un temporizador inyectable (por defecto `setTimeout`), reprogramado en cada operación y en `touch()`; al dispararse descarta la clave, cierra IndexedDB y avisa por `onLock`.
+- Contraseña errónea: se descifra un verificador en `meta` y se lanza `WrongPasswordError` sin escribir nada; el test comprueba que los datos y los parámetros de derivación quedan intactos.
+- Registro manipulado: el test altera un byte del ciphertext en IndexedDB y el descifrado falla con `VaultCorruptError` en vez de devolver basura.
+- Las 600.000 iteraciones de PBKDF2 son el valor por defecto y el test lo afirma; en los tests se inyecta un valor bajo para no hacer la suite inusable.
+- `pnpm check` en la raíz en verde.
 
 ## Siguiente paso
 
