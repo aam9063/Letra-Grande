@@ -29,15 +29,20 @@ Definir la interfaz `LlmProvider`, sus dos adaptadores (`nan` compatible con Ope
 
 ## Tareas
 
-- [ ] T1: tests con servidor simulado: 429 con reintento, 401 sin reintento, 5xx con reintento acotado (RED).
-- [ ] T2: interfaz `LlmProvider` y clasificación de errores (401, 402, 403, 404 sin reintento; 429 y 5xx con reintento).
-- [ ] T3: adaptador `nan` (base URL y clave desde entorno, sin valores por defecto secretos) y adaptador `mock` determinista.
-- [ ] T4: circuit breaker, cuota por usuario anónimo y presupuesto diario.
-- [ ] T5: `.env.example` sin secretos, `docs/ai-provider.md`, `--passWithNoTests` eliminado y `pnpm check` en verde.
+- [x] T1: tests con servidor simulado: 429 con reintento, 401 sin reintento, 5xx con reintento acotado (RED).
+- [x] T2: interfaz `LlmProvider` y clasificación de errores (401, 402, 403, 404 sin reintento; 429 y 5xx con reintento).
+- [x] T3: adaptador `nan` (base URL y clave desde entorno, sin valores por defecto secretos) y adaptador `mock` determinista.
+- [x] T4: circuit breaker, cuota por usuario anónimo y presupuesto diario.
+- [x] T5: `.env.example` sin secretos, `docs/ai-provider.md`, `--passWithNoTests` eliminado y `pnpm check` en verde.
 
 ## Evidencia y progreso
 
-Pendiente de rellenar por quien implementa: comandos, número de tests y comprobación de que no hay red real.
+- RED: seis ficheros de test fallando por módulos inexistentes, cero tests ejecutados.
+- GREEN: 46 de 46 tests en seis ficheros, con `fetch` simulado y relojes inyectados: ningún test abre un socket.
+- `pnpm check` en la raíz en verde.
+- Decisión de reintentos documentada: `maxAttempts` es 2 en total (original más un reintento), según la tabla de la sección 24.5, configurable en `DEFAULT_RETRY_OPTIONS`.
+- La clave no aparece en ningún mensaje de error ni en ninguna respuesta; sin clave o sin modelo, el adaptador falla al arrancar y nunca usa un valor por defecto.
+- El reintento por salida inválida (sección 24.5) no vive aquí: pertenece al proxy (AI-01).
 
 ## Siguiente paso
 
