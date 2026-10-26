@@ -4,6 +4,9 @@ import type { NextConfig } from "next";
 // y usan especificadores ESM ".js" en sus imports internos (la convención correcta
 // para ESM). TypeScript los resuelve con moduleResolution: Bundler, pero webpack
 // no: con extensionAlias le decimos que "./x.js" puede ser "./x.ts" o "./x.tsx".
+// Corremos con --webpack (ver scripts): Turbopack (por defecto en Next 16) aún no
+// soporta extensionAlias (turbopack.resolveExtensionAlias llega en versiones
+// posteriores a la 16.4.3).
 const nextConfig: NextConfig = {
   transpilePackages: [
     "@letra-grande/schema",

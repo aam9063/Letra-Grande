@@ -17,5 +17,5 @@
     "e2e": "pnpm --filter @letra-grande/web e2e",
     "check:full": "pnpm check && pnpm e2e"
   },
-  "devDependencies": { "typescript": "^5.6.0" }
+  "devDependencies": { "typescript": "^7.0.2" }
 }
