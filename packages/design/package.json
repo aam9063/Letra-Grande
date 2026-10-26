@@ -8,7 +8,8 @@
   "exports": { ".": "./src/index.ts" },
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "test": "vitest run --passWithNoTests"
+    "test": "vitest run",
+    "gallery": "vitest run src/gallery/generate.test.tsx"
   },
   "dependencies": {
     "react": "^19.0.0",

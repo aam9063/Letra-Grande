@@ -38,7 +38,12 @@ Crear `@letra-grande/design`: tokens de la sección 14, el componente `Callout` 
 
 ## Evidencia y progreso
 
-Pendiente de rellenar por quien implementa: comandos, número de tests, resultado de axe.
+- RED: seis ficheros de test fallando por módulos inexistentes (`tokens`, `Callout`, `blocks`, `gallery`).
+- GREEN: 33 de 33 tests en verde.
+- Contraste medido: tinta sobre lienzo 17,2:1; tinta sobre superficie 17,4:1; blanco sobre acento 6,6:1; tonos de `Callout` entre 7,3:1 y 9,1:1; acento sobre lienzo 6,1:1 (foco, no texto, mínimo 3:1).
+- axe sobre la galería: 0 violaciones. En jsdom queda un `color-contrast` como "incomplete", limitación conocida del entorno, y el contraste AA se comprueba además con la función de luminancia del propio paquete.
+- `pnpm check` en la raíz en verde.
+- D-01 sigue abierta: acento provisional `#0B5FA5` y `system-ui`, ambos en un solo token para poder cambiarlos sin tocar componentes.
 
 ## Siguiente paso
 
