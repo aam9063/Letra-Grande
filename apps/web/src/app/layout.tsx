@@ -1,8 +1,21 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
+import localFont from "next/font/local";
 import { Callout } from "@letra-grande/design/client";
 import { BottomNav } from "@/components/shell/BottomNav";
 import { ServiceWorkerRegistrar } from "@/components/shell/ServiceWorkerRegistrar";
+
+// Fuente de marca autoalojada (SIL OFL 1.1, ver fonts/OFL.txt): sin peticiones
+// a terceros. next/font genera el fallback ajustado (Host Grotesk Fallback)
+// para que el cambio de fuente no mueva el diseño.
+const hostGrotesk = localFont({
+  src: "./fonts/host-grotesk-latin.woff2",
+  weight: "400 800",
+  display: "swap",
+  variable: "--font-host-grotesk",
+  fallback: ["system-ui", "sans-serif"],
+});
+
 // Primero la hoja del paquete de diseño y después la de la app: así gana la
 // app en cualquier regla compartida.
 import "@letra-grande/design/base.css";
@@ -21,7 +34,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="es">
+    <html lang="es" className={hostGrotesk.variable}>
       <body>
         <div className="lg-shell">
           {children}

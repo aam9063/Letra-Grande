@@ -25,7 +25,8 @@ body {
   margin: 0;
   background: var(--lg-lienzo);
   color: var(--lg-tinta);
-  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  /* Fuente de marca con fallback: la variable la declara next/font en <html>. */
+  font-family: var(--font-host-grotesk), system-ui, -apple-system, "Segoe UI", sans-serif;
   font-size: var(--lg-fuente-base);
   line-height: var(--lg-linea);
 }
