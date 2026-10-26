@@ -28,6 +28,9 @@ jobs:
     # de @playwright/test del lockfile.
     container:
       image: mcr.microsoft.com/playwright:v1.64.1-noble
+      # Firefox necesita ipc compartido y un usuario sin privilegios: como root,
+      # el sandbox de Firefox falla con EPERM al crear el espacio de nombres.
+      options: --ipc=host --user 1001
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
