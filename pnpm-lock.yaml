@@ -14,9 +14,15 @@ importers:
 
   apps/web:
     dependencies:
+      '@letra-grande/ai':
+        specifier: workspace:*
+        version: link:../../packages/ai
       '@letra-grande/design':
         specifier: workspace:*
         version: link:../../packages/design
+      '@letra-grande/privacy':
+        specifier: workspace:*
+        version: link:../../packages/privacy
       next:
         specifier: ^15.0.0
         version: 15.5.28(@playwright/test@1.64.1)(@types/node@22.20.5)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)

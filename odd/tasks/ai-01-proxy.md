@@ -29,15 +29,22 @@ Exponer un único endpoint de servidor que reciba texto ya enmascarado, lo vuelv
 
 ## Tareas
 
-- [ ] T1: tests del handler con proveedor simulado: rechazo por PII, paso de texto enmascarado, límite de cuota (RED).
-- [ ] T2: handler sin estado, con validación de cuerpo y límite de tamaño.
-- [ ] T3: segunda comprobación con `detect()` de `@letra-grande/privacy` y rechazo sin eco del texto.
-- [ ] T4: rate limit y mensaje de degradación cuando el proveedor falla.
-- [ ] T5: comprobar que no hay logging de contenido y `pnpm check` en verde.
+- [x] T1: tests del handler con proveedor simulado: rechazo por PII, paso de texto enmascarado, límite de cuota (RED).
+- [x] T2: handler sin estado, con validación de cuerpo y límite de tamaño.
+- [x] T3: segunda comprobación con `detect()` de `@letra-grande/privacy` y rechazo sin eco del texto.
+- [x] T4: rate limit y mensaje de degradación cuando el proveedor falla.
+- [x] T5: comprobar que no hay logging de contenido y `pnpm check` en verde.
 
 ## Evidencia y progreso
 
-Pendiente de rellenar por quien implementa: comandos, número de tests y cómo comprobó la ausencia de logs con contenido.
+- RED: `vitest run` falló con `Cannot find module './anonymous-id'` antes de existir el handler.
+- GREEN: 11 de 11 tests del handler; `pnpm check` en la raíz en verde.
+- Runtime: `nodejs`, porque la guarda de servidor de `@letra-grande/ai` y sus adaptadores apuntan a Node y así `fetch`, el hashing y las variables de entorno se comportan igual en local y en producción.
+- Contrato: `POST { question }` acotado a 4000 caracteres y 20 KiB de cuerpo. Respuestas de error tipadas `{ error: { code, message } }` con códigos `invalid_body`, `payload_too_large`, `unmasked_data`, `rate_limited` y `service_unavailable`. Ninguna respuesta repite el texto recibido.
+- Segunda barrera: `detect()` sobre la pregunta; si encuentra algo, se responde 422 con un mensaje que pide enmascarar en el navegador y no incluye el valor detectado.
+- Identificador anónimo: SHA-256 truncado de la primera IP de `X-Forwarded-For`, el `User-Agent` y `Accept-Language`. Limitación documentada en el código: es una freno barato, no autenticación; si la plataforma no reescribe `X-Forwarded-For`, se puede falsificar, y varias personas detrás de un mismo proxy comparten cubo.
+- Sin logs de contenido: el handler no llama a `console` en ningún camino; un test espía `log`, `warn`, `error`, `info` y `debug` durante una petición correcta y otra fallida con una pregunta marcada y comprueba que ninguna salida la contiene.
+- Nota para AI-02: el proyecto `jsdom` de `apps/web/vitest.config.ts` usa `passWithNoTests` hasta que AI-02 añada tests de componentes; AI-02 debe quitar esa bandera al añadirlos.
 
 ## Siguiente paso
 

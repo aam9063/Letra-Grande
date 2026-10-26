@@ -10,10 +10,13 @@
     "e2e": "playwright test",
     "e2e:ui": "playwright test --ui",
     "e2e:live": "cross-env E2E_LIVE=1 playwright test",
-    "fixtures": "node e2e/fixtures/generate.mjs"
+    "fixtures": "node e2e/fixtures/generate.mjs",
+    "test": "vitest run"
   },
   "dependencies": {
+    "@letra-grande/ai": "workspace:*",
     "@letra-grande/design": "workspace:*",
+    "@letra-grande/privacy": "workspace:*",
     "next": "^15.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
