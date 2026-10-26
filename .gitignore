@@ -9,3 +9,6 @@ coverage
 *.log
 .cache
 *.tsbuildinfo
+apps/web/generated/
+apps/web/test-results/
+apps/web/playwright-report/

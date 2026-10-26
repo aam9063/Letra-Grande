@@ -1,0 +1,15 @@
+id: organismo-ejemplo
+name: Organismo de ejemplo (ficha ficticia)
+scope: estatal
+sectors: [otros]
+url: https://example.com/organismo
+howToFile: Descripción de cómo presentar una reclamación, tal como la explica la fuente.
+sources:
+  - id: web-organismo
+    title: Web de ejemplo
+    url: https://example.com/
+    kind: oficial
+    retrievedOn: "2026-10-26"
+verification:
+  verified: false
+  note: Plantilla ficticia. No contiene datos reales.
