@@ -36,7 +36,10 @@ El comprobador de CI extrae el id de tarea del título del PR con el patrón `LE
 ## Evidencia y progreso
 
 - Los tests del gate atraparon un error propio durante el cambio: un `expectedPath` sin definir en los mensajes posteriores, que rompía siete casos. Corregido antes de commitear; quedó como recordatorio de que la suite del gate sirve.
-- `node --test scripts/check-review-report.test.mjs`: 15 de 15 en verde, tres de ellos nuevos.
+- `node --test scripts/check-review-report.test.mjs`: 17 de 17 en verde: dos tests nuevos (informe de otra tarea y orden de candidatos) y los tres de la relajación ajustados.
+- Ronda de correcciones del review gate: documentación en `docs/review-gate.md`, ruta del mensaje con `basename` (Windows), y el gate compara ahora el front matter `tarea:` con el id del título (completo o base) para impedir que valga el informe de otra tarea.
+
+Ronda de correcciones aplicada: línea en la documentación, `basename` para la ruta en Windows, comparación del campo `tarea:` con el id del título para cerrar el falso positivo del informe de otra tarea, test que fija el orden de candidatos y limpieza con `try/finally`. `REF-OPS-05e` registrado para el checkout del merge ref. Informe en `odd/reviews/ops-05d.md`.
 
 ## Siguiente paso
 

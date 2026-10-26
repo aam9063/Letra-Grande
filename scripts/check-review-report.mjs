@@ -1,5 +1,5 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
-import { join, resolve } from "node:path";
+import { basename, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 // Comprobacion de CI: un PR cuyo titulo lleva id de tarea (por ejemplo OPS-05)
@@ -70,7 +70,7 @@ export function checkReviewReport({ title, reviewsDir }) {
   const reportFile = reportPathFor(reviewsDir, id);
   // Ruta que muestran los mensajes: siempre con el nombre encontrado, en
   // minusculas y relativa a odd/reviews, igual que en los mensajes anteriores.
-  const foundName = reportFile ? reportFile.split(/[\/]/).pop() : null;
+  const foundName = reportFile ? basename(reportFile).toLowerCase() : null;
   const expectedPath = foundName ? `odd/reviews/${foundName.toLowerCase()}` : expectedPaths[0];
   if (!reportFile) {
     return {
@@ -93,6 +93,18 @@ export function checkReviewReport({ title, reviewsDir }) {
     return {
       status: "fail",
       message: `Al informe ${expectedPath} le faltan claves en el front matter: ${missingKeys.join(", ")}. Copia la plantilla ${TEMPLATE_PATH}.`,
+    };
+  }
+
+  // El informe debe ser de esta tarea: aceptamos el id completo o su base
+  // (mismos candidatos que los nombres de archivo), sin distinguir mayusculas.
+  const tareaLine = frontMatter.find((line) => /^tarea\s*:/i.test(line));
+  const tarea = tareaLine.slice(tareaLine.indexOf(":") + 1).trim().toUpperCase();
+  const acceptedTaskIds = [id, id.replace(/[A-Z]$/, "")];
+  if (!acceptedTaskIds.includes(tarea)) {
+    return {
+      status: "fail",
+      message: `El informe ${expectedPath} pertenece a la tarea ${tarea}, pero el titulo del PR reclama la tarea ${id}. Crea el informe de ${id} en ${expectedPaths[0]} a partir de la plantilla ${TEMPLATE_PATH}.`,
     };
   }
 
