@@ -35,11 +35,18 @@ El radar es lo que hace volver a la app: una línea de tiempo con lo que vence. 
 - [x] `deadlineStatus`: estado a partir de la fecha de referencia (`vencido`, `hoy`, `proximo`, `lejano`, `hecho`, `descartado`).
 - [x] `sortRadarItems` y `upcoming`: orden estable y filtro por ventana de días.
 - [x] `toIcs`: generación del calendario con `VERSION`, `PRODID`, `VEVENT` de todo el día, `UID` estable y escapado.
-- [ ] Tests de cada unidad, de los bordes de calendario y del `.ics`; `pnpm check` en verde.
+- [x] Tests de cada unidad, de los bordes de calendario y del `.ics`; `pnpm check` en verde.
 
 ## Evidencia y progreso
 
-Pendiente de rellenar por quien implementa.
+- RED: la suite falló antes de implementar ("Failed to resolve import ../src/index"), cero tests ejecutados.
+- GREEN: 26 de 26 tests.
+- API pública: `addDeadline(from, rule)` devuelve `{ dueDate, aproximado }`; `deadlineStatus(item, today)`; `sortRadarItems(items)`; `upcoming(items, days, today)`; `toIcs(items, { now, calendarName?, prodId? })`. El reloj siempre es parámetro: la librería no llama a `Date.now()`.
+- Aritmética en UTC y con validación de ida y vuelta: rechaza `2026-02-30`. Meses y años suman sobre año y mes y recortan el día al último del mes destino (`2026-01-31` más un mes da `2026-02-28`; `2028-02-29` más cuatro años da `2032-02-29`). Los días hábiles cuentan desde el día siguiente saltando sábados y domingos, solo fines de semana, y devuelven `aproximado: true`.
+- `.ics`: líneas CRLF, `BEGIN:VCALENDAR`, `VERSION:2.0`, `PRODID`, `CALSCALE`, un `VEVENT` de todo el día por elemento pendiente, `UID` estable derivado del id, `DTSTAMP` del reloj inyectado, `DTSTART;VALUE=DATE` y `DTEND` al día siguiente, sin `TZID`.
+- Escapado y plegado: se escapa la barra invertida primero y después punto y coma, coma y saltos de línea; el plegado a 75 octetos es seguro con multibyte porque mide con `TextEncoder`. Los tests comprueban la cadena escapada exacta, que ninguna línea supera 75 octetos y el desplegado de ida y vuelta.
+- Garantías: un test recorre el código fuente y comprueba que no hay `fetch` ni `XMLHttpRequest`, y que los elementos de prueba no contienen patrones de email, teléfono ni documento.
+- `pnpm check` en la raíz en verde.
 
 ## Siguiente paso
 
