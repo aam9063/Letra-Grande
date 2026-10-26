@@ -29,7 +29,9 @@ export default defineConfig({
   // Se prueba la build de producción: el service worker de la PWA no se comporta igual en desarrollo.
   webServer: {
     command: `pnpm build && pnpm exec next start -p ${PORT}`,
-    url: `http://localhost:${PORT}`,
+    // Ruta estable del shell: la raíz es la landing y su contenido puede cambiar;
+    // la sonda solo necesita un 200 de la app.
+    url: `http://localhost:${PORT}/hoy`,
     reuseExistingServer: !process.env.CI,
     timeout: 240_000,
     env: {
