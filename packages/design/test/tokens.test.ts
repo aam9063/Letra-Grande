@@ -8,6 +8,15 @@ const dirPaquete = process.cwd();
 const hojaBase = readFileSync(join(dirPaquete, "src", "base.css"), "utf8");
 
 describe("hoja base y tokens de la seccion 14", () => {
+  it("el acento es el teal de la marca UI-03 y su texto va en tinta", () => {
+    // #3E9B94 da 3.3:1 con blanco (insuficiente para texto normal) y 5.5:1 con
+    // tinta #141414: el texto sobre acento es tinta, como el onAccent del mockup.
+    expect(tokens.colorAcento).toBe("#3E9B94");
+    expect(tokens.colorAcentoTexto).toBe("#141414");
+    expect(hojaBase).toContain("--lg-acento: #3E9B94");
+    expect(hojaBase).toContain("--lg-acento-texto: #141414");
+  });
+
   it("declara las custom properties de los tokens", () => {
     expect(hojaBase).toContain(`--lg-tinta: ${tokens.colorTinta}`);
     expect(hojaBase).toContain(`--lg-lienzo: ${tokens.colorLienzo}`);
