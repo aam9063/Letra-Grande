@@ -6,6 +6,9 @@ import { fileURLToPath } from "node:url";
 const root = fileURLToPath(new URL("..", import.meta.url));
 const IGNORE = new Set(["node_modules", ".next", ".git", "dist", "coverage", ".cache"]);
 const EXT = new Set([".md", ".yaml", ".yml", ".ts", ".tsx", ".mjs", ".json"]);
+// Generado por herramientas, no se edita a mano y no sigue nuestras reglas:
+// `next dev` reescribe apps/web/AGENTS.md en cada arranque.
+const IGNORE_FILES = new Set(["apps/web/AGENTS.md"]);
 const FORBIDDEN = [
   { char: String.fromCharCode(0x2014), name: "raya larga (em dash)" },
   { char: String.fromCharCode(0x2013), name: "media raya (en dash)" },
@@ -18,6 +21,7 @@ function walk(dir) {
     const full = join(dir, entry);
     if (statSync(full).isDirectory()) { walk(full); continue; }
     if (!EXT.has(extname(entry)) || entry === "pnpm-lock.yaml") continue;
+    if (IGNORE_FILES.has(relative(root, full).split("\\").join("/"))) continue;
     readFileSync(full, "utf8").split("\n").forEach((line, i) => {
       for (const f of FORBIDDEN) {
         if (line.includes(f.char)) problems.push(`${relative(root, full)}:${i + 1}: ${f.name}`);

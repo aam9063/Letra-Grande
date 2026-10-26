@@ -159,8 +159,11 @@ function parseModelAnswer(text: string): ParsedAnswer {
   if (!result.success) {
     return {
       ok: false,
+      // Zod emite sus mensajes en inglés: se traducen a una frase corta para que
+      // el reintento siga siendo una instrucción en español y no una traza técnica.
       errors: result.error.issues.map(
-        (issue) => `${issue.path.join(".") || "respuesta"}: ${issue.message}`,
+        (issue) =>
+          `El campo "${issue.path.join(".") || "respuesta"}" no encaja en el catálogo cerrado de bloques.`,
       ),
     };
   }
