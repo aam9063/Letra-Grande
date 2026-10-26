@@ -93,6 +93,10 @@ El service worker cachea solo el shell (raíz, manifiesto e iconos), sirve las n
 
 Lógica pura: `addDeadline` suma un plazo por unidad (días naturales, días hábiles, meses o años) y declara cuándo el resultado es aproximado, `deadlineStatus` y `sortRadarItems` ordenan la línea de tiempo y `toIcs` exporta los pendientes a un calendario de todo el día. Sin red, sin reloj implícito y sin dependencias. El detalle está en [`data-model.md`](data-model.md), sección 10.
 
+### Escritorio
+
+La misma interfaz se empaqueta como aplicación de escritorio con Electron, que reusa el build estático de `apps/web`. El binario **no lleva la clave de IA**: el asistente sigue llamando al proxy alojado. La decisión, la seguridad del envoltorio y lo que falta están en [`desktop.md`](desktop.md).
+
 ### Paquete de la Ola 2 pendiente
 
 `packages/extract` (PDF, OCR y extractores) todavía no existe: se crea en su tarea, que es cuando tiene código y tests que lo justifiquen.
