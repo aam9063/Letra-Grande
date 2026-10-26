@@ -8,3 +8,7 @@ coverage
 .DS_Store
 *.log
 .cache
+*.tsbuildinfo
+apps/web/generated/
+apps/web/test-results/
+apps/web/playwright-report/

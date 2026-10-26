@@ -1,0 +1,21 @@
+{
+  "name": "@letra-grande/schema",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": { ".": "./src/index.ts" },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "validate-content": "tsx scripts/validate-content.ts"
+  },
+  "dependencies": { "yaml": "^2.9.1", "zod": "^4.6.7" },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.5"
+  }
+}

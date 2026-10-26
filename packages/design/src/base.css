@@ -1,0 +1,185 @@
+/*
+ * Hoja base de Letra Grande. Tokens de la sección 14 de docs/ARRANQUE.md.
+ * D-01 pendiente: la tipografía es del sistema y el acento es provisional.
+ * Sin fuentes remotas, sin scripts de terceros.
+ */
+
+:root {
+  --lg-tinta: #141414;
+  --lg-lienzo: #F7F7F8;
+  --lg-superficie: #FFFFFF;
+  --lg-acento: #0B5FA5; /* provisional hasta cerrar D-01 */
+  --lg-acento-texto: #FFFFFF;
+  --lg-info-fondo: #E8F1FA;
+  --lg-info-texto: #0B3D66;
+  --lg-aviso-fondo: #FDF3D7;
+  --lg-aviso-texto: #6B4B00;
+  --lg-peligro-fondo: #FBE9E9;
+  --lg-peligro-texto: #8A1C1C;
+  --lg-exito-fondo: #E7F4EA;
+  --lg-exito-texto: #14532D;
+  --lg-radio: 8px;
+  --lg-espacio: 1rem;
+  --lg-objetivo: 44px;
+}
+
+html {
+  font-size: 16px;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--lg-tinta);
+  background: var(--lg-lienzo);
+}
+
+/* Foco visible en todos los controles (WCAG 2.2, criterio 2.4.11). */
+:focus-visible {
+  outline: 3px solid var(--lg-acento);
+  outline-offset: 2px;
+}
+
+/* Objetivo táctil mínimo de 44 px (WCAG 2.2, criterio 2.5.8). */
+.lg-objetivo {
+  min-width: var(--lg-objetivo);
+  min-height: var(--lg-objetivo);
+}
+
+/* Una sola acción primaria por pantalla. */
+.lg-primario {
+  min-width: var(--lg-objetivo);
+  min-height: var(--lg-objetivo);
+  padding: 0 var(--lg-espacio);
+  font: inherit;
+  color: var(--lg-acento-texto);
+  background: var(--lg-acento);
+  border: none;
+  border-radius: var(--lg-radio);
+}
+
+.lg-secundario {
+  min-width: var(--lg-objetivo);
+  min-height: var(--lg-objetivo);
+  padding: 0 var(--lg-espacio);
+  font: inherit;
+  color: var(--lg-acento);
+  background: transparent;
+  border: 2px solid var(--lg-acento);
+  border-radius: var(--lg-radio);
+}
+
+/* Callouts: el tono se comunica con etiqueta de texto y borde, nunca solo con color. */
+.lg-callout {
+  margin: var(--lg-espacio) 0;
+  padding: var(--lg-espacio);
+  border-left: 6px solid;
+  border-radius: var(--lg-radio);
+}
+
+.lg-callout-info {
+  color: var(--lg-info-texto);
+  background: var(--lg-info-fondo);
+  border-left-color: var(--lg-info-texto);
+}
+
+.lg-callout-aviso {
+  color: var(--lg-aviso-texto);
+  background: var(--lg-aviso-fondo);
+  border-left-color: var(--lg-aviso-texto);
+}
+
+.lg-callout-peligro {
+  color: var(--lg-peligro-texto);
+  background: var(--lg-peligro-fondo);
+  border-left-color: var(--lg-peligro-texto);
+}
+
+.lg-callout-exito {
+  color: var(--lg-exito-texto);
+  background: var(--lg-exito-fondo);
+  border-left-color: var(--lg-exito-texto);
+}
+
+.lg-callout-etiqueta {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.lg-callout-titulo {
+  margin: 0.25rem 0 0;
+  font-weight: 700;
+}
+
+.lg-callout-cuerpo {
+  margin: 0.5rem 0 0;
+}
+
+/* Bloques de respuesta: una tarjeta por afirmación, con su cita visible. */
+.lg-bloque {
+  margin: var(--lg-espacio) 0;
+  padding: var(--lg-espacio);
+  background: var(--lg-superficie);
+  border: 1px solid var(--lg-lienzo);
+  border-radius: var(--lg-radio);
+}
+
+.lg-bloque-warning {
+  color: var(--lg-aviso-texto);
+  background: var(--lg-aviso-fondo);
+  border-color: var(--lg-aviso-texto);
+}
+
+.lg-bloque-kind {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.lg-claim {
+  margin: 0.5rem 0 0;
+}
+
+/* Cita visible: nombra la fuente con texto. */
+.lg-citas {
+  margin-top: 0.75rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid currentColor;
+}
+
+.lg-cita {
+  margin: 0.25rem 0 0;
+  font-size: 0.875rem;
+}
+
+.lg-cita cite {
+  font-style: normal;
+  font-weight: 700;
+}
+
+/* Siempre visibles: verificación e independencia (sección 14). */
+.lg-nota-independencia {
+  margin: var(--lg-espacio) 0;
+  padding: var(--lg-espacio);
+  font-size: 0.875rem;
+  background: var(--lg-superficie);
+  border: 1px dashed var(--lg-tinta);
+  border-radius: var(--lg-radio);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}

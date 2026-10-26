@@ -1,0 +1,21 @@
+{
+  "name": "letra-grande",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Herramienta abierta para entender facturas, reclamar y darse de baja, con los datos personales siempre en tu dispositivo.",
+  "license": "MIT",
+  "packageManager": "pnpm@10.28.0",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "dev": "pnpm --filter @letra-grande/web dev",
+    "build": "pnpm --filter @letra-grande/web build",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r test",
+    "content:validate": "pnpm --filter @letra-grande/schema validate-content",
+    "style": "node scripts/check-style.mjs",
+    "check": "pnpm style && pnpm typecheck && pnpm test && pnpm content:validate",
+    "e2e": "pnpm --filter @letra-grande/web e2e",
+    "check:full": "pnpm check && pnpm e2e"
+  },
+  "devDependencies": { "typescript": "^7.0.2" }
+}

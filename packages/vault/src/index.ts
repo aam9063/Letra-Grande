@@ -1,0 +1,61 @@
+/**
+ * Punto de entrada de `@letra-grande/vault`.
+ * Todo queda en el dispositivo: IndexedDB cifrada con AES-256-GCM y clave
+ * derivada con PBKDF2 que vive solo en memoria.
+ */
+export {
+  DEFAULT_KDF_ITERATIONS,
+  KDF_ALGORITHM,
+  RECORD_VERSION,
+  crearKdfParams,
+  decryptRecord,
+  deriveVaultKey,
+  encryptRecord,
+  randomBytes,
+  type EncryptedRecord,
+  type KdfParams,
+} from "./crypto.js";
+export {
+  DATA_STORES,
+  META_STORE,
+  VAULT_DB_NAME,
+  VAULT_DB_VERSION,
+  openVaultDatabase,
+  type DataStore,
+  type VaultMeta,
+} from "./db.js";
+export {
+  Vault,
+  VaultCorruptError,
+  VaultCorruptExportError,
+  VaultCorruptMetaError,
+  VaultError,
+  VaultLockedError,
+  VaultNotEmptyError,
+  VaultRecordVersionError,
+  VaultStaleSessionError,
+  VaultUnsupportedExportError,
+  VaultUnsupportedKdfError,
+  WrongPasswordError,
+  openVault,
+  type BlobRecord,
+  type DocumentRecord,
+  type ListEntryError,
+  type ListResult,
+  type OpenVaultOptions,
+  type ProfileRecord,
+  type RadarRecord,
+  type SettingValue,
+  type TypedCollection,
+  type VaultTimer,
+} from "./vault.js";
+export {
+  EXPORT_FORMAT_VERSION,
+  EXPORT_MAGIC,
+  EXPORT_MAX_ITERATIONS,
+  EXPORT_PAYLOAD_VERSION,
+  importVault,
+  type ExportPayload,
+  type ImportVaultOptions,
+} from "./backup.js";
+export { decodeBase64, decodeJson, encodeBase64, encodeJson, type JsonValue } from "./serialize.js";

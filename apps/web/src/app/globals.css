@@ -1,0 +1,109 @@
+:root {
+  --lg-tinta: #141414;
+  --lg-lienzo: #f7f7f8;
+  --lg-superficie: #ffffff;
+  --lg-acento: #0b5fa5;
+  --lg-acento-texto: #ffffff;
+  --lg-espacio: 0.25rem;
+  --lg-radio: 0.5rem;
+  --lg-fuente-base: 1rem;
+  --lg-linea: 1.6;
+  --lg-objetivo: 44px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--lg-lienzo);
+  color: var(--lg-tinta);
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: var(--lg-fuente-base);
+  line-height: var(--lg-linea);
+}
+
+/* Espacio para la navegación inferior fija: nada queda oculto tras ella. */
+.lg-shell {
+  min-height: 100dvh;
+  padding-bottom: 8rem;
+}
+
+main {
+  max-width: 42rem;
+  margin: 0 auto;
+  padding: calc(var(--lg-espacio) * 6) calc(var(--lg-espacio) * 4);
+  background: var(--lg-superficie);
+  border-radius: var(--lg-radio);
+}
+
+h1 {
+  font-size: 1.75rem;
+  line-height: 1.2;
+  margin-top: 0;
+}
+
+.lg-pendiente {
+  border-left: 0.25rem solid var(--lg-acento);
+  padding-left: calc(var(--lg-espacio) * 4);
+}
+
+/* Navegación inferior: ocho destinos en dos filas de cuatro, sin scroll
+   horizontal a 375 px y con objetivo táctil de 44 px en cada enlace. */
+.lg-nav {
+  position: fixed;
+  inset-inline: 0;
+  bottom: 0;
+  background: var(--lg-superficie);
+  border-top: 1px solid var(--lg-tinta);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.lg-nav-lista {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.lg-nav-enlace {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  width: 100%;
+  padding: var(--lg-espacio);
+  font-size: 0.8125rem;
+  line-height: 1.2;
+  color: var(--lg-tinta);
+  text-decoration: none;
+  border-radius: var(--lg-radio);
+}
+
+.lg-nav-enlace[aria-current="page"] {
+  color: var(--lg-acento-texto);
+  background: var(--lg-acento);
+  font-weight: 700;
+}
+
+:focus-visible {
+  outline: 0.1875rem solid var(--lg-acento);
+  outline-offset: 0.125rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
