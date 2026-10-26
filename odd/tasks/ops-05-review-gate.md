@@ -29,15 +29,20 @@ Convertir la revisión tras cada implementación (sección 22) en un paso obliga
 
 ## Tareas
 
-- [ ] T1: `docs/review-gate.md` con las dos capas, prompt del revisor, formato y anti-bucle.
-- [ ] T2: `odd/reviews/_template.md` con el frontmatter de la sección 22.6.
-- [ ] T3: `scripts/check-review-report.mjs` con sus tests (RED primero).
-- [ ] T4: plantilla de PR con las casillas de verificación y de review, y paso en el workflow.
-- [ ] T5: probar el script contra un PR de prueba sin informe y con informe.
+- [x] T1: `docs/review-gate.md` con las dos capas, prompt del revisor, formato y anti-bucle.
+- [x] T2: `odd/reviews/_template.md` con el frontmatter de la sección 22.6.
+- [x] T3: `scripts/check-review-report.mjs` con sus tests (RED primero).
+- [x] T4: plantilla de PR con las casillas de verificación y de review, y paso en el workflow.
+- [x] T5: probar el script contra un PR de prueba sin informe y con informe.
 
 ## Evidencia y progreso
 
-Pendiente de rellenar por quien implementa: comandos, resultado de los dos casos de prueba.
+- RED: las pruebas de `node --test` fallaban con `ERR_MODULE_NOT_FOUND` antes de existir el script; y el primer CLI salía con 0 en silencio por un `join` con `argv[1]`, detectado por una prueba nueva y corregido.
+- GREEN: 8 de 8 pruebas con `node --test scripts/check-review-report.test.mjs`.
+- Los tres casos reales: título con id y sin informe (salida 1, mensaje que nombra la ruta exacta), título con id e informe (salida 0, front matter y veredicto válidos), título sin id (salida 0, la comprobación no aplica).
+- El analizador tolera un título H1 antes del front matter, que es como están escritos los informes reales.
+- `pnpm check` en la raíz en verde.
+- Limitación conocida: el job `review-report` de la CI no se puede ejecutar en local; depende de `github.event.pull_request.title`, disponible en eventos `pull_request`.
 
 ## Siguiente paso
 
