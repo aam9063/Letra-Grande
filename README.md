@@ -39,7 +39,15 @@ pnpm e2e
 
 ## Cómo se trabaja aquí
 
-Las instrucciones para personas y para agentes están en [`AGENTS.md`](AGENTS.md). El diseño completo, el backlog y las decisiones abiertas están en [`docs/ARRANQUE.md`](docs/ARRANQUE.md) y el estado de las tareas en [`docs/backlog.md`](docs/backlog.md).
+Las instrucciones para personas y para agentes están en [`AGENTS.md`](AGENTS.md).
+
+- [`docs/ARRANQUE.md`](docs/ARRANQUE.md): el diseño original, el backlog por olas y las decisiones abiertas.
+- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md): cómo está construido el código hoy y dónde vive cada pieza.
+- [`docs/data-model.md`](docs/data-model.md): las fichas de contenido, los bloques de respuesta y los formatos del vault cifrado.
+- [`docs/backlog.md`](docs/backlog.md): el estado de las tareas y la deuda registrada.
+- [`docs/review-gate.md`](docs/review-gate.md) y [`docs/e2e.md`](docs/e2e.md): cómo se revisa y cómo se prueba.
+
+Si vas a tocar código por primera vez, el orden de lectura es `AGENTS.md`, `docs/ARCHITECTURE.md` y el documento de tu tarea en `odd/tasks/`.
 
 ## Licencia
 
