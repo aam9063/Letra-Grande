@@ -41,7 +41,6 @@ export default function OnboardingPage() {
     salir();
   }
 
-  const ultimo = paso === TOTAL - 1;
 
   return (
     <div className="lg-ob">
@@ -166,11 +165,15 @@ export default function OnboardingPage() {
         <button
           type="button"
           className="lg-ob-boton-solido"
-          onClick={() => (ultimo ? salir() : setPaso(paso + 1))}
+          onClick={() => (paso === 3 ? salir() : setPaso(paso + 1))}
         >
-          {ultimo ? "Empezar" : "Siguiente"}
+          {paso === 3 ? "Ahora no" : "Siguiente"}
         </button>
       </div>
+      {/* Anuncio del cambio de paso para lectores de pantalla. */}
+      <p aria-live="polite" className="lg-ob-anuncio">
+        Paso {paso + 1} de {TOTAL}
+      </p>
     </div>
   );
 }

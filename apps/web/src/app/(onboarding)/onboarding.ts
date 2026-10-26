@@ -96,8 +96,8 @@ export const seguridad = {
       d: "M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9zM14 3v6h6M9 14l2 2 4-4",
     },
     {
-      titulo: "Borrar todo cuando quieras",
-      texto: "Tus datos son tuyos y se eliminan con un botón.",
+      titulo: "Tus datos son tuyos",
+      texto: "Se guardan cifrados solo en tu dispositivo y salen de él únicamente enmascarados.",
       d: "M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M6 7l1 13a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-13",
     },
   ] as const,

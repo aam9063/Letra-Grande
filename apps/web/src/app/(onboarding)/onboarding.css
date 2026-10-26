@@ -265,6 +265,19 @@
   flex-wrap: wrap;
 }
 
+/* Anuncio de paso: solo para lectores de pantalla. */
+.lg-ob-anuncio {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 .lg-ob-boton-solido {
   min-height: 3.25rem;
   padding: 0 2.25rem;
