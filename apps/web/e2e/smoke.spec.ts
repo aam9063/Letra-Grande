@@ -5,7 +5,7 @@ import { expect, test } from "@playwright/test";
 test("la portada muestra el título y el aviso de independencia", async ({ page }) => {
   await page.goto("/");
 
-  await expect(page.getByRole("heading", { name: "Letra Grande" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Letra Grande", exact: true })).toBeVisible();
   await expect(
     page.getByText(/proyecto independiente, sin vinculación con ninguna empresa/),
   ).toBeVisible();

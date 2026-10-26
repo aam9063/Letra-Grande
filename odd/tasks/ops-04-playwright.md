@@ -44,6 +44,10 @@ Poner la infraestructura de pruebas de interfaz antes de que existan flujos que 
 - Generador de PDF sin dependencias nuevas: emite un PDF válido con stream sin comprimir y xref calculada, y se autocomprueba.
 - La CI añade un paso `pnpm --filter @letra-grande/web fixtures` antes de `pnpm e2e`, porque los binarios generados no se versionan.
 
+## Documentación entregada
+
+`docs/e2e.md`: qué cubre e2e y qué cubre unidad, cómo se ejecuta en cada máquina, los cuatro proyectos, la decisión de generar las fixtures en lugar de versionarlas (y su diferencia con la sección 23.2 del documento de arranque), el guardián de red, el proveedor `mock`, las reglas de escritura de specs y la cobertura mínima por ola.
+
 ## Siguiente paso
 
 Desbloquea los specs de interfaz de la Ola 2 y QA-07.
