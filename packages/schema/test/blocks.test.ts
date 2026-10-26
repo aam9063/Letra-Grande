@@ -120,6 +120,65 @@ describe("validateAnswerAgainstSources", () => {
     expect(issues).toHaveLength(0);
   });
 
+  it("la cifra 30 no valida contra una fuente que dice 300", () => {
+    const answer = AssistantAnswer.parse({
+      question: "¿Cuánto tarda?",
+      outOfScope: false,
+      blocks: [
+        {
+          kind: "deadline",
+          claim: "El plazo es de 30 días.",
+          citations: [{ sourceId: "fuente-oficial" }],
+        },
+      ],
+    });
+    const issues = validateAnswerAgainstSources(
+      answer,
+      new Map([["fuente-oficial", "el plazo es de 300 días"]]),
+    );
+    expect(issues).toHaveLength(1);
+    expect(issues[0]).toMatchObject({ blockIndex: 0, kind: "unsupported_figure", detail: "30" });
+  });
+
+  it("la cifra 500 no valida contra una fuente que dice 1.500", () => {
+    const answer = AssistantAnswer.parse({
+      question: "¿Cuánto cuesta?",
+      outOfScope: false,
+      blocks: [
+        {
+          kind: "cost",
+          claim: "La compensación es de 500 €.",
+          citations: [{ sourceId: "fuente-oficial" }],
+        },
+      ],
+    });
+    const issues = validateAnswerAgainstSources(
+      answer,
+      new Map([["fuente-oficial", "la compensación es de 1.500 €"]]),
+    );
+    expect(issues).toHaveLength(1);
+    expect(issues[0]).toMatchObject({ blockIndex: 0, kind: "unsupported_figure", detail: "500" });
+  });
+
+  it("la cifra 14,99 sigue validando contra una fuente que dice 14,99", () => {
+    const answer = AssistantAnswer.parse({
+      question: "¿Cuánto cuesta la cuota?",
+      outOfScope: false,
+      blocks: [
+        {
+          kind: "cost",
+          claim: "La cuota es de 14,99 € al mes.",
+          citations: [{ sourceId: "fuente-oficial" }],
+        },
+      ],
+    });
+    const issues = validateAnswerAgainstSources(
+      answer,
+      new Map([["fuente-oficial", "la cuota es de 14,99 € al mes"]]),
+    );
+    expect(issues).toHaveLength(0);
+  });
+
   it("el número de orden de un paso no cuenta como cifra de la afirmación", () => {
     const answer = AssistantAnswer.parse({
       question: "¿Cómo reclamo?",

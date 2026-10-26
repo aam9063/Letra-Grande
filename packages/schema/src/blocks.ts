@@ -89,6 +89,10 @@ export function validateAnswerAgainstSources(
       if (text === undefined) issues.push({ blockIndex, kind: "unknown_source", detail: c.sourceId });
       else cited.push(text);
     }
+    // Comparación cifra a cifra sobre las cifras normalizadas de las fuentes:
+    // equivalente a exigir límites de dígito ("30" no valida contra "300" ni
+    // "500" contra "1.500"), y más estricta que buscar sobre el texto unido,
+    // donde "3" coincidiría con "3,5".
     const haystack = extractFigures(cited.join(" "));
     for (const fig of extractFigures(block.claim)) {
       if (!haystack.includes(fig)) issues.push({ blockIndex, kind: "unsupported_figure", detail: fig });
