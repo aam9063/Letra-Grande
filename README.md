@@ -46,6 +46,7 @@ Las instrucciones para personas y para agentes están en [`AGENTS.md`](AGENTS.md
 - [`docs/data-model.md`](docs/data-model.md): las fichas de contenido, los bloques de respuesta y los formatos del vault cifrado.
 - [`docs/backlog.md`](docs/backlog.md): el estado de las tareas y la deuda registrada.
 - [`docs/review-gate.md`](docs/review-gate.md) y [`docs/e2e.md`](docs/e2e.md): cómo se revisa y cómo se prueba.
+- [`docs/desktop.md`](docs/desktop.md): la aplicación de escritorio, su alcance inicial y lo que exige cada sistema.
 
 Si vas a tocar código por primera vez, el orden de lectura es `AGENTS.md`, `docs/ARCHITECTURE.md` y el documento de tu tarea en `odd/tasks/`.
 
