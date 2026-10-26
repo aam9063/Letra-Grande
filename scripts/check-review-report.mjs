@@ -10,18 +10,30 @@ const TEMPLATE_PATH = "odd/reviews/_template.md";
 const REQUIRED_KEYS = ["tarea", "base", "revisado", "revisor", "veredicto"];
 const VALID_VERDICTS = ["aprobado", "aprobado con cambios", "rechazado"];
 // Insensible a mayusculas: un titulo "ops-05: ..." tambien lleva id de tarea.
-const ID_PATTERN = /[a-z]+-\d+/i;
+// Acepta una letra final opcional: hay tareas partidas en mitades, como AI-03a.
+const ID_PATTERN = /[a-z]+-\d+[a-z]?/i;
 
 export function extractTaskId(title) {
   const match = ID_PATTERN.exec(title ?? "");
   return match ? match[0] : null;
 }
 
+// Nombres admitidos para el informe, en orden: el id completo y, si lleva letra
+// final, el id base. Asi `AI-03a` acepta tanto `ai-03a.md` como `ai-03.md` y una
+// tarea partida no falla solo por como se llamo el archivo.
+function candidateNames(id) {
+  const lower = id.toLowerCase();
+  const base = lower.replace(/[a-z]$/, "");
+  return base !== lower ? [`${lower}.md`, `${base}.md`] : [`${lower}.md`];
+}
+
 function reportPathFor(reviewsDir, id) {
-  const wanted = `${id.toLowerCase()}.md`;
   const entries = existsSync(reviewsDir) ? readdirSync(reviewsDir) : [];
-  const found = entries.find((entry) => entry.toLowerCase() === wanted);
-  return found ? join(reviewsDir, found) : null;
+  for (const wanted of candidateNames(id)) {
+    const found = entries.find((entry) => entry.toLowerCase() === wanted);
+    if (found) return join(reviewsDir, found);
+  }
+  return null;
 }
 
 function frontMatterLines(content) {
@@ -54,12 +66,16 @@ export function checkReviewReport({ title, reviewsDir }) {
     };
   }
 
-  const expectedPath = `odd/reviews/${id.toLowerCase()}.md`;
+  const expectedPaths = candidateNames(id).map((name) => `odd/reviews/${name}`);
   const reportFile = reportPathFor(reviewsDir, id);
+  // Ruta que muestran los mensajes: siempre con el nombre encontrado, en
+  // minusculas y relativa a odd/reviews, igual que en los mensajes anteriores.
+  const foundName = reportFile ? reportFile.split(/[\/]/).pop() : null;
+  const expectedPath = foundName ? `odd/reviews/${foundName.toLowerCase()}` : expectedPaths[0];
   if (!reportFile) {
     return {
       status: "fail",
-      message: `Falta el informe de review de la tarea ${id}: no existe ${expectedPath}. Copia la plantilla ${TEMPLATE_PATH}, pide la revision (seccion 22 de docs/ARRANQUE.md) y guarda el informe en ${expectedPath} antes de abrir el PR.`,
+      message: `Falta el informe de review de la tarea ${id}: no existe ${expectedPaths.join(" ni ")}. Copia la plantilla ${TEMPLATE_PATH}, pide la revision (seccion 22 de docs/ARRANQUE.md) y guarda el informe en ${expectedPaths[0]} antes de abrir el PR.`,
     };
   }
 

@@ -155,3 +155,26 @@ test("informe con veredicto valido: pasa con aprobado y aprobado con cambios", (
     }
   }
 });
+
+test("una tarea con letra final acepta el informe con el id base", () => {
+  const dir = withReviewsDir({ "ai-03.md": VALID_REPORT });
+  const result = checkReviewReport({ title: "AI-03a: recuperacion bm25", reviewsDir: dir });
+  assert.equal(result.status, "pass");
+  rmSync(dir, { recursive: true, force: true });
+});
+
+test("una tarea con letra final acepta el informe con el id completo", () => {
+  const dir = withReviewsDir({ "ai-03a.md": VALID_REPORT });
+  const result = checkReviewReport({ title: "AI-03a: recuperacion bm25", reviewsDir: dir });
+  assert.equal(result.status, "pass");
+  rmSync(dir, { recursive: true, force: true });
+});
+
+test("sin ninguno de los dos nombres falla y nombra ambos", () => {
+  const dir = withReviewsDir({ "otra.md": VALID_REPORT });
+  const result = checkReviewReport({ title: "AI-03a: recuperacion bm25", reviewsDir: dir });
+  assert.equal(result.status, "fail");
+  assert.match(result.message, /ai-03a\.md/);
+  assert.match(result.message, /ai-03\.md/);
+  rmSync(dir, { recursive: true, force: true });
+});
