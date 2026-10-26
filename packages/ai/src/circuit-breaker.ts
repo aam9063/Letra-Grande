@@ -57,11 +57,16 @@ export class CircuitBreaker {
       this.#status = "closed";
       return result;
     } catch (error) {
-      if (this.state === "halfOpen") {
-        this.#open();
-      } else {
-        this.#failures += 1;
-        if (this.#failures >= this.#options.failureThreshold) this.#open();
+      // R2: solo cuentan los fallos transitorios (429 y 5xx). Un error de
+      // configuración o de entrada no abre el circuito: ocultaría la causa real.
+      const cuenta = error instanceof LlmError && error.retryable;
+      if (cuenta) {
+        if (this.state === "halfOpen") {
+          this.#open();
+        } else {
+          this.#failures += 1;
+          if (this.#failures >= this.#options.failureThreshold) this.#open();
+        }
       }
       throw error;
     }

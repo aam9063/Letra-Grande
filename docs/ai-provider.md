@@ -54,21 +54,41 @@ solo el estado HTTP y una descripción corta.
   (`failureThreshold`), corta las llamadas lanzando un error con `kind: "circuitOpen"` y pasa
   a semiabierto al agotarse el enfriamiento (`cooldownMs`). Si la prueba funciona, cierra;
   si falla, vuelve a abrir. Su estado (`closed`, `open`, `halfOpen`) es una propiedad pública,
-  y el reloj se inyecta para probarlo sin esperas reales.
+  y el reloj se inyecta para probarlo sin esperas reales. Solo cuentan como fallo los errores
+  reintentables (429 y 5xx): un 401 o una entrada no válida nunca abren el circuito, para que
+  el aviso de configuración no quede oculto tras `circuitOpen`.
 - `TokenBucketQuota`: cubo de fichas por usuario anónimo (el identificador lo genera el
   proxy, nunca una cabecera enviada por el cliente). Tiene capacidad máxima, relleno
-  progresivo y reloj inyectable.
+  progresivo y reloj inyectable. El mapa de usuarios está acotado: guarda como máximo
+  `maxUsers` estados (10 000 por defecto) y expulsa al usuario menos usado recientemente,
+  de modo que una avalancha de ids falsos no agote la memoria del servidor.
 - `DailyBudget`: presupuesto diario de tokens con corte automático al llegar al límite. El
   día cambia a medianoche UTC. El consumo real por día y modelo se consulta con
   `GET /v1/usage`; esa lectura aún no está implementada y corresponde al proxy (AI-01).
+
+`createProviderFromEnv()` acepta las protecciones como opciones opt-in (`breaker`, `quota`,
+`budget` y `getQuotaUserId`). Cuando se pasan, devuelve el proveedor ya decorado: circuit
+breaker primero, después cuota y presupuesto, de modo que el proxy no pueda llamar al
+proveedor base sin protección. Sin esas opciones el comportamiento es el del adaptador
+base, pensado para pruebas. Si hay cuota, `getQuotaUserId()` debe devolver en cada llamada
+el identificador anónimo del usuario; si falta, se rechaza la petición.
+
+### Señal de aborto obligatoria
+
+El adaptador `nan` no tiene tiempo de espera interno por defecto: quien llama debe pasar
+siempre un `AbortSignal` en `complete()`, como hará el proxy (AI-01). Sin señal, una
+petición colgada del proveedor puede bloquear al llamante indefinidamente.
 
 ## El navegador nunca ve la clave
 
 - `NAN_API_KEY` solo se lee en el servidor, desde variables de entorno. Nunca en código, en
   variables `NEXT_PUBLIC_*`, en fixtures, en logs ni en la documentación.
-- El paquete `@letra-grande/ai` no tiene ninguna dependencia del navegador y no se importa
-  desde el cliente.
-- Si la clave se perde, se genera otra en el panel del proveedor y se elimina la anterior.
+- La guarda no es solo una convención: el punto de entrada de `@letra-grande/ai` comprueba
+  en tiempo de carga si está en un contexto de navegador (presencia de `window` en
+  `globalThis`) y lanza un error con el mensaje de que la capa de proveedor es solo de
+  servidor. Así, si un bundler la mete en el bundle del cliente, la app falla de forma
+  visible en lugar de exponer la ruta hacia la clave.
+- Si la clave se pierde, se genera otra en el panel del proveedor y se elimina la anterior.
   Al mostrarse solo una vez, se guarda en el gestor de contraseñas y en los secretos de CI y
   del hosting.
 

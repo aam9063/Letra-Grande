@@ -44,6 +44,8 @@ Definir la interfaz `LlmProvider`, sus dos adaptadores (`nan` compatible con Ope
 - La clave no aparece en ningún mensaje de error ni en ninguna respuesta; sin clave o sin modelo, el adaptador falla al arrancar y nunca usa un valor por defecto.
 - El reintento por salida inválida (sección 24.5) no vive aquí: pertenece al proxy (AI-01).
 
+Ronda de correcciones aplicada: guarda de servidor sin dependencias nuevas, circuit breaker que solo cuenta fallos reintentables, cuota con tope y expulsión, factoría que decora con protecciones, notas de coste y de `AbortSignal` documentadas y errata corregida. `REF-AI-06` registrado. Informe en `odd/reviews/ai-06.md`.
+
 ## Siguiente paso
 
 Desbloquea AI-01.

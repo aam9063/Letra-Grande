@@ -11,6 +11,7 @@ export type LlmErrorKind =
   | "invalidInput"
   | "invalidResponse"
   | "circuitOpen"
+  | "quotaExceeded"
   | "noAnswer"
   | "unknown";
 
@@ -26,6 +27,7 @@ const KIND_DETAIL: Record<Exclude<LlmErrorKind, "aborted" | "network" | "invalid
   notFound: "modelo inexistente",
   rateLimit: "demasiadas peticiones o cuota",
   server: "fallo del servidor del proveedor",
+  quotaExceeded: "límite de cuota o presupuesto alcanzado",
   unknown: "estado no previsto",
 };
 
