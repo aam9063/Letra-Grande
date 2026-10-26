@@ -2,6 +2,17 @@
 
 La regla 8 de `AGENTS.md` lo dice sin matices: cuando una tarea está implementada y en verde, hay una revisión obligatoria antes de abrir el PR. Este documento describe cómo funciona esa revisión, qué escribe el revisor y qué comprueba la CI. La fuente de verdad es la sección 22 de `docs/ARRANQUE.md`.
 
+## Cómo se abre un PR para que el gate no dé falsos rojos
+
+El informe se escribe **después** de la revisión, así que un PR recién abierto nunca lo tiene. Para que eso no aparezca como un fallo rojo en cada push:
+
+1. El PR se abre **como borrador**. En un borrador el job `review-report` no se ejecuta: los jobs `check` y `e2e` sí, porque el código y las pruebas ya se pueden validar.
+2. Se lanza el review gate y se commit el informe en `odd/reviews/<id>.md`.
+3. Se marca el PR como **listo para revisión** (`ready_for_review`). Ahí el job `review-report` se ejecuta por primera vez, y a partir de ese momento cada push lo vuelve a comprobar.
+4. Si al marcar listo falta el informe, el job falla con la ruta exacta que hay que crear. Si el veredicto es `rechazado`, también falla.
+
+Con esto el rojo significa siempre lo mismo: falta algo o hay algo mal, nunca "todavía no llegó el turno del informe".
+
 ## Las dos capas de revisión
 
 Hay dos capas y no compiten:

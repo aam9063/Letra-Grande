@@ -1,7 +1,7 @@
 name: check
 on:
   pull_request:
-    types: [opened, synchronize, reopened, edited]
+    types: [opened, synchronize, reopened, edited, ready_for_review]
   push:
     branches: [main, dev]
 
@@ -52,7 +52,10 @@ jobs:
 
   review-report:
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
+    # Solo cuando el PR deja de ser borrador. Un PR se abre como borrador y se
+    # marca listo cuando el informe de review ya esta commiteado, de modo que el
+    # ciclo de implementacion no muestra un fallo que todavia no toca corregir.
+    if: github.event_name == 'pull_request' && github.event.pull_request.draft == false
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
