@@ -18,7 +18,6 @@ export { WarningBlock } from "./blocks/WarningBlock";
 export { FactBlock } from "./blocks/FactBlock";
 export type {
   BlockData,
-  BlockBase,
   Citation,
   StepBlockData,
   DocumentBlockData,
@@ -26,6 +25,8 @@ export type {
   DeadlineBlockData,
   WarningBlockData,
   FactBlockData,
+  FuenteInfo,
+  Fuentes,
 } from "./blocks/types";
 export { Gallery } from "./gallery/Gallery";
 export { buildGalleryHtml } from "./gallery/generate";

@@ -76,6 +76,9 @@ importers:
 
   packages/design:
     dependencies:
+      '@letra-grande/schema':
+        specifier: workspace:*
+        version: link:../schema
       react:
         specifier: ^19.0.0
         version: 19.3.1

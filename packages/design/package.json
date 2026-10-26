@@ -12,6 +12,7 @@
     "gallery": "vitest run src/gallery/generate.test.tsx"
   },
   "dependencies": {
+    "@letra-grande/schema": "workspace:*",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },

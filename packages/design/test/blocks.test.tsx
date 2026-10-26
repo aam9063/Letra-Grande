@@ -5,6 +5,10 @@ import type { BlockData } from "../src/blocks/types";
 
 const cita = [{ sourceId: "boe-ley-ejemplo", quote: "el plazo es de 30 dias" }];
 
+const fuentes = {
+  "boe-ley-ejemplo": { titulo: "Ley de ejemplo (BOE)", url: "https://www.boes.ejemplo/ley" },
+};
+
 const bloques: BlockData[] = [
   { kind: "step", n: 1, claim: "Rellena el formulario de reclamación.", citations: cita },
   { kind: "step", n: 2, claim: "Envíalo por la sede electrónica.", citations: cita },
@@ -29,9 +33,9 @@ describe("bloques de respuesta, uno por kind", () => {
     expect(screen.getByText("boe-ley-ejemplo")).toBeTruthy();
   });
 
-  it("muestra el número del paso de forma visible", () => {
+  it("muestra el número del paso de forma visible, en un solo elemento", () => {
     render(<BlockRenderer blocks={[{ kind: "step", n: 2, claim: "Segundo paso.", citations: cita }]} />);
-    expect(screen.getByText("2")).toBeTruthy();
+    expect(screen.getByText("Paso 2")).toBeTruthy();
   });
 
   it("muestra la cita textual cuando la hay", () => {
@@ -55,6 +59,35 @@ describe("bloques de respuesta, uno por kind", () => {
   it("renderiza una respuesta completa con varios bloques", () => {
     render(<BlockRenderer blocks={bloques} />);
     expect(screen.getAllByText(/Fuente:/)).toHaveLength(bloques.length);
+  });
+
+  it("con fuentes conocidas convierte la cita en enlace con título humano", () => {
+    render(
+      <BlockRenderer
+        blocks={[{ kind: "fact", claim: "Un dato.", citations: [{ sourceId: "boe-ley-ejemplo", quote: "texto" }] }]}
+        fuentes={fuentes}
+      />,
+    );
+    const enlace = screen.getByRole("link", { name: "Ley de ejemplo (BOE)" });
+    expect(enlace.getAttribute("href")).toBe("https://www.boes.ejemplo/ley");
+    expect(screen.getByText(/Fuente:/)).toBeTruthy();
+  });
+
+  it("sin fuentes conocidas mantiene el texto visible de la fuente", () => {
+    render(<BlockRenderer blocks={[{ kind: "fact", claim: "Un dato.", citations: cita }]} />);
+    expect(screen.getByText("boe-ley-ejemplo")).toBeTruthy();
+    expect(screen.queryByRole("link")).toBeNull();
+  });
+
+  it("con fuentes conocidas mantiene el texto visible si el sourceId no está en el catálogo", () => {
+    render(
+      <BlockRenderer
+        blocks={[{ kind: "fact", claim: "Un dato.", citations: cita }]}
+        fuentes={{ "otra-fuente": { titulo: "Otra fuente", url: "https://otra.ejemplo" } }}
+      />,
+    );
+    expect(screen.getByText("boe-ley-ejemplo")).toBeTruthy();
+    expect(screen.queryByRole("link")).toBeNull();
   });
 
   it("nunca interpreta el texto como HTML", () => {

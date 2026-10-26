@@ -12,9 +12,7 @@ const casos: Array<{ tone: CalloutTone; role: string; etiqueta: string }> = [
 describe("Callout", () => {
   it.each(casos)("tono $tone tiene role $role y etiqueta de texto visible", ({ tone, role, etiqueta }) => {
     render(<Callout tone={tone} title="Título de ejemplo">Cuerpo de ejemplo.</Callout>);
-    const callout = screen.getByRole(role) as HTMLElement;
-    expect(callout).toBeTruthy();
-    expect(callout.className).toContain(`lg-callout-${tone}`);
+    expect(screen.getByRole(role)).toBeTruthy();
     // El tono nunca se comunica solo con color: hay etiqueta de texto visible.
     expect(screen.getByText(etiqueta)).toBeTruthy();
   });

@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { tokens } from "../src/tokens";
+import { tonos, tokens, type ParTono } from "../src/tokens";
 
 // Vitest ejecuta el paquete con cwd en packages/design.
 const dirPaquete = process.cwd();
@@ -13,6 +13,19 @@ describe("hoja base y tokens de la seccion 14", () => {
     expect(hojaBase).toContain(`--lg-lienzo: ${tokens.colorLienzo}`);
     expect(hojaBase).toContain(`--lg-superficie: ${tokens.colorSuperficie}`);
     expect(hojaBase).toContain(`--lg-acento: ${tokens.colorAcento}`);
+  });
+
+  it("declara las ocho custom properties de los tonos igual que el objeto tonos", () => {
+    const pares: Array<[string, ParTono]> = [
+      ["info", tonos.info],
+      ["aviso", tonos.aviso],
+      ["peligro", tonos.peligro],
+      ["exito", tonos.exito],
+    ];
+    for (const [nombre, tono] of pares) {
+      expect(hojaBase).toContain(`--lg-${nombre}-fondo: ${tono.fondo}`);
+      expect(hojaBase).toContain(`--lg-${nombre}-texto: ${tono.texto}`);
+    }
   });
 
   it("usa una base de 16 px y tipografia del sistema, sin fuentes remotas", () => {

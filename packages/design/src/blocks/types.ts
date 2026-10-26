@@ -1,57 +1,29 @@
 /**
- * Espejo local del contrato de bloques de respuesta (sección 8.5 de docs/ARRANQUE.md).
- * packages/schema es el contrato común: cuando CORE-01 publique los tipos,
- * este archivo pasa a reexportarlos desde @letra-grande/schema. La forma y
- * las reglas (cita obligatoria, máximo un warning, pasos 1, 2, 3) no cambian.
+ * Tipos de bloque usados por los componentes de diseño.
+ * El contrato es `@letra-grande/schema` (sección 8.5 de docs/ARRANQUE.md):
+ * aquí solo se reexportan y se añaden alias por `kind` y el catálogo
+ * de fuentes conocidas para las citas enlazadas.
  */
 
-export interface Citation {
-  /** Id de una fuente de las fichas recuperadas para esta respuesta. */
-  sourceId: string;
-  /** Fragmento literal de la fuente que respalda la afirmación. */
-  quote?: string;
+import type { Block } from "@letra-grande/schema";
+
+export type { Block, Citation } from "@letra-grande/schema";
+
+export type BlockData = Block;
+export type StepBlockData = Extract<Block, { kind: "step" }>;
+export type DocumentBlockData = Extract<Block, { kind: "document" }>;
+export type CostBlockData = Extract<Block, { kind: "cost" }>;
+export type DeadlineBlockData = Extract<Block, { kind: "deadline" }>;
+export type WarningBlockData = Extract<Block, { kind: "warning" }>;
+export type FactBlockData = Extract<Block, { kind: "fact" }>;
+
+/** Información humana de una fuente conocida, para citar con enlace. */
+export interface FuenteInfo {
+  /** Título legible de la fuente. */
+  titulo: string;
+  /** URL oficial de la fuente. */
+  url: string;
 }
 
-export interface BlockBase {
-  /** Afirmación del bloque, en texto plano. Nunca HTML ni markdown. */
-  claim: string;
-  /** Al menos una cita: toda afirmación necesita fuente. */
-  citations: Citation[];
-}
-
-export interface StepBlockData extends BlockBase {
-  kind: "step";
-  /** Número del paso: 1, 2, 3 sin saltos. */
-  n: number;
-}
-
-export interface DocumentBlockData extends BlockBase {
-  kind: "document";
-}
-
-export interface CostBlockData extends BlockBase {
-  kind: "cost";
-}
-
-export interface DeadlineBlockData extends BlockBase {
-  kind: "deadline";
-  /** Id de un plazo de la ficha, para enlazar con el radar. */
-  deadlineId?: string;
-}
-
-export interface WarningBlockData extends BlockBase {
-  kind: "warning";
-}
-
-export interface FactBlockData extends BlockBase {
-  kind: "fact";
-}
-
-/** Catálogo cerrado de bloques (sección 5.6). */
-export type BlockData =
-  | StepBlockData
-  | DocumentBlockData
-  | CostBlockData
-  | DeadlineBlockData
-  | WarningBlockData
-  | FactBlockData;
+/** Catálogo de fuentes conocidas por `sourceId`, opcional en el render. */
+export type Fuentes = Record<string, FuenteInfo>;

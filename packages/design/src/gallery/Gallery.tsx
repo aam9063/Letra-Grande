@@ -66,10 +66,10 @@ export function Gallery() {
         <h2 id="galeria-acciones">Acciones</h2>
         <p>Una sola acción primaria por pantalla. Objetivo táctil de 44 px y foco visible.</p>
         <p>
-          <button type="button" className="lg-primario">
+          <button type="button" className="lg-primario lg-objetivo">
             Acción principal
           </button>{" "}
-          <button type="button" className="lg-secundario">
+          <button type="button" className="lg-secundario lg-objetivo">
             Acción secundaria
           </button>
         </p>

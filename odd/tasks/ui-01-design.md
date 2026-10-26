@@ -30,11 +30,11 @@ Crear `@letra-grande/design`: tokens de la sección 14, el componente `Callout` 
 
 ## Tareas
 
-- [ ] T1: tokens y hoja base con contraste comprobado (RED de la comprobación de contraste).
-- [ ] T2: `Callout` con tonos info, aviso, peligro y éxito, con rol y texto accesible.
-- [ ] T3: un componente por `kind` del catálogo de bloques, incluida la cita visible.
-- [ ] T4: galería local que renderice todos los estados y pase axe sin errores.
-- [ ] T5: `--passWithNoTests` eliminado y `pnpm check` en verde.
+- [x] T1: tokens y hoja base con contraste comprobado (RED de la comprobación de contraste).
+- [x] T2: `Callout` con tonos info, aviso, peligro y éxito, con rol y texto accesible.
+- [x] T3: un componente por `kind` del catálogo de bloques, incluida la cita visible.
+- [x] T4: galería local que renderice todos los estados y pase axe sin errores.
+- [x] T5: `--passWithNoTests` eliminado y `pnpm check` en verde.
 
 ## Evidencia y progreso
 
@@ -44,6 +44,8 @@ Crear `@letra-grande/design`: tokens de la sección 14, el componente `Callout` 
 - axe sobre la galería: 0 violaciones. En jsdom queda un `color-contrast` como "incomplete", limitación conocida del entorno, y el contraste AA se comprueba además con la función de luminancia del propio paquete.
 - `pnpm check` en la raíz en verde.
 - D-01 sigue abierta: acento provisional `#0B5FA5` y `system-ui`, ambos en un solo token para poder cambiarlos sin tocar componentes.
+
+Ronda de correcciones aplicada: los ocho tokens de tono comparados con el CSS, citas con título y enlace (`fuentes`), tipos reexportados desde `@letra-grande/schema`, aserción de clase eliminada y "Paso 2" en un solo nodo. `REF-UI-01` registrado. Informe en `odd/reviews/ui-01.md`.
 
 ## Siguiente paso
 

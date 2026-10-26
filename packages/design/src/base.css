@@ -135,23 +135,12 @@ body {
   border-color: var(--lg-aviso-texto);
 }
 
-.lg-bloque-cabecera {
-  display: flex;
-  gap: 0.5rem;
-  align-items: baseline;
-}
-
 .lg-bloque-kind {
   margin: 0;
   font-size: 0.875rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.02em;
-}
-
-.lg-step-num {
-  font-size: 1.25rem;
-  font-weight: 700;
 }
 
 .lg-claim {
