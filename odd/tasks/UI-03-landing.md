@@ -85,11 +85,16 @@ privacidad y cómo colaborar, y da paso a la app. Se replica el mockup
 
 ## Evidencia y progreso
 
-- (pendiente)
+- T1: RED observado (tokens.test 1 failed) antes de cambiar tokens; GREEN con
+  `pnpm check` completo.
+- T4/T5: RED observado (8 failed en 4 navegadores) antes de la página; GREEN
+  con `pnpm e2e` (16 passed: 8 smoke + 8 network-guard).
+- Capturas de comparación con el mockup a 1440 px revisadas: héroe a dos
+  columnas, privacidad, cierre y footer fieles.
 
 ## Siguiente paso
 
-T1 con tests en rojo.
+T6 (backlog y docs) y T7 (review gate).
 
 ## Cambios de alcance aceptados
 
@@ -105,3 +110,14 @@ T1 con tests en rojo.
   Landing.dc.html».
 - L3. Decisiones: reemplaza `/`; teal en toda la app; quitar la cifra de 15
   días; fuente Host Grotesk en todo con fallback.
+- L4. Revisión visual de la persona: botón de cierre ocupaba todo el ancho
+  (era flex a nivel de bloque; ahora inline-flex, 243 px) y «todos los botones
+  que tengan bg en el verde ese la fuente en color blanco». Aplicado a los
+  botones con fondo teal (cabecera, héroe, cierre y maqueta del móvil); las
+  pastillas de número quedan como el mockup (tinta). Nota AA: blanco sobre
+  #3E9B94 es 3.3:1, pasa como texto grande (3:1); los botones suben a
+  19 px en negrita para cumplir el umbral.
+- L5. Correcciones de maquetación detectadas en la revisión visual: el main
+  de la landing heredaba max-width 42 rem del globals.css de la app (anulado);
+  Firefox no estira el main de un flex en columna (width: 100%); faltaban el
+  globo oscuro de la pregunta del chat y las sombras del héroe.

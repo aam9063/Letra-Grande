@@ -150,7 +150,12 @@
   padding: 0 1.25rem;
   background: var(--lg-acento);
   /* Blanco por decisión de la persona (L4): 3.3:1 sobre el teal, AA solo
-     como texto grande (3:1), de ahí el tamaño de 19 px en negrita. */
+     como texto grande (3:1), de ahí el tamaño de 19 px en negrita. La
+     especificidad extra vence a la regla genérica .lg-land a. */
+  color: #ffffff;
+}
+
+.lg-land a.lg-land-boton-solido {
   color: #ffffff;
 }
 
