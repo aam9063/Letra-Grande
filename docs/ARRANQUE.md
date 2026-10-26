@@ -291,6 +291,8 @@ letra-grande/
 
 ## 7. Archivos de configuración
 
+> **Versiones vigentes: consulta `package.json` y `pnpm-lock.yaml`.** Las que aparecen en esta sección son las del diseño original (TypeScript 5.6, sin versión de Next.js fijada). El repositorio migró a Next.js 16 y TypeScript 7 en la tarea OPS-06; si copias una versión de aquí, compruébala antes contra el repositorio.
+
 ### Archivo: `package.json`
 
 ```json
