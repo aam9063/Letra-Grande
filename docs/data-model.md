@@ -15,7 +15,7 @@ content/
 
 Reglas que impone el validador de CI, no la buena voluntad:
 
-- El archivo se llama `<id>.yaml`. Las plantillas que empiezan por `_` quedan exentas.
+- El archivo se llama `<id>.yaml` (o `<id>.yml`), y el nombre debe coincidir con el `id`. Las plantillas que empiezan por `_` quedan exentas.
 - El `id` es único dentro de su carpeta.
 - Cada `sourceId` citado existe en la lista `sources` de esa misma ficha, y los ids de fuente no se repiten.
 - Una ficha `verified: true` exige `verifiedOn`, `verifiedBy` y al menos una fuente de tipo `oficial` o `empresa`. Una fuente `tercero` nunca basta.
@@ -97,7 +97,7 @@ El modelo nunca escribe marcado: elige un `kind` del catálogo cerrado y rellena
 | `warning` | nada. Máximo un bloque de aviso por respuesta. |
 | `fact` | nada. |
 
-`AssistantAnswer` es `{ question, outOfScope, blocks }` con estas reglas: toda afirmación lleva al menos una cita; una respuesta dentro de alcance necesita al menos un bloque; como máximo un `warning`; los pasos se numeran 1, 2, 3.
+`AssistantAnswer` es `{ question, outOfScope, blocks }` con estas reglas: toda afirmación lleva al menos una cita; una respuesta dentro de alcance necesita al menos un bloque; como máximo un `warning`; los pasos se numeran 1, 2, 3; y como máximo doce bloques por respuesta.
 
 `validateAnswerAgainstSources(answer, sourceTexts)` devuelve una lista de incidencias:
 
@@ -131,9 +131,10 @@ Viven solo en el dispositivo, cifrados. La forma la define `packages/schema` y e
 | Campo | Tamaño | Contenido |
 |---|---|---|
 | `magic` | 4 bytes | `LGVX` |
-| `formatVersion` | 4 bytes | Versión del formato de copia. |
-| `algorithm` | 2 bytes | Código de `PBKDF2-HMAC-SHA256`. |
-| `iterations` | 4 bytes | Iteraciones de la copia, con tope de 10 000 000 al importar. |
+| `formatVersion` | 4 bytes, entero sin signo, big endian | Versión del formato de copia. |
+| `longitudAlgoritmo` | 2 bytes, entero sin signo | Longitud del identificador que sigue. |
+| `algoritmo` | `longitudAlgoritmo` bytes, UTF-8 | Texto `PBKDF2-HMAC-SHA256`. No es un código de dos bytes: es una cadena con su longitud delante. |
+| `iterations` | 4 bytes, entero sin signo | Iteraciones de la copia, con tope de 10 000 000 al importar. |
 | `salt` | 16 bytes | Sal nueva de la copia. |
 | `iv` | 12 bytes | IV del cifrado de la copia. |
 | `payload` | resto | AES-256-GCM del JSON con las cinco colecciones, autenticando toda la cabecera como `additionalData`. |

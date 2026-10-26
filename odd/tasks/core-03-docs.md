@@ -40,6 +40,8 @@ La Ola 1 produjo catorce tareas de código y ninguna documentación de conjunto:
 - Los paquetes `radar` y `extract` se documentan como pendientes, no como existentes, y el modelo de datos deja explícito qué falta por documentar cuando existan.
 - `pnpm style` en verde.
 
+Ronda de correcciones aplicada: ruta real del validador de contenido, codificación exacta del campo `algoritmo` de la cabecera de copia (longitud más cadena UTF-8, no un código de dos bytes), el contador de datos ocultos marcado como pendiente de la interfaz, el tope de doce bloques y la extensión `.yml`. Informe en `odd/reviews/core-03.md`.
+
 ## Siguiente paso
 
 Desbloquea la incorporación de nuevas personas y sirve de base para RADAR-01, que tendrá que ampliar la sección 10 del modelo de datos.

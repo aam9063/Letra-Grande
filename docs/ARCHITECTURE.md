@@ -53,7 +53,7 @@ Dos funciones son el corazón de las garantías:
 - `checkVerification()`: una ficha `verified: true` exige `verifiedOn`, `verifiedBy` y al menos una fuente que no sea `tercero`.
 - `validateAnswerAgainstSources(answer, sourceTexts)`: descarta una cita a una fuente desconocida y toda cifra de una afirmación que no aparezca en el texto de las fuentes citadas. Compara cifras normalizadas una a una, no subcadenas: `30` no valida contra `300` y `500` no valida contra `1.500`.
 
-`scripts/validate-content.ts` es la puerta de CI: recorre `content/`, valida cada archivo con su esquema, exige que el nombre coincida con el id, detecta ids duplicados, comprueba que cada `escalation` apunte a un organismo existente y avisa (sin fallar) cuando una verificación supera los 180 días. La lógica vive en `src/validate-content-core.ts`, sin `process.exit`, para poder probarla.
+`packages/schema/scripts/validate-content.ts` (ejecutado por `pnpm content:validate`) es la puerta de CI: recorre `content/`, valida cada archivo con su esquema, exige que el nombre coincida con el id, detecta ids duplicados, comprueba que cada `escalation` apunte a un organismo existente y avisa (sin fallar) cuando una verificación supera los 180 días. La lógica vive en `src/validate-content-core.ts`, sin `process.exit`, para poder probarla.
 
 ### `packages/privacy`: la barrera del dispositivo
 
@@ -95,7 +95,7 @@ El service worker cachea solo el shell (raíz, manifiesto e iconos), sirve las n
 
 ## 5. Flujo de una pregunta al asistente
 
-1. **En el navegador** se enmascara el texto con `mask()`. La interfaz dice cuántos datos se ocultaron.
+1. **En el navegador** se enmascara el texto con `mask()`. Contar y mostrar a la persona cuántos datos se ocultaron es de la interfaz del asistente, todavía pendiente: hoy la función existe y el contador no.
 2. **`POST /api/assistant`** valida la forma y el tamaño del cuerpo (20 KiB y 4000 caracteres), con lector acotado también cuando no hay `Content-Length`.
 3. **Segunda barrera**: el servidor vuelve a ejecutar `detect()`; si encuentra algo, responde 422 pidiendo enmascarar en el navegador y **no repite el valor detectado**.
 4. **Cuota**: se comprueba la del usuario anónimo (hash truncado de IP, `User-Agent` y `Accept-Language`); un fallo del proveedor no consume ficha.
