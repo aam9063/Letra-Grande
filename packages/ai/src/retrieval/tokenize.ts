@@ -38,6 +38,12 @@ const DIACRITICOS = new Map<string, string>([
  * 4. se sueltan las palabras vacías y los tokens de una o dos letras
  *    (incluidos los números sueltos de uno o dos dígitos).
  *
+ * Comportamiento aceptado y fijado en pruebas: un importe con separador de
+ * miles como "1.500 euros" se reduce a ["500", "euros"], porque el punto es
+ * separador. Se acepta porque las cifras que cita el modelo se validan contra
+ * el texto completo de la fuente (no contra los términos del índice) y el
+ * filtro del gate se apoya en palabras, no en importes.
+ *
  * Es determinista: la misma entrada produce siempre la misma lista.
  */
 export function tokenize(text: string): string[] {
@@ -55,4 +61,15 @@ export function tokenize(text: string): string[] {
   if (current.length > 0) tokens.push(current);
 
   return tokens.filter((token) => token.length > 2 && !STOPWORDS.has(token));
+}
+
+/**
+ * Normaliza texto para comparar valores de filtro (sector, región, tipo):
+ * minúsculas y sin acentos, sin partir en palabras ni soltar nada.
+ * Así "Cataluña" y "cataluna" comparan igual de forma determinista.
+ */
+export function normalizeText(text: string): string {
+  let out = "";
+  for (const char of text.toLowerCase()) out += DIACRITICOS.get(char) ?? char;
+  return out;
 }

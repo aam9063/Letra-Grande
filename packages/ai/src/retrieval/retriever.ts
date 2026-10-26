@@ -3,7 +3,7 @@
 // el índice de content/. Nunca acepta texto del usuario como documento: solo
 // se buscan términos, el índice contiene contenido público verificado o por
 // verificar de las fichas.
-import { findContentRoot, loadContentIndex } from "./loader.js";
+import { findContentRoot, loadContentIndex, type LoadedContentIndex } from "./loader.js";
 import { search, type SearchFilters } from "./index.js";
 
 /** Fragmento recuperado, con la forma que espera el proxy. */
@@ -12,13 +12,27 @@ export interface RetrievedSourceData {
   readonly titulo: string;
   readonly url: string;
   readonly texto: string;
+  /** Si la ficha de origen está verificada: la respuesta lo traslada a la interfaz. */
+  readonly verified: boolean;
 }
 
-/** Recuperador de fuentes: busca fragmentos para la pregunta. */
-export type ContentRetriever = (question: string) => Promise<RetrievedSourceData[]>;
+/** Contadores de diagnóstico del recuperador: solo cifras, nunca contenido. */
+export interface RetrievalDiagnostics {
+  /** Ficheros .yaml leídos e intentados validar. */
+  readonly filesRead: number;
+  /** Ficheros .yaml saltados por YAML roto o validación fallida. */
+  readonly filesSkipped: number;
+  /** Documentos indexados (fichas y secciones citables). */
+  readonly documents: number;
+}
 
-/** Marcador visible en el título de toda fuente de una ficha sin verificar. */
-export const SIN_VERIFICAR = " (sin verificar)";
+/**
+ * Recuperador de fuentes: busca fragmentos para la pregunta y expone
+ * contadores de diagnóstico para saber si el índice está vacío o incompleto.
+ */
+export type ContentRetriever = ((question: string) => Promise<RetrievedSourceData[]>) & {
+  readonly diagnostics: () => RetrievalDiagnostics;
+};
 
 export interface ContentRetrieverOptions {
   /** Raíz de contenido (carpeta `content/`). Por defecto se localiza subiendo desde el cwd. */
@@ -28,30 +42,47 @@ export interface ContentRetrieverOptions {
 /**
  * Crea un recuperador sobre content/. Carga e indexa el contenido una sola
  * vez por raíz (caché del cargador) y, para cada pregunta, devuelve los
- * fragmentos con mejor puntuación BM25 en `{ id, titulo, url, texto }`.
- * Las fuentes de fichas con `verified: false` se marcan en el título para
- * que la respuesta pueda avisar de que no están verificadas. Si no se
- * encuentra la carpeta de contenido, responde sin fuentes: el asistente
- * degrada a outOfScope, como prevé el proxy.
+ * fragmentos con mejor puntuación en `{ id, titulo, url, texto, verified }`.
+ * Si la ficha de origen no está verificada, `verified: false` viaja hasta la
+ * respuesta para que la interfaz pueda avisar. Si no se encuentra la carpeta
+ * de contenido, responde sin fuentes: el asistente degrada a outOfScope,
+ * como prevé el proxy.
  */
 export function createContentRetriever(options: ContentRetrieverOptions = {}): ContentRetriever {
   let raizResuelta: string | undefined = options.contentRoot;
 
-  return async (question: string): Promise<RetrievedSourceData[]> => {
+  const cargar = (): LoadedContentIndex | undefined => {
     if (raizResuelta === undefined) {
-      // Se resuelve en la primera búsqueda para que el cwd ya sea el del servidor.
+      // Se resuelve en el primer uso para que el cwd ya sea el del servidor.
       raizResuelta = findContentRoot();
     }
-    if (raizResuelta === undefined) return [];
+    if (raizResuelta === undefined) return undefined;
+    return loadContentIndex(raizResuelta);
+  };
 
-    const { index } = loadContentIndex(raizResuelta);
+  const buscar = async (question: string): Promise<RetrievedSourceData[]> => {
+    const cargado = cargar();
+    if (cargado === undefined) return [];
     // La pregunta no lleva filtros: el proxy no conoce el sector de antemano.
     const filtros: SearchFilters = {};
-    return search(index, question, filtros).map((doc) => ({
+    return search(cargado.index, question, filtros).map((doc) => ({
       id: doc.sourceId,
-      titulo: doc.verified ? doc.titulo : `${doc.titulo}${SIN_VERIFICAR}`,
+      titulo: doc.titulo,
       url: doc.url,
       texto: doc.texto,
+      verified: doc.verified,
     }));
   };
+
+  const diagnostics = (): RetrievalDiagnostics => {
+    const cargado = cargar();
+    if (cargado === undefined) return { filesRead: 0, filesSkipped: 0, documents: 0 };
+    return {
+      filesRead: cargado.filesRead,
+      filesSkipped: cargado.skippedFiles,
+      documents: cargado.index.documents.length,
+    };
+  };
+
+  return Object.assign(buscar, { diagnostics });
 }

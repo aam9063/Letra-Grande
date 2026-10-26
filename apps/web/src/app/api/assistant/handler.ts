@@ -47,6 +47,8 @@ export interface AssistantOkBody {
 export interface FuenteInfo {
   titulo: string;
   url: string;
+  /** Si la ficha de origen está verificada; la interfaz avisa si es false. */
+  verified?: boolean;
 }
 
 export type FuenteCatalogue = Record<string, FuenteInfo>;
@@ -57,6 +59,8 @@ export interface RetrievedSource {
   titulo: string;
   url: string;
   texto: string;
+  /** Verificación de la ficha de origen: lo fija el recuperador (AI-03a). */
+  verified?: boolean;
 }
 
 /** Recuperación de fuentes para la pregunta (BM25 llega con AI-03). */
@@ -226,7 +230,9 @@ export async function handleAssistant(request: Request, deps: AssistantDeps): Pr
   }
   const sourceTexts = new Map(sources.map((s) => [s.id, s.texto]));
   const fuentes: FuenteCatalogue = Object.fromEntries(
-    sources.map((s) => [s.id, { titulo: s.titulo, url: s.url } satisfies FuenteInfo]),
+    sources.map(
+      (s) => [s.id, { titulo: s.titulo, url: s.url, verified: s.verified }] satisfies [string, FuenteInfo],
+    ),
   );
 
   const messages: LlmCompleteInput["messages"] = [{ role: "user", content: question }];

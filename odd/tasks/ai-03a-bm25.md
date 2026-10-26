@@ -35,20 +35,25 @@ El asistente ya valida respuestas contra fuentes, pero hoy el recuperador devuel
 - [x] Adaptador que lee `content/`, construye el índice una vez y responde `retrieveSources`.
 - [x] Cableado en `deps.ts` del proxy, sustituyendo el recuperador vacío.
 - [x] Tests: ranking, acentos y mayúsculas, filtros, consulta vacía, sin coincidencias y propagación de título y URL para la cita.
-- [ ] `pnpm check` y `pnpm e2e` en verde.
+- [x] `pnpm check` y `pnpm e2e` en verde.
 
 ## Evidencia y progreso
 
 - RED: los dos ficheros de test nuevos fallaron con módulos inexistentes.
 - GREEN: 84 tests en `packages/ai`, 23 de ellos nuevos; `pnpm check` y `pnpm e2e` (8 de 8) en verde.
 - Tokenizador: minúsculas, sin acentos, corte por todo lo que no sea letra o dígito, 119 palabras vacías y descarte de tokens de uno o dos caracteres, números sueltos incluidos.
-- BM25 con `k1 = 1.2` y `b = 0.75`. Umbral mínimo de 0.5: un término que aparece en la mitad del corpus o que no aparece puntúa por debajo, así que una consulta sin coincidencias reales devuelve vacío en lugar de la ficha menos mala. Límite de 8 fragmentos por consulta.
-- Documentos por ficha y por sección citable (cada paso, plazo, aviso y grupo de canales), con título propio para la cita: `Empresa: baja`, `Trámite: paso 2`.
+- BM25 con `k1 = 1.2` y `b = 0.75`, con puerta de evidencia añadida en la ronda de review: el término más raro de la consulta (menor df, empate por primera aparición) debe estar en el documento, el documento cubre al menos la mitad de los términos con df mayor que cero (`MIN_COVERAGE = 0.5`), y el umbral de 0.5 solo descarta puntuaciones residuales (ya no decide la relevancia solo). Límite de 8 fragmentos por consulta.
+- Documentos por ficha y por sección citable (cada paso, plazo, aviso y canal de contacto concreto, cada uno con su propia fuente), con título propio para la cita: `Empresa: baja`, `Trámite: paso 2`.
 - Orden por puntuación descendente y, en empate, por `sourceId` en orden de unidades de código, sin `localeCompare`, para que sea idéntico en cualquier plataforma.
 - Cargador: lee `content/{companies,authorities,procedures}/*.yaml` con `yaml`, valida con los esquemas de `@letra-grande/schema`, salta los archivos inválidos sin romper y expone cuántos saltó, sin registrar contenido. Índice cacheado por raíz de contenido durante la vida del proceso.
 - Adaptador: resuelve `content/` subiendo por el árbol desde el directorio de trabajo, de modo que funciona igual en `next dev` y en `next start`.
 - Dependencia añadida: `yaml` en `packages/ai`, ya presente en el workspace a través de `packages/schema`, para el cargador.
-- Estado del contenido: en `content/` solo hay tres plantillas ficticias con `verified: false`, así que hoy las fuentes recuperadas llegan marcadas como no verificadas hasta que existan fichas reales.
+- Estado del contenido: en `content/` solo hay tres plantillas ficticias con `verified: false`, así que hoy las fuentes recuperadas viajan con `verified: false` hasta el catálogo `fuentes` de la respuesta para que la interfaz avise.
+- Longitud de documento = suma de frecuencias de términos (no únicos) y URLs y correos quitados del texto indexado.
+- Filtros comparados sin acentos ni mayúsculas; organismos multissector indexados por sector, con deduplicación de resultados idénticos.
+- Diagnóstico: el recuperador expone `diagnostics()` con ficheros leídos, saltados y documentos indexados; `deps.ts` guarda la referencia del recuperador para consultarlo. Sin contenido ni logs.
+- Límite conocido: en un build de Next independiente, si `content/` no se copia al resultado del build, el índice queda vacío y el asistente responde `outOfScope` (degradación honesta); `diagnostics()` permite verlo.
+- Ronda de review: bloqueante del gate resuelto con el caso IBI como prueba (5 fichas de gas, 5 del IBI: la pregunta del IBI solo devuelve documentos del IBI).
 
 ## Siguiente paso
 

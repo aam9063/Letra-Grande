@@ -2,8 +2,21 @@
 // Todas las fichas de este archivo son ficticias: nunca datos reales.
 import { describe, expect, it } from "vitest";
 import { Authority, Company, Procedure } from "@letra-grande/schema";
-import { buildIndex, search, type FichasInput } from "../src/retrieval/index.js";
+import {
+  buildIndex,
+  buildIndexFromDocuments,
+  search,
+  type FichasInput,
+  type IndexedDocument,
+} from "../src/retrieval/index.js";
 import { tokenize } from "../src/retrieval/tokenize.js";
+
+/** Documento de índice para pruebas directas del gate y del ranking. */
+function doc(
+  partial: Partial<IndexedDocument> & Pick<IndexedDocument, "sourceId" | "titulo" | "url" | "texto">,
+): IndexedDocument {
+  return { sector: "", region: "", tipo: "empresa", verified: true, ...partial };
+}
 
 const fuenteTeleco = {
   id: "web-teleco",
@@ -56,7 +69,7 @@ function empresaTeleco(): Company {
         {
           kind: "web",
           value: "https://example.com/teleco/baja",
-          notes: "Cómo darse de baja desde el área de cliente",
+          notes: "Cómo darse de baja: pide la baja desde el área de cliente",
           sourceId: "web-teleco",
         },
       ],
@@ -220,7 +233,7 @@ describe("buildIndex y search", () => {
   });
 
   it("el filtro por sector excluye fichas de otro sector", () => {
-    const results = search(buildIndex(fichasPrueba()), "reclamación baja", { sector: "energia" });
+    const results = search(buildIndex(fichasPrueba()), "reclamación", { sector: "energia" });
     expect(results.length).toBeGreaterThan(0);
     expect(results.every((d) => d.sector === "energia")).toBe(true);
   });
@@ -246,14 +259,15 @@ describe("buildIndex y search", () => {
     expect(baja?.score).toBeGreaterThan(0);
   });
 
-  it("una ficha con verified: false sigue siendo recuperable y se marca en el título del resultado", () => {
+  it("una ficha con verified: false sigue siendo recuperable y el índice no altera su título", () => {
     const index = buildIndex(fichasPrueba());
     const conSinVerificar = index.documents.filter((d) => d.verified === false);
     expect(conSinVerificar.length).toBeGreaterThan(0);
     const results = search(index, "reclamación", { tipo: "empresa" });
     const marcados = results.filter((d) => d.verified === false);
     expect(marcados.length).toBeGreaterThan(0);
-    // El índice no muta: verified queda como en la ficha, el marcado es del adaptador.
+    // El marcado lo hace el recuperador con el campo verified (no el título):
+    // el índice conserva la ficha tal cual.
     expect(conSinVerificar.every((d) => !d.titulo.includes("sin verificar"))).toBe(true);
   });
 
@@ -275,5 +289,157 @@ describe("buildIndex y search", () => {
     const before = JSON.stringify(index.documents);
     search(index, "baja reclamación telefonía", { region: "valencia" }, { minScore: 0 });
     expect(JSON.stringify(index.documents)).toBe(before);
+  });
+});
+
+describe("puerta de evidencia del gate (revisión AI-03a)", () => {
+  /** Cinco fichas de gas y cinco del IBI: el caso que motivó el gate. */
+  function indiceGasIbi(): ReturnType<typeof buildIndexFromDocuments> {
+    const docs: IndexedDocument[] = [];
+    for (const n of ["uno", "dos", "tres", "cuatro", "cinco"]) {
+      docs.push(
+        doc({
+          sourceId: `gas-${n}`,
+          titulo: `Ficha de gas ${n}`,
+          url: "https://example.com/gas",
+          texto: `la empresa gestiona el contrato del gas de la factura ${n}`,
+        }),
+        doc({
+          sourceId: `ibi-${n}`,
+          titulo: `Ficha del IBI ${n}`,
+          url: "https://example.com/ibi",
+          texto: `la empresa gestiona el contrato del ibi de la factura ${n}`,
+        }),
+      );
+    }
+    return buildIndexFromDocuments(docs);
+  }
+
+  it("el término más raro decide: la pregunta del IBI solo devuelve documentos del IBI", () => {
+    const results = search(indiceGasIbi(), "que empresa gestiona el contrato del ibi");
+    expect(results.length).toBe(5);
+    expect(results.every((d) => d.texto.includes("ibi"))).toBe(true);
+    expect(results[0]?.texto).toContain("ibi");
+  });
+
+  it("una consulta que solo comparte la palabra común a todo el corpus no devuelve nada", () => {
+    expect(search(indiceGasIbi(), "empresa")).toEqual([]);
+  });
+
+  it("una consulta cuyos términos no existen en el corpus devuelve vacío", () => {
+    expect(search(indiceGasIbi(), "zzzqqq")).toEqual([]);
+  });
+
+  it("la longitud del documento es la suma de frecuencias: repetir no vence a uno corto y centrado", () => {
+    const index = buildIndexFromDocuments([
+      doc({ sourceId: "s-a", titulo: "Documento repetitivo", url: "https://example.com/a", texto: "baja baja baja baja" }),
+      doc({ sourceId: "s-b", titulo: "Documento centrado", url: "https://example.com/b", texto: "baja linea" }),
+      doc({ sourceId: "s-c", titulo: "Documento tercera", url: "https://example.com/c", texto: "linea aqui contenido distinto" }),
+      doc({ sourceId: "s-d", titulo: "Documento cuarta", url: "https://example.com/d", texto: "relleno diferente tambien" }),
+    ]);
+    const results = search(index, "baja linea");
+    expect(results[0]?.sourceId).toBe("s-b");
+    expect(results.map((d) => d.sourceId)).toContain("s-a");
+  });
+
+  it("las URLs y los correos del texto no generan términos de índice", () => {
+    const index = buildIndexFromDocuments([
+      doc({
+        sourceId: "s1",
+        titulo: "Canal de baja",
+        url: "https://example.com/baja",
+        texto: "web: https://soporte.ejemplo-largo.com/baja (Escribe en el formulario) o a soporte@ejemplo-largo.com",
+      }),
+      doc({ sourceId: "s2", titulo: "Otra cosa", url: "https://example.com/otra", texto: "contenido distinto" }),
+    ]);
+    expect(search(index, "soporte")).toEqual([]);
+    expect(search(index, "ejemplo")).toEqual([]);
+    expect(search(index, "formulario").length).toBe(1);
+  });
+
+  it("los filtros ignoran acentos y mayúsculas", () => {
+    const index = buildIndex(fichasPrueba());
+    const porRegion = search(index, "reclamación", { region: "Cataluña" });
+    expect(porRegion.some((d) => d.region === "cataluna")).toBe(true);
+    expect(porRegion.some((d) => d.region === "valencia")).toBe(false);
+    const porSector = search(index, "reclamación", { sector: "Telefonía" });
+    expect(porSector.length).toBeGreaterThan(0);
+    expect(porSector.every((d) => d.sector === "telefonia")).toBe(true);
+  });
+
+  it("un organismo multissector indexa todos sus sectores y no duplica resultados", () => {
+    const index = buildIndexFromDocuments([
+      doc({
+        sourceId: "omac",
+        titulo: "OMAC de Prueba: reclamación",
+        url: "https://example.com/omac",
+        texto: "Presenta la reclamación en la oficina.",
+        sector: "energia",
+        tipo: "organismo",
+      }),
+      doc({
+        sourceId: "omac",
+        titulo: "OMAC de Prueba: reclamación",
+        url: "https://example.com/omac",
+        texto: "Presenta la reclamación en la oficina.",
+        sector: "telefonia",
+        tipo: "organismo",
+      }),
+    ]);
+    expect(search(index, "reclamación", {}, { minScore: 0 })).toHaveLength(1);
+    expect(search(index, "reclamación", { sector: "telefonia" }, { minScore: 0 })).toHaveLength(1);
+    expect(search(index, "reclamación", { sector: "banca" })).toEqual([]);
+  });
+
+  it("cada canal genera su propio documento con su fuente, título y URL", () => {
+    const empresa = Company.parse({
+      id: "dos-canales",
+      name: "Empresa de Dos Canales",
+      sector: "telefonia",
+      channels: {
+        atencionCliente: [],
+        reclamacion: [],
+        baja: [
+          { kind: "web", value: "https://example.com/baja-web", sourceId: "web-baja" },
+          { kind: "telefono", value: "900 123 456", sourceId: "tel-baja" },
+        ],
+      },
+      escalation: [],
+      sources: [
+        { id: "web-baja", title: "Web de baja", url: "https://example.com/web", kind: "empresa", retrievedOn: "2026-01-15" },
+        { id: "tel-baja", title: "Teléfono de baja", url: "https://example.com/tel", kind: "empresa", retrievedOn: "2026-01-15" },
+      ],
+      verification: { verified: false },
+    });
+    const index = buildIndex({ companies: [empresa], authorities: [], procedures: [] });
+    const canales = index.documents.filter((d) => d.titulo === "Empresa de Dos Canales: baja");
+    expect(canales).toHaveLength(2);
+    const web = canales.find((d) => d.sourceId === "web-baja");
+    const tel = canales.find((d) => d.sourceId === "tel-baja");
+    expect(web?.url).toBe("https://example.com/web");
+    expect(tel?.url).toBe("https://example.com/tel");
+    // El valor del canal sigue en el texto (el teléfono), la URL no.
+    expect(tel?.texto).toContain("900 123 456");
+    expect(web?.texto).not.toContain("baja-web");
+  });
+
+  it("un documento sin sector o sin región encaja con cualquier filtro", () => {
+    const index = buildIndexFromDocuments([
+      doc({ sourceId: "sin-sector", titulo: "Trámite sin sector", url: "https://example.com/t", texto: "reclamación de factura", tipo: "tramite" }),
+      doc({ sourceId: "con-sector", titulo: "Trámite de otro sector", url: "https://example.com/o", texto: "reclamación de telefonía", tipo: "tramite", sector: "telefonia" }),
+      doc({ sourceId: "relleno-1", titulo: "Relleno uno", url: "https://example.com/r1", texto: "contenido distinto" }),
+      doc({ sourceId: "relleno-2", titulo: "Relleno dos", url: "https://example.com/r2", texto: "otro contenido diferente" }),
+    ]);
+    const conFiltro = search(index, "reclamación", { sector: "energia", region: "madrid" });
+    expect(conFiltro.map((d) => d.sourceId)).toContain("sin-sector");
+    expect(conFiltro.map((d) => d.sourceId)).not.toContain("con-sector");
+  });
+
+  it("un importe con separador de miles se reduce a su parte numérica (comportamiento aceptado)", () => {
+    // Aceptado a propósito: el punto es separador, así que "1.500" se reduce a
+    // "500". Las cifras que cita el modelo se validan contra el texto completo
+    // de la fuente, no contra los términos del índice, así que no se pierde
+    // ninguna validación por esta reducción.
+    expect(tokenize("1.500 euros")).toEqual(["500", "euros"]);
   });
 });

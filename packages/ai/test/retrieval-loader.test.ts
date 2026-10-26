@@ -61,6 +61,7 @@ describe("loadContentIndex", () => {
 
     // El contentRoot es la carpeta content/ del repositorio.
     const cargado = loadContentIndex(join(raiz, "content"));
+    expect(cargado.filesRead).toBe(3);
     expect(cargado.skippedFiles).toBe(2);
     const titulos = cargado.index.documents.map((d) => d.titulo);
     expect(titulos).toContain("Empresa de Prueba S.A. (ficticia)");
@@ -85,7 +86,7 @@ describe("loadContentIndex", () => {
 });
 
 describe("createContentRetriever", () => {
-  it("devuelve { id, titulo, url, texto } y marca las fichas sin verificar en el título", async () => {
+  it("devuelve { id, titulo, url, texto, verified } con verified false para fichas sin verificar", async () => {
     const raiz = crearRaizContenido();
     mkdirSync(join(raiz, "content", "companies"), { recursive: true });
     writeFileSync(join(raiz, "content", "companies", "empresa-prueba.yaml"), yamlEmpresaValida);
@@ -94,16 +95,29 @@ describe("createContentRetriever", () => {
     const fuentes = await recuperador("darse de baja");
     expect(fuentes.length).toBeGreaterThan(0);
     for (const fuente of fuentes) {
-      expect(Object.keys(fuente).sort()).toEqual(["id", "texto", "titulo", "url"]);
-      expect(fuente.titulo.endsWith(" (sin verificar)")).toBe(true);
+      expect(Object.keys(fuente).sort()).toEqual(["id", "texto", "titulo", "url", "verified"]);
+      expect(fuente.verified).toBe(false);
     }
     expect(fuentes.some((f) => f.id === "web-prueba")).toBe(true);
   });
 
-  it("sin carpeta de contenido responde sin fuentes, sin lanzar", async () => {
+  it("diagnostics devuelve los contadores de carga sin contenido ni logs", async () => {
+    const raiz = crearRaizContenido();
+    mkdirSync(join(raiz, "content", "companies"), { recursive: true });
+    writeFileSync(join(raiz, "content", "companies", "empresa-prueba.yaml"), yamlEmpresaValida);
+    writeFileSync(join(raiz, "content", "companies", "rota.yaml"), "id: [roto");
+
+    const recuperador = createContentRetriever({ contentRoot: join(raiz, "content") });
+    expect(recuperador.diagnostics()).toEqual({ filesRead: 2, filesSkipped: 1, documents: 2 });
+    await recuperador("baja");
+    expect(recuperador.diagnostics()).toEqual({ filesRead: 2, filesSkipped: 1, documents: 2 });
+  });
+
+  it("sin carpeta de contenido responde sin fuentes y con diagnóstico a cero, sin lanzar", async () => {
     const raiz = crearRaizContenido();
     const recuperador = createContentRetriever({ contentRoot: join(raiz, "no-existe") });
     expect(await recuperador("baja")).toEqual([]);
+    expect(recuperador.diagnostics()).toEqual({ filesRead: 0, filesSkipped: 0, documents: 0 });
   });
 });
 

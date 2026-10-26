@@ -27,13 +27,16 @@ export {
 export { CircuitBreaker, type CircuitBreakerOptions, type CircuitState } from "./circuit-breaker.js";
 export { DEFAULT_MAX_USERS, TokenBucketQuota, type TokenBucketOptions } from "./quota.js";
 export { DailyBudget, type DailyBudgetOptions } from "./budget.js";
-export { tokenize, SPANISH_STOPWORDS } from "./retrieval/tokenize.js";
+export { tokenize, normalizeText, SPANISH_STOPWORDS } from "./retrieval/tokenize.js";
 export {
   BM25_B,
   BM25_K1,
   DEFAULT_LIMIT,
   DEFAULT_MIN_SCORE,
+  MIN_COVERAGE,
   buildIndex,
+  buildIndexFromDocuments,
+  quitarEnlaces,
   search,
   type FichaTipo,
   type FichasInput,
@@ -45,9 +48,9 @@ export {
 } from "./retrieval/index.js";
 export { findContentRoot, loadContentIndex, type LoadedContentIndex } from "./retrieval/loader.js";
 export {
-  SIN_VERIFICAR,
   createContentRetriever,
   type ContentRetriever,
   type ContentRetrieverOptions,
+  type RetrievalDiagnostics,
   type RetrievedSourceData,
 } from "./retrieval/retriever.js";

@@ -34,6 +34,11 @@ export function withTimeout(provider: LlmProvider, timeoutMs: number): LlmProvid
 
 const globalForAssistant = globalThis as unknown as { __assistantDeps?: AssistantDeps };
 
+// Referencia propia del recuperador de contenido (AI-03a): mantiene vivos los
+// contadores de diagnóstico (ficheros leídos, saltados, documentos indexados)
+// para poder consultarlos sin exponer contenido ni escribir logs.
+export const contentRetriever = createContentRetriever();
+
 export function createDefaultDeps(): AssistantDeps {
   const existing = globalForAssistant.__assistantDeps;
   if (existing !== undefined) return existing;
@@ -58,11 +63,12 @@ export function createDefaultDeps(): AssistantDeps {
       now: () => Date.now(),
     }),
     deriveAnonymousId,
-    // Recuperación BM25 sobre content/ (AI-03a): se indexa una vez por proceso
-    // y la carpeta se localiza subiendo desde el cwd, así que funciona igual en
-    // next dev y en next start. Si no hay carpeta de contenido, responde sin
-    // fuentes: el asistente degrada a outOfScope, como prevé el proxy.
-    retrieveSources: createContentRetriever(),
+    // Recuperación BM25 con puerta de evidencia sobre content/ (AI-03a): se
+    // indexa una vez por proceso y la carpeta se localiza subiendo desde el
+    // cwd, así que funciona igual en next dev y en next start. Si no hay
+    // carpeta de contenido, responde sin fuentes: el asistente degrada a
+    // outOfScope, como prevé el proxy.
+    retrieveSources: contentRetriever,
   };
   globalForAssistant.__assistantDeps = deps;
   return deps;
