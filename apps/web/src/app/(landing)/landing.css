@@ -1,0 +1,1140 @@
+/* Estilos de la landing (UI-03). Valores tomados del mockup Landing.dc.html.
+   El acento vive en las custom properties de packages/design (--lg-acento);
+   las mezclas derivadas van precalculadas y comentadas en landing.ts. */
+
+.lg-land {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: #f7f7f8;
+  color: #141414;
+  font-size: 1.125rem; /* 18 px, base del mockup */
+  line-height: 1.5;
+}
+
+.lg-land a {
+  color: #26605c;
+}
+
+.lg-land summary {
+  cursor: pointer;
+}
+
+/* Los hijos directos son flex items de la columna: sin min-width: 0, su
+   min-content (p. ej. el bloque de código JSON) infla el ancho de toda la
+   página y provoca scroll horizontal en pantallas estrechas. */
+.lg-land > * {
+  min-width: 0;
+}
+
+/* Firefox no estira el main de un flex en columna al ancho del contenedor
+   (usa su min-content): sin esto, el bloque de código JSON abre la página a
+   más de 375 px. Chromium y WebKit no lo necesitan, pero no les estorba.
+   max-width: none anula el límite de 42 rem del globals.css de la app, que
+   es para las páginas de módulo, no para la landing. */
+.lg-land main {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  border-radius: 0;
+}
+
+/* Envoltura de 1200 px con márgenes laterales del mockup. */
+.lg-land-envoltura {
+  max-width: 75rem; /* 1200 px */
+  margin: 0 auto;
+  padding: 0 2rem;
+  box-sizing: border-box;
+}
+
+/* Banner superior en construcción. */
+.lg-land-banner {
+  margin: 0;
+  background: #141414;
+  color: #ffffff;
+  text-align: center;
+  padding: 0.625rem 1.25rem;
+  font-size: 1rem;
+}
+
+.lg-land-banner a {
+  color: #ffffff;
+  font-weight: 700;
+}
+
+/* Cabecera. */
+.lg-land-cabecera {
+  background: #f7f7f8;
+}
+
+.lg-land-cabecera-fila {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-top: 1.125rem;
+  padding-bottom: 1.125rem;
+}
+
+.lg-land-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  text-decoration: none;
+  color: #141414;
+}
+
+.lg-land-logo-cubo {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.75rem;
+  background: #141414;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.625rem;
+  line-height: 1;
+}
+
+.lg-land-logo-cubo-claro {
+  background: #ffffff;
+  color: #141414;
+}
+
+.lg-land-logo-texto {
+  font-size: 1.375rem;
+  line-height: 1.1;
+}
+
+.lg-land-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.5rem;
+}
+
+.lg-land-nav a {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  padding: 0 0.75rem;
+  font-size: 1.0625rem;
+  font-weight: 700;
+  color: #141414;
+  text-decoration: none;
+}
+
+.lg-land-cabecera-acciones {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+/* Botones. */
+.lg-land-boton-solido,
+.lg-land-boton-borde {
+  min-height: 48px;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 0.875rem;
+  font-size: 1.1875rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.lg-land-boton-solido {
+  padding: 0 1.25rem;
+  background: var(--lg-acento);
+  /* Blanco por decisión de la persona (L4): 3.3:1 sobre el teal, AA solo
+     como texto grande (3:1), de ahí el tamaño de 19 px en negrita. */
+  color: #ffffff;
+}
+
+.lg-land-boton-borde {
+  padding: 0 1.125rem;
+  border: 2px solid #141414;
+  color: #141414;
+}
+
+.lg-land-boton-grande {
+  height: 60px;
+  box-sizing: border-box;
+  border-radius: 1rem;
+  padding: 0 1.75rem;
+  font-size: 1.25rem;
+  gap: 0.625rem;
+}
+
+.lg-land-boton-medio {
+  margin-top: 1.75rem;
+  height: 56px;
+  box-sizing: border-box;
+  padding: 0 1.5rem;
+  font-size: 1.125rem;
+}
+
+.lg-land-boton-enorme {
+  margin-top: 2rem;
+  height: 64px;
+  box-sizing: border-box;
+  padding: 0 2.25rem;
+  border-radius: 1.125rem;
+  font-size: 1.25rem;
+}
+/* Héroe. */
+.lg-land-hero {
+  padding: 3.5rem 0 4.5rem;
+}
+
+.lg-land-hero-fila {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3.5rem;
+  align-items: center;
+}
+
+.lg-land-hero-texto {
+  flex: 1 1 32.5rem;
+  min-width: 0;
+}
+
+.lg-land-pildora {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 0.375rem 1rem;
+  background: #ffffff;
+  border: 1px solid #e3e3e8;
+}
+
+.lg-land-hero h1 {
+  margin: 1.25rem 0 0;
+  font-size: clamp(2.75rem, 6.4vw, 5.25rem);
+  line-height: 1.02;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
+
+.lg-land-acentuado {
+  color: var(--lg-acento);
+}
+
+.lg-land-entradilla {
+  margin: 1.5rem 0 0;
+  font-size: 1.375rem;
+  line-height: 1.5;
+  color: #3a3a42;
+  max-width: 35rem;
+}
+
+.lg-land-hero-acciones {
+  margin-top: 2rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.lg-land-nota {
+  margin: 1rem 0 0;
+  font-size: 1rem;
+  color: #55555f;
+}
+
+/* Tarjetas de muestra del héroe. */
+.lg-land-hero-muestras {
+  flex: 1 1 28.75rem;
+  min-width: 0;
+}
+
+.lg-land-tarjeta {
+  background: #ffffff;
+  border: 1px solid #e3e3e8;
+  border-radius: 1.75rem;
+  padding: 1.375rem;
+}
+
+/* Sombra flotante de las tarjetas de muestra del héroe (mockup). */
+.lg-land-radar,
+.lg-land-burbuja {
+  box-shadow: 0 24px 60px rgba(20, 20, 20, 0.08);
+}
+
+/* Globo de la pregunta del chat, alineado a la derecha como en el mockup. */
+.lg-land-burbuja-pregunta {
+  margin: 0 0 0 auto;
+  width: fit-content;
+  max-width: 90%;
+  background: #141414;
+  color: #ffffff;
+  border-radius: 1rem 1rem 0.25rem 1rem;
+  padding: 0.625rem 0.875rem;
+  font-size: 1.0625rem;
+}
+
+.lg-land-radar + .lg-land-burbuja {
+  margin: -1.125rem 0 0 2.75rem;
+}
+
+.lg-land-fila-separada {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.lg-land-radar-titulo {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.lg-land-etiqueta {
+  font-size: 0.875rem;
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 0.25rem 0.75rem;
+}
+
+.lg-land-etiqueta-ok,
+.lg-land-etiqueta-proxima {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 0.25rem 0.75rem;
+  white-space: nowrap;
+}
+
+.lg-land-etiqueta-ok {
+  color: #135c2e;
+  background: #e6f4ea;
+}
+
+.lg-land-etiqueta-proxima {
+  background: #e3f2f1;
+  color: #17504b;
+}
+
+.lg-land-radar-lista {
+  list-style: none;
+  margin: 0.875rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.lg-land-radar-item {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  border: 1px solid #e3e3e8;
+  border-radius: 1rem;
+  padding: 0.75rem;
+}
+
+.lg-land-fecha {
+  flex: none;
+  width: 3.5rem;
+  height: 3.75rem;
+  border-radius: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.lg-land-fecha-dia {
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.lg-land-fecha-mes {
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.lg-land-radar-gravedad {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.lg-land-radar-nombre {
+  display: block;
+  font-size: 1.125rem;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.lg-land-burbuja-respuesta {
+  margin-top: 0.75rem;
+  display: flex;
+  gap: 0.75rem;
+}
+
+.lg-land-burbuja-respuesta p {
+  margin: 0;
+  font-size: 1.125rem;
+  line-height: 1.35;
+}
+
+.lg-land-numero {
+  flex: none;
+  width: 1.875rem;
+  height: 1.875rem;
+  border-radius: 50%;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lg-land-numero-redondo {
+  border-radius: 50%;
+  font-size: 1.125rem;
+}
+
+.lg-land-burbuja-fuentes {
+  margin-top: 0.625rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.lg-land-chip-fuente {
+  min-height: 32px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 0.75rem;
+  border-radius: 1rem;
+  border: 1px solid #d5d5dc;
+  font-size: 0.9375rem;
+  font-weight: 700;
+}
+
+/* Franja de confianza. */
+.lg-land-confianza {
+  background: #ffffff;
+  border-top: 1px solid #e3e3e8;
+  border-bottom: 1px solid #e3e3e8;
+}
+
+.lg-land-confianza-fila {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem 2rem;
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+}
+
+.lg-land-confianza-item {
+  flex: 1 1 14.375rem;
+  min-width: 0;
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+}
+
+.lg-land-icono {
+  flex: none;
+  margin-top: 0.125rem;
+  display: inline-flex;
+}
+
+.lg-land-confianza-titulo {
+  font-size: 1.125rem;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.lg-land-confianza-texto {
+  margin: 0.125rem 0 0;
+  font-size: 1rem;
+  color: #55555f;
+  line-height: 1.35;
+}
+
+/* Secciones genéricas. */
+.lg-land-seccion {
+  padding: 6rem 0;
+}
+
+.lg-land-alterna {
+  background: #ffffff;
+  border-top: 1px solid #e3e3e8;
+  border-bottom: 1px solid #e3e3e8;
+}
+
+.lg-land-antetitulo {
+  margin: 0;
+  font-size: 1.0625rem;
+  font-weight: 700;
+}
+
+.lg-land-antetitulo-claro {
+  color: #bfe6e2;
+}
+
+.lg-land-h2 {
+  margin: 0.5rem 0 0;
+  font-size: clamp(2.125rem, 4.4vw, 3.25rem);
+  line-height: 1.08;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  max-width: 47.5rem;
+}
+
+.lg-land-h3 {
+  margin: 0;
+  font-size: 1.5rem;
+  line-height: 1.2;
+  font-weight: 700;
+}
+
+.lg-land-intro {
+  margin: 1rem 0 0;
+  font-size: 1.25rem;
+  color: #3a3a42;
+  max-width: 42.5rem;
+}
+
+.lg-land-intro-claro {
+  color: #e3e3e8;
+}
+
+/* Cómo funciona: pasos. */
+.lg-land-pasos {
+  margin-top: 3rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+
+.lg-land-paso {
+  flex: 1 1 20rem;
+  min-width: 0;
+  border-radius: 1.5rem;
+  padding: 2rem;
+}
+
+.lg-land-paso-numero {
+  margin: 0;
+  font-size: 4rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.lg-land-paso .lg-land-h3 {
+  margin-top: 1rem;
+}
+
+.lg-land-paso-texto {
+  margin: 0.625rem 0 0;
+  font-size: 1.1875rem;
+  color: #3a3a42;
+}
+
+.lg-land-paso-ejemplo {
+  margin: 1.25rem 0 0;
+  border-radius: 0.875rem;
+  padding: 0.875rem;
+  font-size: 1.0625rem;
+  line-height: 1.4;
+}
+
+/* Qué incluye: módulos. */
+.lg-land-modulos {
+  margin-top: 3rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+  gap: 1.25rem;
+}
+
+.lg-land-modulo {
+  background: #f7f7f8;
+  border: 1px solid #e3e3e8;
+  border-radius: 1.5rem;
+  padding: 1.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.lg-land-modulo-icono {
+  width: 3.25rem;
+  height: 3.25rem;
+  border-radius: 0.875rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lg-land-modulo-texto {
+  margin: 0;
+  font-size: 1.125rem;
+  color: #3a3a42;
+}
+
+/* Privacidad (sección oscura). */
+.lg-land-oscura {
+  background: #141414;
+  color: #ffffff;
+}
+
+.lg-land-dos-columnas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3.5rem;
+  align-items: center;
+}
+
+.lg-land-dos-columnas > div {
+  flex: 1 1 28.75rem;
+  min-width: 0;
+}
+
+.lg-land-lista-check {
+  list-style: none;
+  margin: 1.75rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.lg-land-lista-check li {
+  display: flex;
+  gap: 0.875rem;
+  align-items: flex-start;
+}
+
+.lg-land-check {
+  flex: none;
+  width: 1.875rem;
+  height: 1.875rem;
+  border-radius: 50%;
+  background: #ffffff;
+  color: #141414;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lg-land-item-titulo {
+  font-size: 1.1875rem;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.lg-land-item-texto {
+  margin: 0;
+  font-size: 1.0625rem;
+  color: #d5d5dc;
+  line-height: 1.4;
+}
+
+/* Demostración de enmascarado. */
+.lg-land-demo-enmascarado {
+  background: #ffffff;
+  color: #141414;
+  border-radius: 1.75rem;
+  padding: 1.75rem;
+}
+
+.lg-land-demo-etiqueta {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: #55555f;
+}
+
+.lg-land-demo-caja {
+  margin: 0.375rem 0 0;
+  background: #f7f7f8;
+  border: 1px solid #e3e3e8;
+  border-radius: 0.875rem;
+  padding: 0.875rem;
+  font-size: 1.1875rem;
+  line-height: 1.5;
+}
+
+.lg-land-demo-flecha {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  margin: 1rem 0;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.lg-land-demo-enmascarada {
+  border: none;
+  font-size: 1.1875rem;
+  line-height: 1.7;
+}
+
+.lg-land-marcado {
+  background: #141414;
+  color: #ffffff;
+  border-radius: 0.375rem;
+  padding: 0.125rem 0.5rem;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.lg-land-demo-nota {
+  margin: 0.875rem 0 0;
+  font-size: 0.9375rem;
+  color: #55555f;
+  line-height: 1.4;
+}
+
+/* Respuesta con fuentes. */
+.lg-land-orden-1 {
+  order: 1;
+}
+
+.lg-land-orden-2 {
+  order: 2;
+}
+
+.lg-land-respuesta {
+  border-radius: 1.75rem;
+  padding: 1.5rem;
+  box-shadow: 0 24px 60px rgba(20, 20, 20, 0.07);
+}
+
+.lg-land-respuesta-filas {
+  margin-top: 0.875rem;
+  border: 1px solid #e3e3e8;
+  border-radius: 1rem;
+  overflow: hidden;
+}
+
+.lg-land-respuesta-fila {
+  border-top: 1px solid #e3e3e8;
+  padding: 0.875rem 1rem;
+}
+
+.lg-land-respuesta-filas > :first-child {
+  padding: 0.875rem 1rem;
+}
+
+.lg-land-respuesta-etiqueta {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #55555f;
+}
+
+.lg-land-respuesta-texto {
+  margin: 0;
+  font-size: 1.125rem;
+  line-height: 1.4;
+}
+
+.lg-land-respuesta-filas .lg-land-chip-fuente {
+  margin-top: 0.375rem;
+  min-height: 30px;
+}
+
+.lg-land-aviso {
+  margin: 0.875rem 0 0;
+  border-radius: 0.875rem;
+  padding: 0.75rem 0.875rem;
+  background: #fff3d6;
+  color: #6b4500;
+  font-size: 1.0625rem;
+  line-height: 1.4;
+}
+
+/* Datos abiertos y API. */
+.lg-land-datos-lista {
+  list-style: none;
+  margin: 1.5rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.lg-land-datos-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  border: 1px solid #e3e3e8;
+  border-radius: 0.875rem;
+  padding: 0.875rem 1rem;
+  background: #f7f7f8;
+}
+
+.lg-land-datos-item .lg-land-item-texto {
+  color: #55555f;
+}
+
+.lg-land-codigo {
+  background: #141414;
+  color: #f7f7f8;
+  border-radius: 1.5rem;
+  padding: 1.5rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 1rem;
+  line-height: 1.6;
+  overflow-x: auto;
+}
+
+.lg-land-codigo-ruta {
+  margin: 0;
+  color: #8fd3cc;
+}
+
+.lg-land-codigo-bloque {
+  margin: 0.75rem 0 0;
+  white-space: pre;
+  font-family: inherit;
+}
+
+.lg-land-codigo-nota {
+  margin: 0.75rem 0 0;
+  font-family: var(--font-host-grotesk), system-ui, sans-serif;
+  font-size: 0.9375rem;
+  color: #c9c9d1;
+}
+
+/* Accesibilidad. */
+.lg-land-accesible {
+  margin-top: 3rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+}
+
+.lg-land-accesible-item {
+  flex: 1 1 15.625rem;
+  min-width: 0;
+  border-radius: 1.5rem;
+  padding: 1.75rem;
+}
+
+.lg-land-accesible-muestra {
+  margin: 0;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.lg-land-accesible-item .lg-land-h3 {
+  margin-top: 1rem;
+  font-size: 1.375rem;
+}
+
+.lg-land-accesible-item .lg-land-modulo-texto {
+  margin-top: 0.5rem;
+}
+
+/* Móvil y PWA. */
+.lg-land-instalacion {
+  list-style: none;
+  margin: 1.75rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.lg-land-instalacion li {
+  display: flex;
+  gap: 0.875rem;
+  align-items: flex-start;
+}
+
+.lg-land-instalacion .lg-land-numero {
+  width: 2.25rem;
+  height: 2.25rem;
+  font-size: 1.125rem;
+}
+
+.lg-land-instalacion-texto {
+  font-size: 1.1875rem;
+  line-height: 1.4;
+  padding-top: 0.25rem;
+}
+
+.lg-land-movil-centro {
+  display: flex;
+  justify-content: center;
+}
+
+.lg-land-movil {
+  width: 17.5rem;
+  border-radius: 2.75rem;
+  background: #141414;
+  padding: 0.75rem;
+  box-sizing: border-box;
+}
+
+.lg-land-movil-pantalla {
+  border-radius: 2.125rem;
+  background: #f7f7f8;
+  min-height: 33.75rem;
+  padding: 1.75rem 1.125rem 1.125rem;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.lg-land-movil-fecha {
+  margin: 0;
+  font-size: 0.9375rem;
+  color: #55555f;
+}
+
+.lg-land-movil-titulo {
+  margin: 0;
+  font-size: 1.625rem;
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+.lg-land-movil-boton {
+  margin: 0;
+  min-height: 48px;
+  border-radius: 0.875rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.1875rem;
+}
+
+.lg-land-movil-item {
+  display: flex;
+  gap: 0.625rem;
+  align-items: center;
+  background: #ffffff;
+  border: 1px solid #e3e3e8;
+  border-radius: 0.875rem;
+  padding: 0.625rem;
+}
+
+.lg-land-fecha-movil {
+  width: 2.875rem;
+  height: 3.125rem;
+  border-radius: 0.625rem;
+}
+
+.lg-land-fecha-movil .lg-land-fecha-dia {
+  font-size: 1.25rem;
+}
+
+.lg-land-fecha-movil .lg-land-fecha-mes {
+  font-size: 0.8125rem;
+}
+
+.lg-land-movil-item-titulo {
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+/* Código abierto: colaborar. */
+.lg-land-colaborar {
+  margin-top: 2.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+}
+
+.lg-land-colaborar-item {
+  flex: 1 1 20rem;
+  min-width: 0;
+  border-radius: 1.5rem;
+  padding: 1.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.lg-land-colaborar-texto {
+  flex: 1;
+}
+
+.lg-land-enlace-cta {
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #26605c;
+  text-decoration: none;
+}
+
+/* Preguntas frecuentes. */
+.lg-land-preguntas {
+  max-width: 53.75rem;
+}
+
+.lg-land-faq {
+  margin-top: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.lg-land-faq-item {
+  background: #f7f7f8;
+  border: 1px solid #e3e3e8;
+  border-radius: 1rem;
+  padding: 0 1.375rem;
+}
+
+.lg-land-faq-item summary {
+  min-height: 64px;
+  display: flex;
+  align-items: center;
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.lg-land-faq-respuesta {
+  margin: 0 0 1.25rem;
+  font-size: 1.125rem;
+  line-height: 1.55;
+  color: #3a3a42;
+}
+
+/* Cierre. */
+.lg-land-cierre {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  padding: 6rem 0;
+}
+
+.lg-land-cierre-centro {
+  width: 100%;
+  text-align: center;
+}
+
+.lg-land-cierre-titulo {
+  margin: 0 auto;
+  font-size: clamp(2.375rem, 5.4vw, 4.25rem);
+  line-height: 1.05;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  max-width: 53.75rem;
+}
+
+.lg-land-cierre-texto {
+  margin: 1.25rem auto 0;
+  font-size: 1.3125rem;
+  color: #3a3a42;
+  max-width: 38.75rem;
+}
+
+/* Footer. */
+.lg-land-footer {
+  background: #141414;
+  color: #ffffff;
+  padding: 4rem 0 2.5rem;
+}
+
+.lg-land-footer-filas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2.5rem 4rem;
+}
+
+.lg-land-footer-marca {
+  flex: 1 1 20rem;
+  min-width: 0;
+}
+
+.lg-land-footer .lg-land-logo {
+  color: #ffffff;
+}
+
+.lg-land-footer-lema {
+  margin: 1rem 0 0;
+  font-size: 1.0625rem;
+  color: #d5d5dc;
+  max-width: 25rem;
+}
+
+.lg-land-footer-col {
+  flex: 0 1 11.25rem;
+  min-width: 8.75rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.lg-land-footer-col-titulo {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #bfe6e2;
+}
+
+.lg-land-footer-col a {
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  font-size: 1.0625rem;
+  color: #ffffff;
+  text-decoration: none;
+}
+
+.lg-land-footer-legal {
+  margin: 2.5rem 0 0;
+  border-top: 1px solid #3a3a42;
+  padding-top: 1.5rem;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: #c9c9d1;
+}
+
+/* Pantallas estrechas: el mockup depende de flex-wrap y auto-fit; aquí solo
+   se ajustan los paddings laterales para no perder espacio a 375 px. */
+@media (max-width: 30rem) {
+  .lg-land-envoltura {
+    padding: 0 1.25rem;
+  }
+
+  .lg-land-seccion {
+    padding: 4rem 0;
+  }
+
+  .lg-land-cabecera-fila,
+  .lg-land-hero-fila,
+  .lg-land-dos-columnas {
+    gap: 2rem;
+  }
+
+  .lg-land-radar + .lg-land-burbuja {
+    margin-left: 0;
+  }
+
+  .lg-land-orden-1 {
+    order: 0;
+  }
+
+  .lg-land-orden-2 {
+    order: 1;
+  }
+}
