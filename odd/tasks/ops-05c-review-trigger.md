@@ -30,13 +30,15 @@ El job `review-report` se ejecutaba al abrir cada PR, cuando el informe todavía
 - [x] Añadir `ready_for_review` a los tipos de evento `pull_request`.
 - [x] Condicionar el job al PR no borrador.
 - [x] Documentar el flujo de borrador en `docs/review-gate.md`.
-- [ ] Probar el flujo en el propio PR: borrador sin rojo, listo con informe en verde.
+- [x] Probar el flujo en el propio PR: borrador sin rojo, listo con informe en verde.
 
 ## Evidencia y progreso
 
 El job conserva sus dos condiciones de fallo: no existe `odd/reviews/<id>.md`, o el front matter está incompleto, o el veredicto es `rechazado`. Lo único que cambia es **cuándo** se ejecuta: nunca en un borrador.
 
 Un borrador no se puede fusionar, así que no hay vía para llegar a `dev` sin que el job se haya ejecutado al menos una vez sobre el estado final. En cuanto el PR deja de ser borrador, cada push vuelve a ejecutarlo.
+
+La prueba en vivo quedó registrada: en borrador, `check` y `e2e` en verde y `review-report` omitido; al marcar listo con el informe, `review-report` se ejecuta y pasa. Informe en `odd/reviews/ops-05c.md`.
 
 ## Siguiente paso
 
