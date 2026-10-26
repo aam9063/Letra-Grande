@@ -45,6 +45,8 @@ Dar a Letra Grande su carcasa: layout con navegación inferior, una ruta por mó
 - 375 px comprobado con Playwright y la build de producción: `scrollWidth` no supera el ancho en cuatro rutas.
 - Deuda detectada y trasladada: el barril de `@letra-grande/design` reexporta la galería (que usa `react-dom/server` y `node:fs`), así que importar componentes de diseño desde el navegador rompe la build. Hasta arreglarlo, el aviso replica las clases del `Callout`. Se corrige en la ronda de correcciones, separando el barril de cliente.
 
+Ronda de correcciones aplicada: navegaciones network-first con caché de respaldo (cache-first solo para manifiesto e iconos), `id` en el manifiesto, barril cliente separado en `@letra-grande/design` con `Callout` real en el layout y sin CSS replicado, y guard que cruza cada destino con su `page.tsx`. El bundle del navegador ya no resuelve `react-dom/server`.
+
 ## Siguiente paso
 
 Desbloquea los módulos de la Ola 2 y QA-02, QA-05.

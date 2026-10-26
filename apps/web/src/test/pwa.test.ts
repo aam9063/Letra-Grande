@@ -3,10 +3,27 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { tokens } from "@letra-grande/design";
+import { destinos } from "../components/shell/destinos";
 
 // El manifiesto, los iconos y el service worker son ficheros estáticos: se
 // comprueban leyendo lo que de verdad se publica en apps/web/public.
 const publico = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "public");
+
+describe("contrato navegación y ficheros", () => {
+  it("cada destino tiene su page.tsx en src/app", () => {
+    for (const destino of destinos) {
+      const ruta = join(
+        dirname(fileURLToPath(import.meta.url)),
+        "..",
+        "app",
+        destino.href.replace(/^\//, ""),
+        "page.tsx",
+      );
+
+      expect(existsSync(ruta), `Falta ${ruta} para el destino ${destino.nombre}`).toBe(true);
+    }
+  });
+});
 
 describe("manifiesto PWA", () => {
   const manifiesto: Record<string, unknown> = JSON.parse(
@@ -16,6 +33,7 @@ describe("manifiesto PWA", () => {
   it("declara name, short_name, start_url y display standalone", () => {
     expect(manifiesto.name).toBe("Letra Grande");
     expect(manifiesto.short_name).toBe("Letra Grande");
+    expect(manifiesto.id).toBe("/");
     expect(manifiesto.start_url).toBe("/");
     expect(manifiesto.display).toBe("standalone");
   });
@@ -72,5 +90,23 @@ describe("service worker", () => {
     // colar una respuesta con datos personales en la caché.
     expect(sw).not.toContain("cache.put");
     expect(sw).toContain("datos de usuario");
+  });
+
+  it("sirve las navegaciones network-first con caché de respaldo", () => {
+    const rama = sw.slice(sw.indexOf('request.mode === "navigate"'));
+    const cuerpo = rama.slice(0, rama.indexOf("caches.match", 1) + 40);
+
+    // Primero la red (HTML fresco tras cada despliegue); si falla, la caché.
+    expect(cuerpo).toContain("fetch(event.request)");
+    expect(cuerpo.indexOf("fetch(event.request)")).toBeLessThan(cuerpo.indexOf("caches.match"));
+  });
+
+  it("aplica cache-first solo al manifiesto y a los iconos, nunca a la portada", () => {
+    const lista = sw.match(/const CACHE_FIRST = \[([^\]]*)\]/);
+    expect(lista).not.toBeNull();
+
+    const urls = (lista?.[1]?.match(/"([^"]+)"/g) ?? []).map((u) => u.replaceAll('"', ""));
+    expect(urls).toEqual(["/manifest.webmanifest", "/icon.svg", "/icon-maskable.svg"]);
+    expect(urls).not.toContain("/");
   });
 });
