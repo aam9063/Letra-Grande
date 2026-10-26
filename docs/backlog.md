@@ -68,6 +68,7 @@ Cada tarea la ejecuta un agente en su carril. `Dep.` indica dependencias. Los cr
 | RADAR-02 | UI "Hoy": línea de tiempo, crear manual, marcar hecho, exportar `.ics` | RADAR-01, UI-02 | El `.ics` se abre en Google Calendar, Apple y Outlook |
 | UI-03 | Landing pública en la raíz: maqueta aprobada, acento teal de marca y tipografía autoalojada; la app empieza en `/hoy` | UI-01, UI-02 | Igual al mockup; e2e de portada en verde; sin scroll horizontal a 375 px |
 | UI-04 | Shell responsive: sidebar de escritorio (Escritorio.dc.html) y barra móvil flotante glass con hoja «Más» | UI-02, UI-03 | Igual al diseño en escritorio; barra glass en móvil con 44 px y safe-area; sin scroll horizontal a 375 px |
+| UI-05 | Onboarding de primer arranque: bienvenida, comparativa con asistentes generales, seguridad con marcadores y paso de instalación PWA | UI-04 | Se muestra solo la primera vez; Saltar y terminar llevan a `/hoy`; e2e del flujo |
 | CARPETA-01 | UI "Carpeta": lista, ficha de documento, etiquetas, vincular plazo al radar | VAULT-01, DOCS-03, RADAR-01 | Flujo completo de subir un documento y ver su plazo en Hoy |
 | AI-03 | Asistente: índice de búsqueda BM25 con filtros sobre `content/`, chat con bloques y citas, aviso de caducidad | AI-01, AI-02, CONTENT-01 | Cada bloque muestra su fuente; sin fuentes, responde `outOfScope` |
 | AI-04 | Conjunto de 40 evaluaciones (sección 13.2) y ejecución nocturna en CI | AI-03 | Informe con las cuatro métricas; el CI falla si caen por debajo de los umbrales fijados |
