@@ -1,0 +1,64 @@
+# AI-03a: recuperación BM25 sobre el contenido verificado
+
+## Objetivo y motivo
+
+El asistente ya valida respuestas contra fuentes, pero hoy el recuperador devuelve vacío y el endpoint responde `outOfScope` siempre. Esta tarea implementa la mitad de servidor de AI-03: un índice léxico BM25 sobre `content/`, con filtros por sector, comunidad y tipo de ficha, y el adaptador que alimenta `retrieveSources` con las fuentes reales. La pantalla de chat es de la sesión de interfaz y no entra aquí.
+
+## Alcance y restricciones
+
+- Dentro: indexación del contenido por ficha y por sección, tokenización en español con normalización de acentos, puntuación BM25, filtros, umbral de relevancia y el adaptador `@letra-grande/ai` que consume `content/` y devuelve `{ id, titulo, url, texto }` para el proxy.
+- Fuera: la pantalla de chat (AI-03 UI, otra sesión), las evaluaciones (AI-04), los guardarraíles del prompt (AI-05), los embeddings (solo si AI-04 demuestra mejora, y nunca sobre datos del usuario), y cualquier uso de texto del usuario como fuente.
+- Invariantes del proyecto que aplican: al modelo solo llegan fragmentos recuperados de contenido público, cada uno con su `sourceId`; el índice no contiene datos de usuario; sin dependencias nuevas; sin red en los tests.
+
+## Superficie de edición (nuestra)
+
+`packages/ai/src/**`, `packages/ai/test/**`, `apps/web/src/app/api/assistant/deps.ts`, `apps/web/package.json`.
+
+## Modo TDD (nuestra)
+
+- Activo: sí.
+- Runner: `vitest`.
+- Fuente de la decisión: `AGENTS.md`.
+- RED: primero los casos de ranking, normalización y filtros contra fichas de prueba, viendo fallar el módulo inexistente.
+
+## Riesgo y review (nuestra)
+
+- Tipo: recuperación y contrato del asistente.
+- Review gate: obligatorio (sección 22).
+- Riesgo: elemento 6 (un recuperador que devuelve fuentes irrelevantes produce respuestas mal citadas sin que nadie lo note) y elemento 3 (el contrato `retrieveSources` es el que usa el proxy). Review centrada en: que el ranking sea explicable, que los filtros no dejen pasar fichas de otra comunidad, que ninguna ficha `verified: false` se presente como fuente fiable sin decirlo, y que una consulta sin coincidencias devuelva vacío en lugar de la ficha menos mala.
+
+## Tareas
+
+- [x] Tokenizador español: minúsculas, sin acentos, sin signos, palabras vacías y sin números sueltos.
+- [x] `buildIndex(fichas)`: documentos por ficha y por sección, con `sourceId`, título, URL, sector, región, tipo y texto.
+- [x] `search(query, filtros)`: BM25 con `k1` y `b` documentados, filtros por sector, región y tipo, y umbral mínimo de puntuación.
+- [x] Adaptador que lee `content/`, construye el índice una vez y responde `retrieveSources`.
+- [x] Cableado en `deps.ts` del proxy, sustituyendo el recuperador vacío.
+- [x] Tests: ranking, acentos y mayúsculas, filtros, consulta vacía, sin coincidencias y propagación de título y URL para la cita.
+- [x] `pnpm check` y `pnpm e2e` en verde.
+
+## Evidencia y progreso
+
+- RED: los dos ficheros de test nuevos fallaron con módulos inexistentes.
+- GREEN: 84 tests en `packages/ai`, 23 de ellos nuevos; `pnpm check` y `pnpm e2e` (8 de 8) en verde.
+- Tokenizador: minúsculas, sin acentos, corte por todo lo que no sea letra o dígito, 119 palabras vacías y descarte de tokens de uno o dos caracteres, números sueltos incluidos.
+- BM25 con `k1 = 1.2` y `b = 0.75`, con puerta de evidencia añadida en la ronda de review: el término más raro de la consulta (menor df, empate por primera aparición) debe estar en el documento, el documento cubre al menos la mitad de los términos con df mayor que cero (`MIN_COVERAGE = 0.5`), y el umbral de 0.5 solo descarta puntuaciones residuales (ya no decide la relevancia solo). Límite de 8 fragmentos por consulta.
+- Documentos por ficha y por sección citable (cada paso, plazo, aviso y canal de contacto concreto, cada uno con su propia fuente), con título propio para la cita: `Empresa: baja`, `Trámite: paso 2`.
+- Orden por puntuación descendente y, en empate, por `sourceId` en orden de unidades de código, sin `localeCompare`, para que sea idéntico en cualquier plataforma.
+- Cargador: lee `content/{companies,authorities,procedures}/*.yaml` con `yaml`, valida con los esquemas de `@letra-grande/schema`, salta los archivos inválidos sin romper y expone cuántos saltó, sin registrar contenido. Índice cacheado por raíz de contenido durante la vida del proceso.
+- Adaptador: resuelve `content/` subiendo por el árbol desde el directorio de trabajo, de modo que funciona igual en `next dev` y en `next start`.
+- Dependencia añadida: `yaml` en `packages/ai`, ya presente en el workspace a través de `packages/schema`, para el cargador.
+- Estado del contenido: en `content/` solo hay tres plantillas ficticias con `verified: false`, así que hoy las fuentes recuperadas viajan con `verified: false` hasta el catálogo `fuentes` de la respuesta para que la interfaz avise.
+- Longitud de documento = suma de frecuencias de términos (no únicos) y URLs y correos quitados del texto indexado.
+- Filtros comparados sin acentos ni mayúsculas; organismos multissector indexados por sector, con deduplicación de resultados idénticos.
+- Diagnóstico: el recuperador expone `diagnostics()` con ficheros leídos, saltados y documentos indexados; `deps.ts` guarda la referencia del recuperador para consultarlo. Sin contenido ni logs.
+- Límite conocido: en un build de Next independiente, si `content/` no se copia al resultado del build, el índice queda vacío y el asistente responde `outOfScope` (degradación honesta); `diagnostics()` permite verlo.
+- Ronda de review: bloqueante del gate resuelto con el caso IBI como prueba (5 fichas de gas, 5 del IBI: la pregunta del IBI solo devuelve documentos del IBI).
+
+## Siguiente paso
+
+Desbloquea AI-05 (guardarraíles sobre respuestas reales) y da a la sesión de interfaz un endpoint que responde con contenido real.
+
+## Cambios de alcance aceptados
+
+1. El índice se construye en memoria al arrancar el servidor leyendo `content/`, no como JSON generado en build. Es la vía más simple que mantiene el contenido como única fuente de verdad; si el tiempo de arranque molesta, se pasa a índice pregenerado como refactor registrado.
