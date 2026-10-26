@@ -2,14 +2,14 @@ import { render, screen } from "@testing-library/react";
 import type { ReactElement } from "react";
 import { describe, expect, it } from "vitest";
 import { paginaPendiente } from "./pendiente";
-import HoyPage from "../../app/hoy/page";
-import AsistentePage from "../../app/asistente/page";
-import CarpetaPage from "../../app/carpeta/page";
-import ReclamarPage from "../../app/reclamar/page";
-import VidaPage from "../../app/vida/page";
-import AyudasPage from "../../app/ayudas/page";
-import DatosPage from "../../app/datos/page";
-import FamiliaPage from "../../app/familia/page";
+import HoyPage from "../../app/(app)/hoy/page";
+import AsistentePage from "../../app/(app)/asistente/page";
+import CarpetaPage from "../../app/(app)/carpeta/page";
+import ReclamarPage from "../../app/(app)/reclamar/page";
+import VidaPage from "../../app/(app)/vida/page";
+import AyudasPage from "../../app/(app)/ayudas/page";
+import DatosPage from "../../app/(app)/datos/page";
+import FamiliaPage from "../../app/(app)/familia/page";
 
 // Un módulo por ruta: el contrato de la Ola 2. Cada página se importa aquí
 // directamente y se comprueba su encabezado y su estado pendiente honesto.

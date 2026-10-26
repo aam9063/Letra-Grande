@@ -10,12 +10,13 @@ import { destinos } from "../components/shell/destinos";
 const publico = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "public");
 
 describe("contrato navegación y ficheros", () => {
-  it("cada destino tiene su page.tsx en src/app", () => {
+  it("cada destino tiene su page.tsx en src/app/(app)", () => {
     for (const destino of destinos) {
       const ruta = join(
         dirname(fileURLToPath(import.meta.url)),
         "..",
         "app",
+        "(app)",
         destino.href.replace(/^\//, ""),
         "page.tsx",
       );

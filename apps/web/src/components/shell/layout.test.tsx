@@ -1,16 +1,16 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { usePathname } from "next/navigation";
-import RootLayout from "../../app/layout";
+import AppLayout from "../../app/(app)/layout";
 
-vi.mock("next/navigation", () => ({ usePathname: vi.fn(() => "/") }));
+vi.mock("next/navigation", () => ({ usePathname: vi.fn(() => "/hoy") }));
 
-describe("RootLayout", () => {
-  it("muestra el aviso de independencia en el layout, visible desde cualquier ruta", () => {
+describe("AppLayout", () => {
+  it("muestra el aviso de independencia en el layout de la app, visible desde cualquier ruta", () => {
     render(
-      <RootLayout>
+      <AppLayout>
         <p>contenido de prueba</p>
-      </RootLayout>,
+      </AppLayout>,
     );
 
     const aviso = screen.getByText(/proyecto independiente, sin vinculación con ninguna empresa/);
