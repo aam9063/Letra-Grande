@@ -23,6 +23,7 @@ const FUENTE_PRUEBA = {
   titulo: "Ficha de prueba",
   url: "https://example.com/ficha",
   texto: "El plazo de reclamación es de 30 días. La reclamación es gratuita.",
+  verified: false,
 };
 
 const BLOQUE_VALIDO = {
@@ -130,6 +131,7 @@ describe("POST /api/assistant", () => {
     expect(body.fuentes["fuente-prueba"]).toEqual({
       titulo: "Ficha de prueba",
       url: "https://example.com/ficha",
+      verified: false,
     });
     expect(calls).toHaveLength(1);
     expect(calls[0]?.messages[0]).toEqual({ role: "user", content: question });

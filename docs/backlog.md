@@ -6,8 +6,10 @@ Estado vivo de las tareas de Letra Grande. El detalle de cada tarea vive en su d
 
 | Ola | Tareas | Estado |
 |---|---|---|
-| 0 | H-01 a H-10, D-01 | pendiente (humano) |
-| 1 | OPS-01, CORE-01, CORE-02, UI-01, OPS-04, AI-06, VAULT-01, UI-02, CONTENT-01, OPS-05, AI-01, AI-02, VAULT-02 | en curso |
+| 0 | H-01 a H-10, D-01 | H-10 hecho; el resto pendiente (humano) |
+| 1 | OPS-01, CORE-01, CORE-02, UI-01, OPS-04, AI-06, VAULT-01, UI-02, CONTENT-01, OPS-05, AI-01, AI-02, VAULT-02, OPS-04b, OPS-06 | hecho |
+| 1 (documentación) | CORE-03: `ARCHITECTURE.md` y `data-model.md` | hecho |
+| 2 | RADAR-01 hecho; DOCS-01 a DOCS-03, RADAR-02, CARPETA-01, AI-03 a AI-05, MOD-01 a MOD-03, CONTENT-02 a CONTENT-04 pendientes | en curso |
 
 ## Detalle de las olas
 
@@ -36,7 +38,7 @@ Cada tarea la ejecuta un agente en su carril. `Dep.` indica dependencias. Los cr
 | D-01 | Elegir acento de color y nombre de la tipografía | Tokens fijados |
 | H-08 | Preguntar a NaN Builders: si la clave permite servir a usuarios finales, límites por clave, retención y uso de datos de las peticiones, y soporte de salida estructurada por modelo | Respuesta por escrito archivada en `docs/ai-provider.md` |
 | H-09 | Instalar y comprobar gentle-ai y gentle-shell (sección 21.6): `doctor`, estado de la revisión, proveedor NaN, lectura de `AGENTS.md`, versión y sistema operativo | Lista "no confirmado" de 21.7 resuelta o anotada |
-| H-10 | Proteger `main` en GitHub: PR obligatorio, CI en verde, informe de review presente y aprobación humana | Regla activa |
+| H-10 | Proteger `main` en GitHub: PR obligatorio, CI en verde, informe de review presente y aprobación humana | **Hecho**: `dev` y `main` protegidas con PR obligatorio, los checks `check`, `e2e` y `review-report` como requeridos, y `enforce_admins` activo. La aprobación no la exige GitHub (0 aprobaciones): la decisión humana es el propio merge |
 
 ### Ola 1: fundamentos (todo en paralelo)
 
@@ -52,7 +54,7 @@ Cada tarea la ejecuta un agente en su carril. `Dep.` indica dependencias. Los cr
 | VAULT-02 | Exportar e importar copia cifrada y "borrar todo" | VAULT-01 | Ida y vuelta sin pérdida; tras borrar no queda nada en IndexedDB |
 | AI-01 | Proxy de IA sin estado: rate limit, sin logs de cuerpo, rechaza PII residual | CORE-02, AI-06 | Test: petición con DNI es rechazada; ningún log contiene el texto |
 | AI-02 | Renderizador de bloques en UI y validación de servidor (`validateAnswerAgainstSources`) | CORE-01, UI-01 | Respuesta con cifra inventada se descarta; cada `kind` tiene componente |
-| CONTENT-01 | Guía y checklist de verificación, plantilla de PR de datos, issue templates | CORE-01 | Plantillas en `.github/`; `CONTRIBUTING.md` con el flujo |
+| CONTENT-01 | Guía y checklist de verificación e issue templates (la plantilla de PR pertenece a OPS-05) | CORE-01 | Plantillas de issue en `.github/`; `CONTRIBUTING.md` con el flujo |
 | OPS-04 | Playwright: configuración, cuatro proyectos, fixtures sintéticas, guardián de red, CI con informe y trazas (sección 23) | OPS-01 | `pnpm e2e` pasa con un smoke test en los cuatro proyectos; el CI sube el informe |
 | OPS-05 | Review gate: `docs/review-gate.md`, plantilla de informe, plantilla de PR con casilla de review, script que falla si falta `odd/reviews/<id>.md` en un PR con id (sección 22) | OPS-01, H-09 | Un PR de prueba sin informe falla y con informe pasa |
 | AI-06 | Capa de proveedor: interfaz `LlmProvider`, adaptadores `nan` (compatible con OpenAI) y `mock`, política de errores y reintentos, cuota por usuario, `.env.example` (sección 24) | CORE-01 | Tests con servidor simulado: un 429 se reintenta y un 401 no; el modo `mock` es determinista |
@@ -150,3 +152,8 @@ Estas tareas no se ejecutan dentro de la tarea que las origina: se registran aqu
 | REF-UI-05 | Review de UI-05, hallazgo 5 | Botones del onboarding duplicados de landing.css (incluido el blanco de L4) y tercera copia de `Trazo`; extraer a un módulo compartido de botones e iconos. |
 | REF-UI-06 | Review de UI-06, hallazgo 4 | El script anti-salto del layout duplica las fuentes de `FUENTES` sin custodia: derivar el mapa de `FUENTES` o añadir un test que compare ambos. |
 | REF-UI-02 | Review de UI-02, hallazgo 5 | La comprobación de 375 px se hizo a mano y no quedó como spec: entra en `QA-07` (accesibilidad, responsive y offline). |
+
+| REF-UI-02 | Review de UI-02, hallazgo 5 | La comprobación de 375 px se hizo a mano y no quedó como spec: entra en `QA-07` (accesibilidad, responsive y offline). |
+| REF-OPS-05b | Revisión de AI-03a | El comprobador de informes extrae el id del título con el patrón `[a-z]+-\d+`, así que una tarea con letra final (`AI-03a`) busca `ai-03.md` y no `ai-03a.md`. Ampliar el patrón a `[a-z]+-\d+[a-z]?` antes de que se repita. |
+| REF-OPS-05e | Review de OPS-05d | El job `review-report` hace checkout del merge ref del PR; cuando GitHub lo construye con retraso, el run de `ready_for_review` comprueba un estado anterior y no ve el informe. Fijar `ref: ${{ github.event.pull_request.head.sha }}` en el checkout del job. |
+
