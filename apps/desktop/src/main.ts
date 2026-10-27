@@ -7,13 +7,14 @@ import { existsSync, statSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { BrowserWindow, app, protocol, session, shell } from "electron";
+import { BrowserWindow, app, dialog, protocol, session, shell } from "electron";
 import { resolveAppUrl, type AppUrlResolution } from "./app-url.js";
 import { buildCsp } from "./csp.js";
-import { proxyOriginFromEnv, rendererDistFromEnv } from "./config.js";
+import { proxyOriginFromEnv, rendererDistOverride } from "./config.js";
 import { inlineScriptHashes } from "./inline-scripts.js";
 import { APP_ORIGIN, isExternalWebUrl, isNavigationAllowed } from "./navigation.js";
 import { NO_PERMISSIONS_ALLOWED, isPermissionAllowed } from "./permissions.js";
+import { rendererRootError, resolveRendererRoot } from "./renderer-root.js";
 import { absolutePathInsideRoot } from "./root-guard.js";
 
 const APP_URL = `${APP_ORIGIN}/`;
@@ -38,13 +39,15 @@ const MIME_TYPES: Readonly<Record<string, string>> = {
   ".webmanifest": "application/manifest+json",
 };
 
-/** Raiz del renderer estatico producido por `pnpm --filter @letra-grande/web build:desktop`. */
+/** Raiz del renderer estatico, segun desarrollo o paquete instalado. */
 function rendererDistRoot(): string {
-  const sobrecarga = rendererDistFromEnv();
+  const sobrecarga = rendererDistOverride({ isPackaged: app.isPackaged });
   if (sobrecarga !== undefined) return path.resolve(sobrecarga);
-  // En desarrollo dist/main.js vive en apps/desktop: la exportacion esta en
-  // apps/web/dist-desktop. En un paquete instalado la ruta la ajusta DESK-03.
-  return path.resolve(import.meta.dirname, "..", "..", "web", "dist-desktop");
+  return resolveRendererRoot({
+    isPackaged: app.isPackaged,
+    resourcesPath: process.resourcesPath,
+    appPath: app.getAppPath(),
+  });
 }
 
 function mimeTypeOf(filePath: string): string {
@@ -119,9 +122,8 @@ function registerAppProtocol(): void {
 }
 
 /** Registra protocolo, permisos y ventanas en la sesion por defecto. */
-function configureSession(): void {
+function configureSession(root: string): void {
   const csp = buildCsp(proxyOriginFromEnv());
-  const root = rendererDistRoot();
   protocol.handle("app", createProtocolHandler(root, csp));
 
   // Permisos denegados por defecto: peticiones y comprobaciones sincronas.
@@ -183,7 +185,16 @@ if (!gotSingleInstanceLock) {
   app.on("second-instance", focusMainWindow);
 
   void app.whenReady().then(() => {
-    configureSession();
+    // Sin renderer no hay aplicacion: se avisa con un dialogo claro y se
+    // cierra, en lugar de abrir una ventana vacia.
+    const root = rendererDistRoot();
+    const problema = rendererRootError(root, existsSync(root));
+    if (problema !== null) {
+      dialog.showErrorBox("Letra Grande: falta el renderer", problema);
+      app.quit();
+      return;
+    }
+    configureSession(root);
     createMainWindow();
   });
 

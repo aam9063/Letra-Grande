@@ -13,3 +13,4 @@ apps/web/generated/
 apps/web/test-results/
 apps/web/playwright-report/
 apps/web/dist-desktop/
+apps/desktop/release/

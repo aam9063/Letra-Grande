@@ -37,6 +37,8 @@ pnpm e2e
 
 `pnpm check` ejecuta el estilo, los tipos, los tests de unidad y la validación del contenido.
 
+La aplicación de escritorio se genera con `pnpm package:win` (instalador de Windows sin firmar, ver [`docs/desktop.md`](docs/desktop.md)). El asistente necesita el proxy alojado: sin conexión no responde, aunque el resto de la app funcione en local.
+
 ## Cómo se trabaja aquí
 
 Las instrucciones para personas y para agentes están en [`AGENTS.md`](AGENTS.md).

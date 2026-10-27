@@ -56,7 +56,7 @@ IndexedDB, igual que en la PWA, pero en el directorio de datos de la aplicación
 El proceso principal es código privilegiado. Reglas mínimas, todas verificables en revisión:
 
 - `contextIsolation: true`, `nodeIntegration: false`, `sandbox: true`.
-- El `preload` expone una superficie mínima y explícita. Hoy son exactamente tres valores: `version`, `platform` y `isDesktop`. Nada de `ipcRenderer` en crudo. La ruta de la copia cifrada elegida por la persona y el evento de actualización disponible llegarán con DESK-03, cuando existan el diálogo nativo y el canal de actualización; hasta entonces el preload no los expone.
+- El `preload` expone una superficie mínima y explícita. Hoy son exactamente tres valores: `version`, `platform` y `isDesktop`. Nada de `ipcRenderer` en crudo. La ruta de la copia cifrada elegida por la persona y el evento de actualización disponible llegarán con DESK-03b, cuando existan el diálogo nativo y el canal de actualización; hasta entonces el preload no los expone.
 - `will-navigate` y `setWindowOpenHandler` bloquean navegación fuera de `app://`; los enlaces externos se abren en el navegador del sistema.
 - CSP estricta en la respuesta del protocolo propio, con `connect-src` limitado al proxy configurado. La única excepción es `style-src 'unsafe-inline'`, y es deliberada: las páginas prerenderizadas llevan atributos `style` en línea para los colores de estado, y CSS no ejecuta código. Los scripts siguen protegidos por hashes sha256 calculados por archivo servido, y con `connect-src` e `img-src` limitados al propio origen una inyección de CSS no tiene manera de exfiltrar nada a terceros.
 - Sin telemetría, sin analytics, sin scripts remotos. Lo mismo que en la web.
@@ -100,7 +100,10 @@ Nada de esto toca el vault, la privacidad, el radar ni el motor de contenido: el
 **Windows (alcance inicial)**
 
 - Instalador NSIS, sin firma al principio.
-- Sin firma, Windows SmartScreen muestra "Editor desconocido" en la primera ejecución. No bloquea la instalación, pero asusta. Un certificado de firma de código lo reduce, aunque desde 2024 los certificados EV ya no dan confianza instantánea: la reputación se gana con descargas.
+- El comando `pnpm package:win` construye el renderer, compila el proceso principal y genera el instalador con `electron-builder`. El artefacto publicado es `release/Letra Grande-<version>-x64.exe`, por ejemplo `Letra Grande-0.1.0-x64.exe`, y su bloque de actualización acompaña como `.blockmap`. Solo se genera para Windows x64.
+- El paquete lleva el renderer estático en `resources/renderer` (fuera del asar) y el proceso principal y el preload compilados dentro del asar. No lleva tests, código fuente ni el árbol de `node_modules` de desarrollo, y no lleva ninguna clave de IA.
+- `electron-builder` descarga herramientas al empaquetar (el zip de Electron y NSIS, desde GitHub) y no configura firma de código si no hay certificado.
+- Sin firma, Windows SmartScreen muestra "Editor desconocido" en la primera ejecución. No bloquea la instalación, pero asusta. Un certificado de firma de código lo reduce, aunque desde 2024 los certificados EV ya no dan confianza instantánea: la reputación se gana con descargas. Firmar cambiaría solo la advertencia de SmartScreen y permitiría el actualizador automático, que exige paquetes firmados; exigiría comprar y custodiar un certificado (en el gestor de secretos del CI) y no cambia nada del contenido del paquete.
 - El actualizador funciona igual; su firma es la del paquete.
 
 **macOS (cuando se decida)**
@@ -120,6 +123,7 @@ Nada de esto toca el vault, la privacidad, el radar ni el motor de contenido: el
 - **Tamaño del instalador**: entre 120 y 200 MB. Es el precio de llevar Chromium. Se acepta a cambio de paridad con las pruebas.
 - **Superficie de seguridad mayor**: el proceso principal es código privilegiado. La lista de la sección 4 es obligatoria, no una recomendación.
 - **Confianza del usuario en Windows**: sin firma, el aviso de SmartScreen cuesta instalaciones. Está en el backlog como tarea de entrega, no de código.
+- **Qué descarga el empaquetado**: `electron-builder` baja el zip de Electron, NSIS y las herramientas de 7zip desde GitHub la primera vez. En una máquina sin red o con GitHub bloqueado el empaquetado falla; no hay empaquetado sin conexión.
 - **Dos salidas de build**: si la exportación estática se rompe, la web sigue funcionando y el escritorio no. La CI debe construir las dos.
 - **El asistente no funciona sin red**: es consecuencia de la decisión de no llevar clave en el binario.
 
