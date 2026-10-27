@@ -45,6 +45,8 @@ export interface IndexedDocument {
   readonly region: string;
   readonly tipo: FichaTipo;
   readonly verified: boolean;
+  /** Fecha de verificación de la ficha en AAAA-MM-DD; solo si está verificada. */
+  readonly verifiedAt?: string;
 }
 
 /** Fichas de entrada para construir el índice. */
@@ -115,7 +117,14 @@ interface SectionInput {
 
 function sectionDocument(
   texto: SectionInput,
-  base: { url: string; sector: string; region: string; tipo: FichaTipo; verified: boolean },
+  base: {
+    url: string;
+    sector: string;
+    region: string;
+    tipo: FichaTipo;
+    verified: boolean;
+    verifiedAt?: string;
+  },
   fuentes: ReadonlyMap<string, string>,
 ): IndexedDocument | undefined {
   // El id de fuente citado debe existir en la ficha (lo garantiza el esquema)
@@ -139,6 +148,7 @@ function companyDocuments(ficha: Company): IndexedDocument[] {
     region: "",
     tipo: "empresa" as const,
     verified: ficha.verification.verified,
+    verifiedAt: ficha.verification.verified ? ficha.verification.verifiedOn : undefined,
   };
 
   const docs: IndexedDocument[] = [];
@@ -156,6 +166,7 @@ function companyDocuments(ficha: Company): IndexedDocument[] {
       region: base.region,
       tipo: base.tipo,
       verified: base.verified,
+      verifiedAt: base.verifiedAt,
     });
   }
 
@@ -198,6 +209,7 @@ function authorityDocuments(ficha: Authority): IndexedDocument[] {
       region: ficha.region ?? "",
       tipo: "organismo" as const,
       verified: ficha.verification.verified,
+      verifiedAt: ficha.verification.verified ? ficha.verification.verifiedOn : undefined,
     };
     if (ficha.name.trim().length > 0) {
       docs.push({
@@ -209,6 +221,7 @@ function authorityDocuments(ficha: Authority): IndexedDocument[] {
         region: base.region,
         tipo: base.tipo,
         verified: base.verified,
+        verifiedAt: base.verifiedAt,
       });
     }
     const seccion = sectionDocument(
@@ -229,6 +242,7 @@ function procedureDocuments(ficha: Procedure): IndexedDocument[] {
     region: ficha.region ?? "",
     tipo: "tramite" as const,
     verified: ficha.verification.verified,
+    verifiedAt: ficha.verification.verified ? ficha.verification.verifiedOn : undefined,
   };
 
   const docs: IndexedDocument[] = [];
@@ -242,6 +256,7 @@ function procedureDocuments(ficha: Procedure): IndexedDocument[] {
       region: base.region,
       tipo: base.tipo,
       verified: base.verified,
+      verifiedAt: base.verifiedAt,
     });
   }
 
