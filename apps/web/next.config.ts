@@ -7,7 +7,44 @@ import type { NextConfig } from "next";
 // Corremos con --webpack (ver scripts): Turbopack (por defecto en Next 16) aún no
 // soporta extensionAlias (turbopack.resolveExtensionAlias llega en versiones
 // posteriores a la 16.4.3).
+//
+// Dos modos de build en la misma app (ver docs/desktop.md, secciones 3 y 6):
+// sin LG_DESKTOP se construye la web de servidor (por defecto) y con LG_DESKTOP=1
+// se construye la exportación estática para el escritorio (DESK-01). El modo
+// escritorio usa un distDir propio (dist-desktop) para no pisar la salida .next
+// de la web. transpilePackages y el hook webpack con extensionAlias se mantienen
+// en los dos modos: los paquetes del workspace son fuentes TypeScript en los dos.
+//
+// Por qué pageExtensions sin "ts" en modo escritorio: la ruta de API
+// (src/app/api/assistant/route.ts) es un archivo .ts y output: "export" rechaza
+// los manejadores POST, así que el build fallaría. Todas las páginas y layouts
+// son .tsx, de modo que quitar "ts" de pageExtensions deja fuera route.ts (y con
+// él su carpeta api) sin renombrar ni duplicar nada, y las páginas siguen
+// entrando en la exportación. En modo web se usan los valores por defecto.
+// Cualquier valor inesperado falla en vez de construir la web creyendo que es el
+// escritorio, que es el error silencioso que más caro sale.
+function modoEscritorio(): boolean {
+  const valor = (process.env.LG_DESKTOP ?? "").trim().toLowerCase();
+  if (valor === "" || valor === "0" || valor === "false") return false;
+  if (valor === "1" || valor === "true") return true;
+  throw new Error(
+    `LG_DESKTOP tiene un valor no reconocido: "${valor}". Usa 1 para la exportación de escritorio o deja la variable vacía para la web.`,
+  );
+}
+
+const desktop = modoEscritorio();
+
 const nextConfig: NextConfig = {
+  ...(desktop
+    ? {
+        output: "export" as const,
+        distDir: "dist-desktop",
+        // Sin next/image hoy, pero la exportación estática exige el cargador
+        // sin optimizar si alguna página lo añade más adelante. No afecta a la web.
+        images: { unoptimized: true },
+        pageExtensions: ["tsx", "jsx", "js"],
+      }
+    : {}),
   transpilePackages: [
     "@letra-grande/schema",
     "@letra-grande/privacy",

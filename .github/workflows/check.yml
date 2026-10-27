@@ -18,6 +18,10 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm check
       - run: pnpm build
+      # La exportación estática del escritorio se construye también: si se rompe
+      # una de las dos salidas, el PR falla (docs/desktop.md, sección 9).
+      # Sin Playwright ni navegadores: solo next build en modo export.
+      - run: pnpm build:desktop
 
   e2e:
     runs-on: ubuntu-latest
