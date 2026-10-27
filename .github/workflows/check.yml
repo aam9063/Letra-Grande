@@ -58,7 +58,8 @@ jobs:
     if: github.event_name == 'pull_request' && github.event.pull_request.draft == false
     steps:
       # Checkout del commit de la rama, no del merge ref: GitHub lo construye con
-      # retraso y el run de ready_for_review podía ver un estado sin el informe.
+      # retraso, así que los runs de ready_for_review y edited podían ver un estado
+      # anterior, sin el informe recién commiteado.
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha }}

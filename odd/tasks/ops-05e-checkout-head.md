@@ -33,7 +33,9 @@ El job `review-report` hacía checkout del merge ref del pull request, que GitHu
 
 ## Evidencia y progreso
 
-Pendiente de rellenar al cerrar el PR.
+- `pnpm style` en verde.
+- Prueba en vivo: con el PR en borrador los tres checks se comportan como antes; al marcar listo, `review-report` se ejecutó a la primera sobre el commit de la rama y pasó, sin editar el PR ni empujar nada más. Es la comprobación que motivó la tarea.
+- El job sigue ejecutando sus propios tests antes de comprobar el informe.
 
 ## Siguiente paso
 
