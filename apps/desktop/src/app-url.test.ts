@@ -215,6 +215,9 @@ describe("arranque de la ventana", () => {
 });
 
 describe("resolucion del arranque contra la exportacion", () => {
+  // La lista de ficheros es un simulacro: la forma real de la exportacion la
+  // comprueba CI despues de construirla, con test -f sobre index.html y
+  // hoy/index.html. Si alguien quita trailingSlash, falla alli, no aqui.
   it("la URL de arranque resuelve al indice de su carpeta", () => {
     // La exportacion de escritorio genera ruta/index.html (trailingSlash).
     const resolucion = resolveAppUrl(`${APP_ORIGIN}${DESKTOP_START_PATH}`, (rel) =>

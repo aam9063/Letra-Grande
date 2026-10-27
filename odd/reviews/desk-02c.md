@@ -1,39 +1,33 @@
-# Review gate DESK-02c: arranque en Hoy
+# Review gate DESK-02c: arranque de la app instalada en Hoy
 
 ---
 tarea: DESK-02c
 base: 8feb6c8
-revisado: 5c81a30
-revisor: jd-judge-b (contexto limpio, solo lectura, exportación real construida)
-veredicto: rechazado
+revisado: 8942705
+revisor: jd-judge-a (contexto limpio, solo lectura, builds y tests ejecutados)
+veredicto: aprobado
 ---
 
-## Resumen
+## Segunda ronda
 
-La composición de la URL era correcta y no rompía ni el guard de navegación ni el onboarding. El problema estaba en el supuesto de partida: la exportación de Next escribía `hoy.html` plano y no `hoy/index.html`, así que `/hoy/` no encontraba archivo, caía al respaldo y servía el `index.html` de la raíz, que es la landing. El cambio era inoperante en ejecución y los tests pasaban porque solo componían cadenas, sin resolver la URL contra la forma real de la exportación.
+La primera review rechazó la versión inicial por un motivo de fondo: la exportación de Next escribía `hoy.html` plano, así que `app://letra-grande/hoy/` no encontraba archivo, caía al respaldo y servía el `index.html` de la raíz, que es la landing. El cambio de ruta era inoperante y los tests pasaban porque solo componían cadenas. Esta ronda añade `trailingSlash: true` en el modo escritorio, un test que resuelve la URL de arranque con la forma real de la exportación y un guard en CI sobre los dos índices, y está verificado contra el disco.
+
+## Verificado
+
+La exportación de escritorio genera `hoy/index.html` con el contenido de Hoy y mantiene `index.html` en la raíz; la web no cambia, sigue sin `trailingSlash` y conserva `/api/assistant` dinámica. La resolución de `app://letra-grande/hoy/` da `directoryIndex: hoy/index.html`, no el respaldo, y `main.ts` usa `startUrl()` sin restos de la ruta anterior. El guard de CI corre en el mismo job, después de construir la exportación, y cubre exactamente los dos archivos que importan. Las barras finales no rompen nada: `href="/hoy"` sin barra resuelve igual, el guard de navegación compara solo origen, el manifiesto no lo consume el escritorio y la web no usa la opción. El onboarding sigue corriendo: `/hoy` vive en el grupo cuyo layout monta `GateOnboarding`. Cero dependencias nuevas, español correcto, sin rayas, sin secretos, y `apps/web` solo cambia dentro de la rama de escritorio.
 
 ## Hallazgos
 
-### 1. [bloqueante] apps/desktop/src/navigation.ts:22 y main.ts:20
+### 1. [recomendado] apps/desktop/src/app-url.test.ts:205-216
 
-Problema: `app://letra-grande/hoy/` resolvía a `fallbackIndex`, es decir, a la portada de la landing, porque en el disco no existía `hoy/index.html`. Comprobado construyendo la exportación.
-Propuesta: generar índices de directorio o apuntar a la ruta que existe, con un test que ejercite la forma real. Aplicado: `trailingSlash: true` en el modo escritorio de `apps/web/next.config.ts`, con el motivo escrito en el código.
+Problema: el test de resolución usa un simulacro que codifica a mano los dos caminos que afirma, así que revertir `trailingSlash` deja la suite local en verde; la detección real vive en CI, y `pnpm check` corre antes de construir la exportación, así que un test de disco rompería ese orden.
+Propuesta: dejar escrito el límite de cobertura. Aplicado: un comentario en el test que dice que la forma real la comprueba CI después de construir.
 
-### 2. [recomendado] apps/desktop/src/app-url.test.ts:206
+### 2. [nota] apps/web/src/components/shell/ServiceWorkerRegistrar.tsx:11
 
-Problema: ningún test resolvía la URL de arranque contra la exportación, que es justo lo que habría detectado el bloqueante.
-Propuesta: añadirlo. Aplicado: un test que resuelve `${APP_ORIGIN}/hoy/` con la forma real de la exportación y exige `directoryIndex: hoy/index.html`.
-
-### 3. [nota] docs/desktop.md:72
-
-Problema: la fila de la tabla afirmaba un comportamiento que todavía no ocurría.
-Propuesta: ajustarla al arreglo. Aplicado: la fila menciona `trailingSlash` y por qué hace falta.
-
-### 4. [nota] odd/tasks/desk-02c-arranque.md
-
-Problema: la evidencia afirmaba una resolución comprobada solo contra un simulacro.
-Propuesta: corregirla al cerrar. Aplicado: la evidencia cuenta el rechazo, la causa y la corrección.
+Problema: falta la puerta de escritorio que promete la sección 5 de `desktop.md`; en `app://` el registro falla y se traga el error, así que no interfiere con el arranque, pero la promesa no está cumplida.
+Propuesta: tarea propia. Aplicado: `DESK-02d` en el backlog.
 
 ## Qué se aplicó en la ronda de correcciones
 
-Los cuatro hallazgos, más un guard en CI que comprueba, después de construir la exportación de escritorio, que existen `index.html` y `hoy/index.html`. Así una regresión de configuración que devuelva la exportación a `ruta.html` falla en el pull request en lugar de descubrirse al abrir el instalador.
+Los dos hallazgos: el comentario de cobertura y la tarea registrada. El bloqueante de la primera ronda queda resuelto y verificado contra la exportación real.
