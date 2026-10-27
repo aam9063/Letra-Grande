@@ -51,6 +51,12 @@ Implementado en la rama `lg/desk-02-window`.
 - La raiz del renderer se resuelve relativa a `dist/` para desarrollo y se puede sobrecargar con `LG_DESKTOP_DIST`; la ruta empaquetada la ajusta DESK-03.
 - `pnpm-workspace.yaml` añadió `onlyBuiltDependencies` (electron, esbuild, electron-winstaller): sin ella pnpm 10 no ejecuta el postinstall de electron y no se descarga el binario.
 
+- `pnpm-workspace.yaml` añadió `onlyBuiltDependencies` (electron, esbuild): sin ella pnpm 10 no ejecuta el postinstall de electron y no se descarga el binario. En la ronda de correcciones del review gate se retiró `electron-winstaller` de la lista: es una dependencia transitiva de electron-builder que ya está instalada, pero su postinstall (elegir 7-Zip) solo hace falta para construir el instalador, así que DESK-03 devolverá a la lista lo que el empaquetado necesite.
+
+### Correcciones de documento aplicadas (ronda del review gate)
+
+El review gate pidió justificar en `docs/desktop.md` (sección 4) la excepción `style-src 'unsafe-inline'` de la CSP y ajustar la promesa del preload (versión, plataforma e `isDesktop` hoy; la ruta de la copia cifrada y el evento de actualización llegarán con DESK-03). Ambas correcciones están aplicadas en esa sección, con la persona responsable de la tarea como autora de la ronda.
+
 ## Siguiente paso
 
 Desbloquea DESK-03 (instalador NSIS y actualizador).

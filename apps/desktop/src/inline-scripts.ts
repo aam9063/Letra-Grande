@@ -3,6 +3,10 @@
 // linea a ciegas: calcula el hash sha256 de cada bloque y lo anade a script-src,
 // de modo que solo el contenido conocido del renderer puede ejecutarse.
 // Funcion pura, probada con vitest.
+//
+// El extractor solo reconoce <script> pelado, sin atributos. Es deliberado:
+// si algun dia aparece un script en linea con atributos, no se hashea y la CSP
+// lo bloquea (falla cerrado) en lugar de autorizarlo sin calculo de hash.
 import { createHash } from "node:crypto";
 
 /**

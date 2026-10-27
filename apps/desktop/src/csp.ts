@@ -4,6 +4,12 @@
 // Reglas del proyecto: sin terceros, sin fuentes remotas y sin scripts en linea
 // sin hash. El unico destino de red permitido ademas del propio origen es el
 // proxy del asistente, que llega configurado por entorno y nunca lleva clave.
+//
+// Unica excepcion deliberada: style-src permite atributos style en linea. Los
+// estilos que trae la exportacion prerenderizada son atributos del propio
+// documento (colores de estado) y CSS no ejecuta codigo. Los scripts siguen
+// protegidos por hash, y connect-src e img-src se limitan al propio origen, asi
+// que una inyeccion de CSS no puede cargar scripts ni exfiltrar a terceros.
 // Los atributos style en linea si se permiten: el renderer prerenderizado los
 // usa para los colores de estado y no ejecutan codigo.
 

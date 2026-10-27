@@ -14,6 +14,7 @@ import { proxyOriginFromEnv, rendererDistFromEnv } from "./config.js";
 import { inlineScriptHashes } from "./inline-scripts.js";
 import { APP_ORIGIN, isExternalWebUrl, isNavigationAllowed } from "./navigation.js";
 import { NO_PERMISSIONS_ALLOWED, isPermissionAllowed } from "./permissions.js";
+import { absolutePathInsideRoot } from "./root-guard.js";
 
 const APP_URL = `${APP_ORIGIN}/`;
 
@@ -52,21 +53,6 @@ function mimeTypeOf(filePath: string): string {
 
 function isRegularFile(absPath: string): boolean {
   return existsSync(absPath) && statSync(absPath).isFile();
-}
-
-/**
- * Convierte una ruta relativa ya validada en una absoluta dentro de la raiz.
- * Segunda barrera contra saltos de directorio: aunque la resolucion pura
- * rechace los patrones conocidos, aqui se comprueba con path.resolve que el
- * resultado sigue dentro de la raiz del renderer.
- */
-function absolutePathInsideRoot(relativePath: string, root: string): string | null {
-  const absoluta = path.resolve(root, relativePath);
-  const relativaFinal = path.relative(root, absoluta);
-  if (relativaFinal === "" || relativaFinal.startsWith("..") || path.isAbsolute(relativaFinal)) {
-    return null;
-  }
-  return absoluta;
 }
 
 function plainTextResponse(body: string, status: number): Response {

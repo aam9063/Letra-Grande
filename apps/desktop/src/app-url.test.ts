@@ -190,4 +190,14 @@ describe("inlineScriptHashes", () => {
   it("una pagina sin scripts en linea devuelve una lista vacia", () => {
     expect(inlineScriptHashes('<html><script src="/a.js"></script></html>')).toEqual([]);
   });
+
+  it("un script en linea con atributos no se hashea y la CSP lo bloquea", () => {
+    // Comportamiento deliberado: fallar cerrado. El extractor solo reconoce
+    // <script> pelado, igual que la exportacion actual de Next; si algun dia
+    // aparece un script en linea con atributos, no se autoriza y la CSP lo
+    // bloquea en lugar de abrir la puerta sin calculo de hash.
+    const html = '<script type="module">console.log("hola")</script>';
+    expect(inlineScriptHashes(html)).toEqual([]);
+    expect(buildCsp(undefined, inlineScriptHashes(html))).not.toContain("sha256-");
+  });
 });

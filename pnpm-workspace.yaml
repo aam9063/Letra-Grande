@@ -4,7 +4,7 @@ packages:
 
 # Electron descarga su binario en el postinstall y esbuild necesita el suyo.
 # Sin esta lista pnpm 10 no ejecuta esos scripts y la app no arranca.
+# DESK-03 añadira lo que necesite el empaquetado del instalador.
 onlyBuiltDependencies:
   - electron
   - esbuild
-  - electron-winstaller
