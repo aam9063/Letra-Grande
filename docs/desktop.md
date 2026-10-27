@@ -119,6 +119,16 @@ Nada de esto toca el vault, la privacidad, el radar ni el motor de contenido: el
 - AppImage o `.deb`, sin firma obligatoria.
 - El actualizador automático no está soportado por el módulo `autoUpdater` de Electron en Linux. Con `electron-updater` sí funciona para AppImage; en `.deb` se actualiza por el gestor de paquetes o descargando de nuevo.
 
+## 8 bis. Icono de la aplicación
+
+El icono del ejecutable y del instalador es `apps/desktop/build/icon.png`, un PNG de 512 por 512 generado desde el SVG de la PWA (`apps/web/public/icon.svg`) con el navegador que ya usan las pruebas:
+
+```
+pnpm --filter @letra-grande/web exec playwright screenshot --viewport-size=512,512   "file:///<ruta-al-repo>/apps/web/public/icon.svg" apps/desktop/build/icon.png
+```
+
+Sustituye `<ruta-al-repo>` por la ruta de tu copia, con barras normales también en Windows. Se versiona el PNG y no el comando, porque el empaquetado no debe depender de tener navegadores instalados. Si cambia la identidad visual, se regenera con esa orden.
+
 ## 9. Riesgos y límites
 
 - **Tamaño del instalador**: entre 120 y 200 MB. Es el precio de llevar Chromium. Se acepta a cambio de paridad con las pruebas.
