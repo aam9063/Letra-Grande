@@ -41,6 +41,8 @@ UI-08 puso `logo.svg` en la cabecera y en el pie, y se vio el problema en pantal
 - Captura de la cabecera: el icono se ve a 44 px, con el texto al lado, sin marco blanco.
 - `logo.svg` se conserva como fuente; ningún page lo referencia, así que no pesa en la portada.
 
+Segunda ronda de review: aprobada tras verificar el recorte contra la fuente por análisis de píxeles. Informe en `odd/reviews/ui-09.md`.
+
 ## Siguiente paso
 
 Ninguno: la marca queda coherente en web, escritorio y landing.
