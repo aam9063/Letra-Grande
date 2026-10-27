@@ -45,6 +45,8 @@ Implementado y verificado el 2026-10-27 (worktree desk-01, rama `lg/desk-01-buil
 - Scripts raíz: añadido `build:desktop` en `package.json` y `apps/web/package.json` (usa `cross-env` y `node -e` con `fs.rmSync`, sin dependencias nuevas).
 - `pnpm check` en verde (style, typecheck, test y content:validate).
 
+Ronda de correcciones aplicada: `LG_DESKTOP` acepta `1` y `true` y falla con un mensaje claro ante cualquier otro valor; `REF-DESK-01` registrado para vigilar que ninguna ruta futura sea `.ts`; y anotado para DESK-03 que la exportación incluye metadatos de Next que no deben empaquetarse. Informe en `odd/reviews/desk-01.md`.
+
 ## Siguiente paso
 
 Desbloquea DESK-02 (ventana Electron con protocolo `app://`).

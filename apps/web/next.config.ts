@@ -21,7 +21,18 @@ import type { NextConfig } from "next";
 // son .tsx, de modo que quitar "ts" de pageExtensions deja fuera route.ts (y con
 // él su carpeta api) sin renombrar ni duplicar nada, y las páginas siguen
 // entrando en la exportación. En modo web se usan los valores por defecto.
-const desktop = process.env.LG_DESKTOP === "1";
+// Cualquier valor inesperado falla en vez de construir la web creyendo que es el
+// escritorio, que es el error silencioso que más caro sale.
+function modoEscritorio(): boolean {
+  const valor = (process.env.LG_DESKTOP ?? "").trim().toLowerCase();
+  if (valor === "" || valor === "0" || valor === "false") return false;
+  if (valor === "1" || valor === "true") return true;
+  throw new Error(
+    `LG_DESKTOP tiene un valor no reconocido: "${valor}". Usa 1 para la exportación de escritorio o deja la variable vacía para la web.`,
+  );
+}
+
+const desktop = modoEscritorio();
 
 const nextConfig: NextConfig = {
   ...(desktop

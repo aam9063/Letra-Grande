@@ -169,4 +169,4 @@ Decisión y diseño en [`desktop.md`](desktop.md). Solo Windows en el alcance in
 | DESK-02 | `apps/desktop`: ventana Electron con `contextIsolation`, `sandbox`, protocolo `app://`, superficie mínima en el preload, enlaces externos al navegador y CSP | DESK-01 | El binario abre la app, crea el vault, reinicia y el vault persiste; ninguna navegación sale de `app://` |
 | DESK-03 | Canal de entrega de Windows: `electron-builder` con NSIS, actualizador, artefacto en CI y firma cuando haya certificado | DESK-02 | Instalador descargable que se instala, actualiza y desinstala; el aviso de SmartScreen está documentado en la landing |
 | DESK-04 | macOS y Linux: firma y notarización en macOS, AppImage y `.deb` en Linux, con lo que cada uno exige | DESK-03, licencia de Apple | macOS abre sin bloqueo de Gatekeeper; Linux instala y actualiza por gestor o descarga |
-
+| REF-DESK-01 | Review de DESK-01 | La exportación de escritorio excluye las rutas `.ts` con `pageExtensions`; hoy todas las páginas son `.tsx`. Añadir en CI una comprobación de que el conjunto de rutas de la web y de la exportación coincide, para que una `page.ts` futura no desaparezca en silencio. |
