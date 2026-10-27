@@ -127,7 +127,7 @@ El icono del ejecutable y del instalador es `apps/desktop/build/icon.png`, un PN
 pnpm --filter @letra-grande/web exec playwright screenshot --viewport-size=512,512   "file:///<ruta-al-repo>/apps/web/public/icon.svg" apps/desktop/build/icon.png
 ```
 
-Se versiona el PNG y no el comando, porque el empaquetado no debe depender de tener navegadores instalados. Si cambia la identidad visual, se regenera con esa orden.
+Sustituye `<ruta-al-repo>` por la ruta de tu copia, con barras normales también en Windows. Se versiona el PNG y no el comando, porque el empaquetado no debe depender de tener navegadores instalados. Si cambia la identidad visual, se regenera con esa orden.
 
 ## 9. Riesgos y límites
 

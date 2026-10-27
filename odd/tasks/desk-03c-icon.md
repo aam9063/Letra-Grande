@@ -36,7 +36,7 @@ El empaquetado avisaba `default Electron icon is used`: el instalador y el ejecu
 
 - PNG de 512 por 512, 9,2 KB, generado con `playwright screenshot` desde el SVG de la PWA.
 - Antes: el registro decía `default Electron icon is used  reason=application icon is not set`.
-- Después: cero apariciones de ese aviso, y el ejecutable pasa de 121.723.467 a 121.730.329 bytes, coherente con el icono incrustado.
+- Después: cero apariciones de ese aviso, y el ejecutable crece unos 7 KB respecto al paquete sin icono, coherente con el icono incrustado. El revisor extrajo además el icono del binario: la esquina es `#3E9B94`, el verde de la marca.
 
 ## Siguiente paso
 
