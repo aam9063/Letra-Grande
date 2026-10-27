@@ -16,6 +16,9 @@ extraResources:
   - from: ../web/dist-desktop
     to: renderer
 win:
+  # PNG de 512x512 en build/: electron-builder lo convierte al .ico del exe y del
+  # instalador. Sin esta linea el binario sale con el icono de Electron.
+  icon: build/icon.png
   target:
     - target: nsis
       arch:
