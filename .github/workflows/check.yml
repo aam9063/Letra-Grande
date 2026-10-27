@@ -9,7 +9,11 @@ jobs:
   check:
     runs-on: ubuntu-latest
     steps:
+      # Historia completa: la comprobación de entrega a main necesita ver si la
+      # rama lleva los commits de main (docs/review-gate.md).
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
@@ -17,6 +21,18 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: node --test scripts/check-decisions.test.mjs
+      - name: Probar la comprobación de entrega a main
+        run: node --test scripts/check-main-history.test.mjs
+      # Solo aplica a PRs que van a main. Sin esto, un squash de dev a main
+      # deja conflictos fantasma en la entrega siguiente.
+      - name: Comprobar la historia de la entrega a main
+        run: node scripts/check-main-history.mjs
+        env:
+          GITHUB_BASE_REF: ${{ github.base_ref }}
+          GITHUB_HEAD_REF: ${{ github.head_ref }}
+          # El commit de la rama, no el merge ref: en el merge ref main es
+          # ancestro por construcción y la comprobación daría verde siempre.
+          GITHUB_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
       - run: pnpm check
       - run: pnpm build
       # La exportación estática del escritorio se construye también: si se rompe

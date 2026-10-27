@@ -1666,6 +1666,7 @@ ODD no autoriza la entrega: commit, push y PR los decide la política del reposi
 - Autorizas **por ola**, no por tarea suelta. ODD volverá a pedir confirmación si aparece un cambio de alcance.
 - Los agentes hacen commit en ramas `lg/<id>-...` y abren PR.
 - El **merge a `main` es siempre humano** (H-10), con CI en verde, informe de review presente y tu aprobación.
+- De `dev` a `main` se **fusiona con commit de fusión, nunca con squash**, y la rama lleva toda la historia de `main` antes de entregar. Un squash de `dev` a `main` deja conflictos fantasma en la entrega siguiente: pasó una vez y el job `check` lo vigila desde entonces (`docs/review-gate.md`).
 - La rama `main` se protege en GitHub para que esto no dependa de la buena voluntad de nadie.
 
 ### 21.5 Paralelismo
