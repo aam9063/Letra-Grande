@@ -11,7 +11,7 @@ Actualizado tras la Ola 1, la entrega del escritorio y el trabajo de interfaz. C
 | Ola 0 (humano) | H-09 (entorno) y H-10 (ramas protegidas) | H-01 nombre y marca, H-02 revisión legal, H-03 cuentas y presupuesto, H-04 licencia del contenido, H-05 asociación de consumidores, H-06 avisos, **H-07 verificación de fichas** y **H-08 condiciones de NaN** |
 | Ola 1 (fundamentos) | OPS-01, CORE-01, CORE-02, UI-01, OPS-04, AI-06, VAULT-01, UI-02, CONTENT-01, OPS-05, AI-01, AI-02, VAULT-02, OPS-04b, OPS-06 | ninguno |
 | Ola 1 (documentación) | CORE-03: `ARCHITECTURE.md` y `data-model.md` | ninguno |
-| Ola 2 (módulos) | RADAR-01 (motor de plazos y `.ics`), AI-03a (recuperación BM25), AI-05 (guardarraíles) | DOCS-01a en curso, DOCS-01b OCR (datos de idioma versionados, D-13), DOCS-02 y DOCS-03, RADAR-02 (interfaz de Hoy), AI-03 (pantalla del chat), AI-04 (evaluaciones), MOD-01 a MOD-03, CONTENT-02 a CONTENT-04 |
+| Ola 2 (módulos) | RADAR-01 (motor de plazos y `.ics`), AI-03a (recuperación BM25), AI-05 (guardarraíles), DOCS-01a (lectura de PDF en local) | DOCS-01b OCR (datos de idioma versionados, D-13), DOCS-02 y DOCS-03, RADAR-02 (interfaz de Hoy), AI-03 (pantalla del chat), AI-04 (evaluaciones), MOD-01 a MOD-03, CONTENT-02 a CONTENT-04 |
 | Ola 2 (interfaz) | UI-03 a UI-07: landing, shell responsive, onboarding, ajustes y carpeta, con sus specs de Playwright; UI-08 y UI-09: logo del proyecto en landing, icono recortado y icono de la app | el resto de pantallas de los módulos |
 | Escritorio (Windows) | DESK-01 build de dos salidas, DESK-02 ventana con `app://`, DESK-02c arranque en Hoy, DESK-03 instalador NSIS, DESK-03c icono de la marca | DESK-02d puerta del service worker, DESK-03b actualizador sobre GitHub Releases (canal decidido, D-12), DESK-04 macOS y Linux |
 | Proceso y entrega | OPS-05, OPS-05c (el gate no da falsos rojos), OPS-05d (el informe se acepta con el id o el id base), OPS-05e (checkout del commit de la rama), H-10 (ramas protegidas) | ninguno |
@@ -68,9 +68,10 @@ Cada tarea la ejecuta un agente en su carril. `Dep.` indica dependencias. Los cr
 
 | ID | Tarea | Dep. | Criterio de aceptación |
 |---|---|---|---|
-| DOCS-01 | Subida y lectura local de PDF (texto) y de fotos (OCR en navegador, carga diferida). Partida en DOCS-01a y DOCS-01b | VAULT-01 | Lectura de PDF sin ninguna petición de red (comprobado en test). El OCR descarga una sola vez los datos de idioma del propio origen, bajo demanda, y los deja en caché (D-13); el test falla si aparece cualquier origen ajeno |
-| DOCS-02 | Extractor de factura de luz: comercializadora, CUPS, periodo, potencia, tarifa, consumo por periodo, importe | DOCS-01 | Precisión superior al 90 % sobre 20 facturas sintéticas; si falla un campo, lo marca como no leído |
-| DOCS-03 | Clasificador de tipo de documento (factura, contrato, carta oficial, multa, ticket, póliza) | DOCS-01 | Precisión superior al 85 % en el conjunto sintético |
+| DOCS-01a | Extracción de texto de PDF en local: paquete `packages/extract` con `extractPdfText` (pdfjs-dist, sin red) | VAULT-01 | Sin ninguna petición de red durante la extracción (comprobado con espía que rechaza); un PDF sin capa de texto se declara para el OCR |
+| DOCS-01b | OCR de fotos en navegador, carga diferida | DOCS-01a | Datos de idioma versionados en el repositorio (D-13); se descargan una sola vez del propio origen al subir la primera foto y el test falla si aparece un origen ajeno |
+| DOCS-02 | Extractor de factura de luz: comercializadora, CUPS, periodo, potencia, tarifa, consumo por periodo, importe | DOCS-01a | Precisión superior al 90 % sobre 20 facturas sintéticas; si falla un campo, lo marca como no leído |
+| DOCS-03 | Clasificador de tipo de documento (factura, contrato, carta oficial, multa, ticket, póliza) | DOCS-01a | Precisión superior al 85 % en el conjunto sintético |
 | RADAR-01 | `packages/radar`: cálculo de fechas, estados, exportación `.ics` | CORE-01 | Tests de cada unidad de plazo; días hábiles marcados como aproximados |
 | RADAR-02 | UI "Hoy": línea de tiempo, crear manual, marcar hecho, exportar `.ics` | RADAR-01, UI-02 | El `.ics` se abre en Google Calendar, Apple y Outlook |
 | UI-03 | Landing pública en la raíz: maqueta aprobada, acento teal de marca y tipografía autoalojada; la app empieza en `/hoy` | UI-01, UI-02 | Igual al mockup; e2e de portada en verde; sin scroll horizontal a 375 px |
@@ -97,10 +98,10 @@ Cada tarea la ejecuta un agente en su carril. `Dep.` indica dependencias. Los cr
 | MOD-04 | Vida: checklists por evento con dependencias entre trámites públicos y privados | CONTENT-04 | 5 eventos con contenido verificado |
 | MOD-05 | Multas y cartas oficiales: qué es, plazo, opciones; sin recomendar pagar ni recurrir | DOCS-03, AI-05 | Plazo al radar; pasa las pruebas de asesoramiento |
 | MOD-06 | Retrasos y cancelaciones: calculadora de derechos con reglas parametrizadas y reclamación | CONTENT-04 | Reglas con fuente; casos de prueba de la norma |
-| MOD-07 | Garantías y devoluciones: plazos por tipo de bien desde un ticket | DOCS-01 | Valores en `content/` verificados |
-| MOD-08 | Contratos: detección de permanencia, renovación automática, penalizaciones, modificación unilateral, con cita al texto | DOCS-01, AI-05 | Cada alerta cita el fragmento del contrato |
+| MOD-07 | Garantías y devoluciones: plazos por tipo de bien desde un ticket | DOCS-01a | Valores en `content/` verificados |
+| MOD-08 | Contratos: detección de permanencia, renovación automática, penalizaciones, modificación unilateral, con cita al texto | DOCS-01a, AI-05 | Cada alerta cita el fragmento del contrato |
 | MOD-09 | Suscripciones: CSV bancario local, detección de recurrentes, enlace a Bajas | MOD-02 | Todo en local; sin red |
-| MOD-10 | Seguros: coberturas, exclusiones, plazos de siniestro | DOCS-01 | Cita a la póliza |
+| MOD-10 | Seguros: coberturas, exclusiones, plazos de siniestro | DOCS-01a | Cita a la póliza |
 | MOD-11 | Ayudas: perfil cruzado con ayudas por comunidad, plazos al radar | DATA-01 | Cada ayuda con fuente y convocatoria |
 | MOD-12 | Familia: perfiles múltiples con bóvedas separadas, lectura fácil | VAULT-01 | Perfiles aislados; cambio de perfil exige contraseña |
 | MOD-13 | Autónomo: calendario fiscal personalizable | CONTENT-04 | Fechas con fuente oficial |
@@ -143,6 +144,7 @@ Estas tareas no se ejecutan dentro de la tarea que las origina: se registran aqu
 
 | ID | Origen | Qué revisar |
 |---|---|---|
+| REF-DOCS-01a | Review de DOCS-01a | Falta una fixture de PDF cifrado y su test: la rama de `PasswordException` no está cubierta porque escribir cifrado a mano es desproporcionado para esta tarea. Crear la fixture y el test cuando haya una necesidad real. |
 | REF-OPS-01 | Review de OPS-01, hallazgo 3 | Dependencias declaradas por adelantado en `apps/web` (`vitest`, `jsdom`, `@testing-library/react`, `cross-env`): confirmar en OPS-04 y en UI-02 cuáles se usan y retirar las que sobren. |
 | REF-OPS-01b | Review de OPS-01, hallazgo 4 | Si algún paquete de `packages/` se va a publicar, hará falta build propio: hoy `main` y `types` apuntan a `./src/index.ts`. |
 | REF-OPS-04 | Review de OPS-04, hallazgo 2 | El guardián de red solo escucha `page.on("request")`: valorar escuchar también `context.on("request")` para cubrir peticiones del service worker antes de los specs de privacidad de la Ola 2. |
