@@ -41,6 +41,8 @@ La landing usaba un cubo de texto como marca y el instalador llevaba el icono de
 - Nota para la persona responsable: sobre fondo claro el logo se ve como una placa oscura, porque el activo tiene fondo propio; si se quiere integrado en la cabecera clara hará falta una variante con transparencia.
 - e2e: la suite falla en local en un spec de la carpeta (`desbloquear entra en la ruta solicitada`, webkit) que **también falla en `dev` limpio**; es anterior a esta tarea y no la provoca.
 
+Ronda de correcciones aplicada: la review señaló que el SVG de 219 KB era demasiado para pintar 44 px, así que la web usa un derivado de 96 px en JPEG (1,5 KB, 1,8 KB transferidos), generado desde el mismo logo, y el SVG queda como fuente para el icono. Medido en el navegador. Informe en `odd/reviews/ui-08.md`.
+
 ## Siguiente paso
 
 Ninguno: es cosmético y queda cerrado con el PR.
