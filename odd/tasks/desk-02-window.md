@@ -27,16 +27,29 @@ DESK-01 ya produce el renderer estático. Falta la aplicación que lo abre: una 
 
 ## Tareas
 
-- [ ] `apps/desktop` como paquete del workspace, con sus dependencias de desarrollo declaradas.
-- [ ] Protocolo `app://letra-grande` que sirve `apps/web/dist-desktop`, con protección contra rutas que salgan del directorio.
-- [ ] Ventana con `contextIsolation`, `sandbox`, `nodeIntegration` desactivado, preload mínimo y CSP.
-- [ ] Guardas: navegación fuera del origen bloqueada, ventanas nuevas al navegador del sistema, permisos denegados por defecto, instancia única.
-- [ ] Scripts `build` y `start`, y tests de las funciones puras.
-- [ ] Nota en `docs/review-gate.md` con las dos trampas del gate: marcar listo cuando ya aparezca el run del push, y actualizar la rama antes de mergear por `strict`.
+- [x] `apps/desktop` como paquete del workspace, con sus dependencias de desarrollo declaradas.
+- [x] Protocolo `app://letra-grande` que sirve `apps/web/dist-desktop`, con protección contra rutas que salgan del directorio.
+- [x] Ventana con `contextIsolation`, `sandbox`, `nodeIntegration` desactivado, preload mínimo y CSP.
+- [x] Guardas: navegación fuera del origen bloqueada, ventanas nuevas al navegador del sistema, permisos denegados por defecto, instancia única.
+- [x] Scripts `build` y `start`, y tests de las funciones puras.
+- [x] Nota en `docs/review-gate.md` con las dos trampas del gate: marcar listo cuando ya aparezca el run del push, y actualizar la rama antes de mergear por `strict`.
 
 ## Evidencia y progreso
 
-Pendiente de rellenar por quien implementa.
+Implementado en la rama `lg/desk-02-window`.
+
+- Tests (vitest, `apps/desktop`): 24 pruebas de las funciones puras, todas en verde. RED capturado: la primera ejecución falló porque los módulos no existían, y una segunda tanda falló antes de implementar la CSP con hashes.
+- `pnpm --filter @letra-grande/desktop build`: compila con TypeScript 7 estricto (ESM en `dist/main.js`, el preload se compila a `dist/preload.cjs` porque un preload con sandbox no puede ser ESM).
+- `pnpm --filter @letra-grande/desktop test`: 24/24 en verde.
+- `pnpm check` en la raíz: verde (estilo, typecheck, tests de todos los paquetes y contenido).
+- Ejecución manual en Windows: `pnpm --filter @letra-grande/desktop start` abre la ventana. Verificado con DevTools remoto: la página carga `app://letra-grande/` con título "Letra Grande", los scripts de hidratación en línea se ejecutan (la CSP con hashes los autoriza) y no hay service worker en modo escritorio.
+
+### Decisiones que revisar
+
+- `@types/node` no se declaró como dependencia (la consigna fue no añadir nada más): electron ya la trae transitivamente y `tsconfig.json` la resuelve con `typeRoots` apuntando al directorio hoisteado de pnpm (`node_modules/.pnpm/node_modules/@types`). Si se prefiere declararla explícitamente, es un cambio de una línea.
+- La CSP permite `style-src 'self' 'unsafe-inline'`: la exportación prerenderizada usa atributos `style` en línea para los colores de estado y no ejecutan código. Los scripts en línea sí están controlados por hash sha256 calculado por archivo servido (`src/inline-scripts.ts`); cualquier bloque no conocido no se ejecuta.
+- La raiz del renderer se resuelve relativa a `dist/` para desarrollo y se puede sobrecargar con `LG_DESKTOP_DIST`; la ruta empaquetada la ajusta DESK-03.
+- `pnpm-workspace.yaml` añadió `onlyBuiltDependencies` (electron, esbuild, electron-winstaller): sin ella pnpm 10 no ejecuta el postinstall de electron y no se descarga el binario.
 
 ## Siguiente paso
 

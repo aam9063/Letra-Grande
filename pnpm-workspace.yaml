@@ -1,3 +1,10 @@
 packages:
   - "apps/*"
   - "packages/*"
+
+# Electron descarga su binario en el postinstall y esbuild necesita el suyo.
+# Sin esta lista pnpm 10 no ejecuta esos scripts y la app no arranca.
+onlyBuiltDependencies:
+  - electron
+  - esbuild
+  - electron-winstaller
