@@ -12,12 +12,12 @@ import { resolveAppUrl, type AppUrlResolution } from "./app-url.js";
 import { buildCsp } from "./csp.js";
 import { proxyOriginFromEnv, rendererDistOverride } from "./config.js";
 import { inlineScriptHashes } from "./inline-scripts.js";
-import { APP_ORIGIN, isExternalWebUrl, isNavigationAllowed } from "./navigation.js";
+import { APP_ORIGIN, isExternalWebUrl, isNavigationAllowed, startUrl } from "./navigation.js";
 import { NO_PERMISSIONS_ALLOWED, isPermissionAllowed } from "./permissions.js";
 import { rendererRootError, resolveRendererRoot } from "./renderer-root.js";
 import { absolutePathInsideRoot } from "./root-guard.js";
 
-const APP_URL = `${APP_ORIGIN}/`;
+const APP_URL = startUrl();
 
 // Extensiones que sirve el renderer estatico. La lista es cerrada a proposito:
 // cualquier otra cosa responde como application/octet-stream.

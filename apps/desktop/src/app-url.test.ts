@@ -2,7 +2,7 @@
 // la logica vive en modulos propios para poder probarse sin arrancar la app.
 import { describe, expect, it } from "vitest";
 import { createHash } from "node:crypto";
-import { APP_ORIGIN, isNavigationAllowed } from "./navigation.js";
+import { APP_ORIGIN, DESKTOP_START_PATH, isNavigationAllowed, startUrl } from "./navigation.js";
 import { buildCsp } from "./csp.js";
 import { inlineScriptHashes } from "./inline-scripts.js";
 import { isPermissionAllowed, NO_PERMISSIONS_ALLOWED } from "./permissions.js";
@@ -199,5 +199,17 @@ describe("inlineScriptHashes", () => {
     const html = '<script type="module">console.log("hola")</script>';
     expect(inlineScriptHashes(html)).toEqual([]);
     expect(buildCsp(undefined, inlineScriptHashes(html))).not.toContain("sha256-");
+  });
+});
+
+describe("arranque de la ventana", () => {
+  it("abre la pantalla de la aplicacion, no la landing", () => {
+    expect(DESKTOP_START_PATH).toBe("/hoy/");
+    expect(startUrl()).toBe(`${APP_ORIGIN}/hoy/`);
+    expect(startUrl()).not.toBe(`${APP_ORIGIN}/`);
+  });
+
+  it("respeta el origen que se le pase", () => {
+    expect(startUrl("app://otro")).toBe("app://otro/hoy/");
   });
 });
