@@ -290,9 +290,11 @@ a.lg-sidebar-modulo {
   cursor: pointer;
 }
 
+/* Las páginas de módulo ocupan todo el ancho disponible junto a la sidebar
+   (UI-04); el diseño limita el contenido con sus tarjetas y rejillas, no con
+   un ancho máximo global. */
 main {
-  max-width: 42rem;
-  margin: 0 auto;
+  width: 100%;
   padding: calc(var(--lg-espacio) * 6) calc(var(--lg-espacio) * 4);
   background: var(--lg-superficie);
   border-radius: var(--lg-radio);
