@@ -39,6 +39,8 @@ En esta misma sesión, tres veces seguidas, un script dio por hecha una inserci�
 - `node scripts/check-decisions.mjs`: `Decisiones OK: 13 definidas y todas las citas resuelven.`
 - La expresión regular exige que no haya letra, dígito, guion ni guion bajo antes de `D-NN`, que es lo que distingue una cita de un identificador como `MOD-12`.
 
+Ronda de correcciones aplicada: la comprobación recorre `docs/`, `odd/tasks/` y `odd/reviews/` en lugar de una lista fija (que dejaba fuera los documentos de tarea y hacía la cobertura ilusoria), y tres tests nuevos fijan los dos falsos negativos conocidos y la cita al inicio del texto. Informe en `odd/reviews/ops-09.md`.
+
 ## Siguiente paso
 
 Ninguno: queda en la CI.

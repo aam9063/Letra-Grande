@@ -1,12 +1,16 @@
 // Comprueba que toda decision citada en la documentacion existe en la tabla
 // de decisiones de docs/ARRANQUE.md. Nace de un error repetido: buscar "D-12"
 // como texto libre encuentra "MOD-12" y da la decision por existente.
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
 const RAIZ = fileURLToPath(new URL("..", import.meta.url));
 
-/** Ids de decision definidos en la tabla (lineas que empiezan por "| D-NN |"). */
+/**
+ * Ids de decision definidos en la tabla (lineas que empiezan por "| D-NN |").
+ * Se leen de todo el documento de arranque, no solo de la seccion 19: hoy es la
+ * unica tabla con filas "D-NN" y acotarlo exigiria fijar los numeros de linea.
+ */
 export function decisionIds(texto) {
   const ids = new Set();
   for (const linea of texto.split("\n")) {
@@ -36,14 +40,37 @@ export function missingDecisions(definidas, citadas) {
   return [...new Set(faltan)];
 }
 
-const DOCUMENTOS = ["docs/backlog.md", "docs/desktop.md", "docs/ARCHITECTURE.md", "docs/data-model.md"];
+/**
+ * Documentos donde se buscan citas. Se recorre todo `docs/`, los documentos de
+ * tarea y los informes de review, porque los tres citan decisiones.
+ *
+ * Dos falsos negativos conocidos, fijados con tests para que no sorprendan:
+ * un rango como `D-11-D-12` solo detecta `D-11` (el guion separador esta en la
+ * clase de exclusion) y una variante como `D-12a` cuenta como `D-12`.
+ */
+function documentos() {
+  const rutas = [];
+  const porCarpeta = (carpeta, extension) => {
+    try {
+      for (const entrada of readdirSync(`${RAIZ}${carpeta}`)) {
+        if (entrada.endsWith(extension)) rutas.push(`${carpeta}/${entrada}`);
+      }
+    } catch {
+      // Carpeta ausente: no hay nada que comprobar.
+    }
+  };
+  porCarpeta("docs", ".md");
+  porCarpeta("odd/tasks", ".md");
+  porCarpeta("odd/reviews", ".md");
+  return rutas;
+}
 
 function main() {
   const arranque = readFileSync(`${RAIZ}docs/ARRANQUE.md`, "utf8");
   const definidas = decisionIds(arranque);
   const problemas = [];
 
-  for (const documento of DOCUMENTOS) {
+  for (const documento of documentos()) {
     const texto = readFileSync(`${RAIZ}${documento}`, "utf8");
     for (const id of missingDecisions(definidas, citedDecisions(texto))) {
       problemas.push(`${documento}: cita ${id}, que no existe en la tabla de decisiones de docs/ARRANQUE.md`);

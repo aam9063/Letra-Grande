@@ -26,3 +26,15 @@ test("todas las citas existentes no producen problemas", () => {
   const faltan = missingDecisions(decisionIds(TABLA), citedDecisions("D-06, D-11, D-12 y D-13"));
   assert.deepEqual(faltan, []);
 });
+
+test("un rango con guion solo detecta la primera cita, comportamiento conocido", () => {
+  assert.deepEqual([...citedDecisions("D-11-D-12")], ["D-11"]);
+});
+
+test("una variante con letra final cuenta como el id base, comportamiento conocido", () => {
+  assert.deepEqual([...citedDecisions("D-12a")], ["D-12"]);
+});
+
+test("una cita al principio del texto se detecta", () => {
+  assert.deepEqual([...citedDecisions("D-12 es el canal")], ["D-12"]);
+});
