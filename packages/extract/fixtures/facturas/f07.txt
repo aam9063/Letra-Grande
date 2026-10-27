@@ -1,0 +1,27 @@
+Electra de Ejemplo S.A.
+NIF: A22222222
+Servicio de atención al cliente ficticio
+
+FACTURA DE LA LUZ
+
+Titular: Persona de Ejemplo Uno
+Dirección de suministro: Calle Falsa 12, 46001 Valencia
+
+Comercializadora eléctrica: Electra de Ejemplo S.A.
+CUPS (punto de suministro): ES0031400056789012CD
+Periodo de facturación: 01/07/2026 - 31/07/2026
+Tarifa de acceso: 2.0TD
+
+DETALLE DEL SUMINISTRO
+Potencia contratada: P1 4,600 kW
+Potencia contratada: P2 5,750 kW
+Consumo P1: 154,70 kWh
+Consumo P2: 118,20 kWh
+Consumo P3: 89,40 kWh
+
+Término de energía y potencia según contrato.
+Impuestos incluidos.
+
+Total factura: 74,20 €
+
+Documento ficticio generado para las pruebas de Letra Grande.

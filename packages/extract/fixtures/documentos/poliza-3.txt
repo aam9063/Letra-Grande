@@ -1,0 +1,8 @@
+Aseguradora Imaginaria
+PÓLIZA DE VIDA
+Tomador y asegurado: Persona de Ejemplo Tres
+Prima mensual: 18,40 EUR
+Cobertura principal: fallecimiento.
+Vigencia: anual renovable.
+
+Documento ficticio generado para las pruebas de Letra Grande.

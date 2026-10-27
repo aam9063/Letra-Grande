@@ -56,19 +56,20 @@ IndexedDB, igual que en la PWA, pero en el directorio de datos de la aplicación
 El proceso principal es código privilegiado. Reglas mínimas, todas verificables en revisión:
 
 - `contextIsolation: true`, `nodeIntegration: false`, `sandbox: true`.
-- El `preload` expone una superficie mínima y explícita. Hoy son exactamente tres valores: `version`, `platform` y `isDesktop`. Nada de `ipcRenderer` en crudo. La ruta de la copia cifrada elegida por la persona y el evento de actualización disponible llegarán con DESK-03b, cuando existan el diálogo nativo y el canal de actualización; hasta entonces el preload no los expone.
+- El `preload` expone una superficie mínima y explícita. Hoy son exactamente tres valores: `version`, `platform` y `isDesktop`. Nada de `ipcRenderer` en crudo. Los avisos de actualización son diálogos nativos del proceso principal, no del renderer (sección 8 ter), así que no pasan por el preload y la superficie no cambia. La ruta de la copia cifrada elegida por la persona llegará con su tarea propia.
 - `will-navigate` y `setWindowOpenHandler` bloquean navegación fuera de `app://`; los enlaces externos se abren en el navegador del sistema.
 - CSP estricta en la respuesta del protocolo propio, con `connect-src` limitado al proxy configurado. La única excepción es `style-src 'unsafe-inline'`, y es deliberada: las páginas prerenderizadas llevan atributos `style` en línea para los colores de estado, y CSS no ejecuta código. Los scripts siguen protegidos por hashes sha256 calculados por archivo servido, y con `connect-src` e `img-src` limitados al propio origen una inyección de CSS no tiene manera de exfiltrar nada a terceros.
 - Sin telemetría, sin analytics, sin scripts remotos. Lo mismo que en la web.
 - Una sola instancia por usuario.
 - **Permisos denegados por defecto.** `setPermissionRequestHandler` y `setPermissionCheckHandler` rechazan cámara, micrófono, geolocalización, notificaciones y portapapeles salvo que una función concreta lo necesite y se justifique en revisión. Con documentos personales dentro, una página comprometida pidiendo permisos es un vector real.
-- **Canal de actualización con confianza explícita.** La firma del paquete no protege del secuestro del feed: la URL de actualizaciones es fija y va por HTTPS, se exige firma también en el manifiesto de actualización y el certificado de firma se guarda en el gestor de secretos del CI, nunca en el repositorio.
-- El actualizador solo acepta paquetes firmados; sin firma, no hay actualización silenciosa.
+- **Canal de actualización con confianza explícita.** La firma del paquete no protege del secuestro del feed: la URL de actualizaciones es fija y va por HTTPS. El canal es GitHub Releases y es el único proveedor (sección 8 ter); el certificado de firma, cuando exista, se guarda en el gestor de secretos del CI, nunca en el repositorio.
+- Sin firma no hay actualización silenciosa: la instalación solo ocurre cuando la persona acepta el diálogo de reinicio (sección 8 ter).
 
 ## 5. Diferencia con la PWA en el comportamiento
 
 | Aspecto | PWA | Escritorio |
 |---|---|---|
+| Arranque | La landing, con la puerta de entrada al producto | **Hoy**, directo a la aplicación: la landing es de la web, donde se descarga la app. La exportación usa `trailingSlash` para que cada ruta tenga su `index.html` y el protocolo pueda servir `/hoy/` |
 | Service worker | Sí, cachea el shell | **No**. El binario ya es local y el ciclo de actualización es otro |
 | Aviso de almacenamiento | Sí: el navegador puede desalojar | No hace falta |
 | Copia cifrada | Descarga del navegador | Diálogo nativo a una carpeta real |
@@ -117,6 +118,43 @@ Nada de esto toca el vault, la privacidad, el radar ni el motor de contenido: el
 
 - AppImage o `.deb`, sin firma obligatoria.
 - El actualizador automático no está soportado por el módulo `autoUpdater` de Electron en Linux. Con `electron-updater` sí funciona para AppImage; en `.deb` se actualiza por el gestor de paquetes o descargando de nuevo.
+
+## 8 bis. Icono de la aplicación
+
+El icono del ejecutable y del instalador es `apps/desktop/build/icon.png`, un PNG de 512 por 512 generado desde el SVG de la PWA (`apps/web/public/icon.svg`) con el navegador que ya usan las pruebas:
+
+```
+pnpm --filter @letra-grande/web exec playwright screenshot --viewport-size=512,512   "file:///<ruta-al-repo>/apps/web/public/icon.svg" apps/desktop/build/icon.png
+```
+
+Sustituye `<ruta-al-repo>` por la ruta de tu copia, con barras normales también en Windows. Se versiona el PNG y no el comando, porque el empaquetado no debe depender de tener navegadores instalados. Si cambia la identidad visual, se regenera con esa orden.
+
+## 8 ter. Canal de actualizaciones (DESK-03b)
+
+El descargable se actualiza con `electron-updater` contra GitHub Releases. Es la decisión D-12: un solo proveedor, sin telemetría y sin servidores de actualización de terceros. La configuración vive en `apps/desktop/electron-builder.yml` (`publish` con `provider: github`, `owner: aam9063`, `repo: Letra-Grande`, `releaseType: draft`); con ella, cada empaquetado genera `resources/app-update.yml`, el manifiesto que lee `electron-updater` en la app instalada.
+
+**Cuándo se comprueba.** Solo en la app empaquetada: en desarrollo no hay feed que consultar. La variable de entorno `LG_UPDATES=off` desactiva la comprobación de forma explícita. La comprobación ocurre una vez al arrancar.
+
+**Qué pregunta la app.** Dos diálogos nativos, siempre con la persona al mando:
+
+1. Si hay versión nueva: "¿Descargar ahora?" con los botones "Descargar ahora" y "Ahora no". Solo se descarga si la respuesta es afirmativa.
+2. Cuando la descarga termina: "¿Reiniciar ahora para instalarla?" con los botones "Reiniciar e instalar" y "Más tarde". `quitAndInstall` solo se llama si la respuesta es afirmativa.
+
+Nada se instala sin consentimiento: `autoDownload` y `autoInstallOnAppQuit` están desactivados, así que ni la descarga ni la instalación son automáticas. La misma versión no se anuncia dos veces en la misma sesión, para que no haya bucles de avisos.
+
+**Sin red.** La comprobación falla en silencio: el error queda en la consola del proceso principal y no se muestra nada. La app funciona igual sin conexión; solo el asistente la necesita, y ya avisa de ello.
+
+**Modo diagnóstico.** Ejecutar la app con `--check-updates` (desde el instalador o desde `win-unpacked`) hace una única comprobación, imprime una línea y sale, sin abrir ventana: `actualizacion disponible: 0.0.2` o `sin actualizaciones` con código 0, y `error: <motivo>` con código 1 si la comprobación falla. Es la herramienta para probar el canal sin interfaz. El diagnóstico se ejecuta siempre que el indicador esté presente: no le afecta `LG_UPDATES=off` y funciona también en desarrollo. En desarrollo, `electron-updater` salta la comprobación fuera del paquete, así que el resultado es `sin actualizaciones`: la comprobación de verdad solo ocurre en la app empaquetada, que lleva su `app-update.yml` en `resources`.
+
+**Ritual de publicación.** La entrega la decide una persona:
+
+1. Subir la versión en `apps/desktop/package.json` y crear el tag `v<version>`, por ejemplo `v0.0.2`.
+2. Empaquetar y publicar con el token de GitHub: `pnpm package:win` con `GH_TOKEN` en el entorno y `--publish always` en lugar de `--publish never`. El empaquetado sube al borrador de la release los tres artefactos: `Letra Grande-<version>-x64.exe`, su `.blockmap` y `latest.yml`.
+3. Revisar el borrador en GitHub Releases y publicarlo. Mientras siga en borrador, la app instalada no ve la versión nueva.
+
+Para ensayar el canal de principio a fin se publican dos versiones de prueba (por ejemplo `v0.0.1` y `v0.0.2`) y se ejecuta `--check-updates` con la primera instalada: debe imprimir `actualizacion disponible: 0.0.2`.
+
+**Firma pendiente.** El paquete sigue sin firmar, así que Windows SmartScreen muestra "Editor desconocido" en la primera ejecución (sección 8). No bloquea la instalación ni la actualización, pero avisa. La firma de código se queda en el backlog como tarea de entrega.
 
 ## 9. Riesgos y límites
 

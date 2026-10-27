@@ -1,0 +1,8 @@
+Organismo Ficticio de Inspección
+Acta de inspección con propuesta de sanción
+Establecimiento de ejemplo, actividad ficticia.
+Infracción comprobada en la inspección del 04/05/2026.
+Importe a ingresar: 300,00 EUR
+Pago voluntario dentro del plazo de 20 días.
+
+Documento ficticio generado para las pruebas de Letra Grande.

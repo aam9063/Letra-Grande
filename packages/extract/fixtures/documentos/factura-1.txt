@@ -1,0 +1,10 @@
+Comercializadora Ficticia de Luz S.L.
+FACTURA DE LA LUZ
+Titular: Persona de Ejemplo Uno
+CUPS: ES0021000012345678AB
+Periodo de facturación: 01/01/2026 a 31/01/2026
+Potencia contratada P1: 4,600 kW
+Consumo P1: 128,40 kWh
+Importe total: 62,35 EUR
+
+Documento ficticio generado para las pruebas de Letra Grande.

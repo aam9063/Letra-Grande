@@ -1,0 +1,26 @@
+Comercializadora Imaginaria Verde S.L.
+NIF: B33333333
+Servicio de atención al cliente ficticio
+
+FACTURA DE LA LUZ
+
+Titular: Persona de Ejemplo Uno
+Dirección de suministro: Calle Falsa 12, 46001 Valencia
+
+Nombre comercial: Comercializadora Imaginaria Verde S.L.
+Punto de suministro (CUPS): ES0022000034567890EF
+Del 01/04/2027 al 30/04/2027
+
+DETALLE DEL SUMINISTRO
+Potencia contratada P1 4,600 kW
+Potencia contratada P2 4,600 kW
+Consumo del periodo P1: 99,20 kWh
+Consumo del periodo P2: 81,60 kWh
+Consumo del periodo P3: 63,40 kWh
+
+Término de energía y potencia según contrato.
+Impuestos incluidos.
+
+Importe total de la factura: 53.45 EUR
+
+Documento ficticio generado para las pruebas de Letra Grande.

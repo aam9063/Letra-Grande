@@ -1,0 +1,8 @@
+Ministerio de Ejemplo
+Registro de entrada: ME-2026-3141
+Resolución de la Dirección General de Ejemplo
+Le informamos de que se ha resuelto el procedimiento iniciado.
+Contra esta resolución puede interponer recurso de alzada en el plazo legal.
+Atentamente, la Subdirección de Ejemplo.
+
+Documento ficticio generado para las pruebas de Letra Grande.

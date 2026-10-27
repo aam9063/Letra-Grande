@@ -1,0 +1,9 @@
+Ayuntamiento de Villaejemplo
+Registro de entrada: 2026/000111
+Expediente: EXP-2026-42
+Estimada persona interesada:
+Le informamos de que su escrito ha sido registrado y se ha incorporado al expediente indicado.
+Puede presentar alegaciones en el plazo de diez días.
+Atentamente, la Concejalía de Ejemplo.
+
+Documento ficticio generado para las pruebas de Letra Grande.

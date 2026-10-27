@@ -43,6 +43,10 @@ const nextConfig: NextConfig = {
         // sin optimizar si alguna página lo añade más adelante. No afecta a la web.
         images: { unoptimized: true },
         pageExtensions: ["tsx", "jsx", "js"],
+        // La exportación escribe "ruta/index.html" en lugar de "ruta.html": el
+        // protocolo app:// sirve /hoy/ resolviendo el índice del directorio, y
+        // sin esto /hoy/ caería al respaldo y abriría la landing.
+        trailingSlash: true,
       }
     : {}),
   transpilePackages: [

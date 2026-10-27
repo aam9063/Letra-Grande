@@ -4,13 +4,17 @@ Estado vivo de las tareas de Letra Grande. El detalle de cada tarea vive en su d
 
 ## Estado actual
 
-| Ola | Tareas | Estado |
-|---|---|---|
-| 0 | H-01 a H-10, D-01 | H-10 hecho; el resto pendiente (humano) |
-| 1 | OPS-01, CORE-01, CORE-02, UI-01, OPS-04, AI-06, VAULT-01, UI-02, CONTENT-01, OPS-05, AI-01, AI-02, VAULT-02, OPS-04b, OPS-06 | hecho |
-| 1 (documentación) | CORE-03: `ARCHITECTURE.md` y `data-model.md` | hecho |
-| 2 | RADAR-01 hecho; DOCS-01 a DOCS-03, RADAR-02, CARPETA-01, AI-03 a AI-05, MOD-01 a MOD-03, CONTENT-02 a CONTENT-04 pendientes | en curso |
+Actualizado tras la Ola 1, la entrega del escritorio y el trabajo de interfaz. Cada fila dice qué está cerrado con PR y review, no qué se pretendía.
 
+| Bloque | Hecho | Pendiente |
+|---|---|---|
+| Ola 0 (humano) | H-09 (entorno) y H-10 (ramas protegidas) | H-01 nombre y marca, H-02 revisión legal, H-03 cuentas y presupuesto, H-04 licencia del contenido, H-05 asociación de consumidores, H-06 avisos, **H-07 verificación de fichas** y **H-08 condiciones de NaN** |
+| Ola 1 (fundamentos) | OPS-01, CORE-01, CORE-02, UI-01, OPS-04, AI-06, VAULT-01, UI-02, CONTENT-01, OPS-05, AI-01, AI-02, VAULT-02, OPS-04b, OPS-06 | ninguno |
+| Ola 1 (documentación) | CORE-03: `ARCHITECTURE.md` y `data-model.md` | ninguno |
+| Ola 2 (módulos) | RADAR-01 (motor de plazos y `.ics`), AI-03a (recuperación BM25), AI-05 (guardarraíles), DOCS-01a (lectura de PDF en local), DOCS-01b (OCR de fotos en local, datos de idioma versionados por D-13), DOCS-02 (extractor de factura de luz con corpus sintético), DOCS-03 (clasificador de tipo de documento) | RADAR-02 (interfaz de Hoy), AI-03 (pantalla del chat), AI-04 (evaluaciones), MOD-01 a MOD-03, CONTENT-02 a CONTENT-04 |
+| Ola 2 (interfaz) | UI-03 a UI-07: landing, shell responsive, onboarding, ajustes y carpeta, con sus specs de Playwright; UI-08 y UI-09: logo del proyecto en landing, icono recortado y icono de la app | el resto de pantallas de los módulos |
+| Escritorio (Windows) | DESK-01 build de dos salidas, DESK-02 ventana con `app://`, DESK-02c arranque en Hoy, DESK-03 instalador NSIS, DESK-03c icono de la marca, DESK-03b actualizador sobre GitHub Releases (canal decidido, D-12; falta el ensayo v0.0.1 contra v0.0.2, que espera al primer tag) | DESK-02d puerta del service worker, DESK-04 macOS y Linux |
+| Proceso y entrega | OPS-05, OPS-05c (el gate no da falsos rojos), OPS-05d (el informe se acepta con el id o el id base), OPS-05e (checkout del commit de la rama), H-10 (ramas protegidas) | ninguno |
 
 ## Detalle de las olas
 
@@ -38,7 +42,7 @@ Cada tarea la ejecuta un agente en su carril. `Dep.` indica dependencias. Los cr
 | H-06 | Decidir avisos: solo `.ics` en el MVP, o también Web Push sin datos personales | Decisión escrita |
 | D-01 | Elegir acento de color y nombre de la tipografía | Tokens fijados |
 | H-08 | Preguntar a NaN Builders: si la clave permite servir a usuarios finales, límites por clave, retención y uso de datos de las peticiones, y soporte de salida estructurada por modelo | Respuesta por escrito archivada en `docs/ai-provider.md` |
-| H-09 | Instalar y comprobar gentle-ai y gentle-shell (sección 21.6): `doctor`, estado de la revisión, proveedor NaN, lectura de `AGENTS.md`, versión y sistema operativo | Lista "no confirmado" de 21.7 resuelta o anotada |
+| H-09 | Instalar y comprobar gentle-ai y gentle-shell (sección 21.6): `doctor`, estado de la revisión, proveedor NaN, lectura de `AGENTS.md`, versión y sistema operativo. **Hecho** en la práctica: el entorno funciona y de él salieron OPS-04b, OPS-05c y OPS-05e. No hay commit que lo acredite porque es verificación humana del entorno | Lista "no confirmado" de 21.7 resuelta o anotada |
 | H-10 | Proteger `main` en GitHub: PR obligatorio, CI en verde, informe de review presente y aprobación humana | **Hecho**: `dev` y `main` protegidas con PR obligatorio, los checks `check`, `e2e` y `review-report` como requeridos, y `enforce_admins` activo. La aprobación no la exige GitHub (0 aprobaciones): la decisión humana es el propio merge |
 
 ### Ola 1: fundamentos (todo en paralelo)
@@ -64,9 +68,10 @@ Cada tarea la ejecuta un agente en su carril. `Dep.` indica dependencias. Los cr
 
 | ID | Tarea | Dep. | Criterio de aceptación |
 |---|---|---|---|
-| DOCS-01 | Subida y lectura local de PDF (texto) y de fotos (OCR en navegador, carga diferida) | VAULT-01 | Sin ninguna petición de red durante la extracción (comprobado en test) |
-| DOCS-02 | Extractor de factura de luz: comercializadora, CUPS, periodo, potencia, tarifa, consumo por periodo, importe | DOCS-01 | Precisión superior al 90 % sobre 20 facturas sintéticas; si falla un campo, lo marca como no leído |
-| DOCS-03 | Clasificador de tipo de documento (factura, contrato, carta oficial, multa, ticket, póliza) | DOCS-01 | Precisión superior al 85 % en el conjunto sintético |
+| DOCS-01a | Extracción de texto de PDF en local: paquete `packages/extract` con `extractPdfText` (pdfjs-dist, sin red) | VAULT-01 | Sin ninguna petición de red durante la extracción (comprobado con espía que rechaza); un PDF sin capa de texto se declara para el OCR |
+| DOCS-01b | OCR de fotos en navegador, carga diferida | DOCS-01a | Datos de idioma versionados en el repositorio (D-13); se descargan una sola vez del propio origen al subir la primera foto y el test falla si aparece un origen ajeno |
+| DOCS-02 | Extractor de factura de luz: comercializadora, CUPS, periodo, potencia, tarifa, consumo por periodo, importe | DOCS-01a | Precisión superior al 90 % sobre 20 facturas sintéticas; si falla un campo, lo marca como no leído |
+| DOCS-03 | Clasificador de tipo de documento (factura, contrato, carta oficial, multa, ticket, póliza) | DOCS-01a | Precisión superior al 85 % en el conjunto sintético |
 | RADAR-01 | `packages/radar`: cálculo de fechas, estados, exportación `.ics` | CORE-01 | Tests de cada unidad de plazo; días hábiles marcados como aproximados |
 | RADAR-02 | UI "Hoy": línea de tiempo, crear manual, marcar hecho, exportar `.ics` | RADAR-01, UI-02 | El `.ics` se abre en Google Calendar, Apple y Outlook |
 | UI-03 | Landing pública en la raíz: maqueta aprobada, acento teal de marca y tipografía autoalojada; la app empieza en `/hoy` | UI-01, UI-02 | Igual al mockup; e2e de portada en verde; sin scroll horizontal a 375 px |
@@ -93,10 +98,10 @@ Cada tarea la ejecuta un agente en su carril. `Dep.` indica dependencias. Los cr
 | MOD-04 | Vida: checklists por evento con dependencias entre trámites públicos y privados | CONTENT-04 | 5 eventos con contenido verificado |
 | MOD-05 | Multas y cartas oficiales: qué es, plazo, opciones; sin recomendar pagar ni recurrir | DOCS-03, AI-05 | Plazo al radar; pasa las pruebas de asesoramiento |
 | MOD-06 | Retrasos y cancelaciones: calculadora de derechos con reglas parametrizadas y reclamación | CONTENT-04 | Reglas con fuente; casos de prueba de la norma |
-| MOD-07 | Garantías y devoluciones: plazos por tipo de bien desde un ticket | DOCS-01 | Valores en `content/` verificados |
-| MOD-08 | Contratos: detección de permanencia, renovación automática, penalizaciones, modificación unilateral, con cita al texto | DOCS-01, AI-05 | Cada alerta cita el fragmento del contrato |
+| MOD-07 | Garantías y devoluciones: plazos por tipo de bien desde un ticket | DOCS-01a | Valores en `content/` verificados |
+| MOD-08 | Contratos: detección de permanencia, renovación automática, penalizaciones, modificación unilateral, con cita al texto | DOCS-01a, AI-05 | Cada alerta cita el fragmento del contrato |
 | MOD-09 | Suscripciones: CSV bancario local, detección de recurrentes, enlace a Bajas | MOD-02 | Todo en local; sin red |
-| MOD-10 | Seguros: coberturas, exclusiones, plazos de siniestro | DOCS-01 | Cita a la póliza |
+| MOD-10 | Seguros: coberturas, exclusiones, plazos de siniestro | DOCS-01a | Cita a la póliza |
 | MOD-11 | Ayudas: perfil cruzado con ayudas por comunidad, plazos al radar | DATA-01 | Cada ayuda con fuente y convocatoria |
 | MOD-12 | Familia: perfiles múltiples con bóvedas separadas, lectura fácil | VAULT-01 | Perfiles aislados; cambio de perfil exige contraseña |
 | MOD-13 | Autónomo: calendario fiscal personalizable | CONTENT-04 | Fechas con fuente oficial |
@@ -139,6 +144,8 @@ Estas tareas no se ejecutan dentro de la tarea que las origina: se registran aqu
 
 | ID | Origen | Qué revisar |
 |---|---|---|
+| REF-DOCS-01a | Review de DOCS-01a | Falta una fixture de PDF cifrado y su test: la rama de `PasswordException` no está cubierta porque escribir cifrado a mano es desproporcionado para esta tarea. Crear la fixture y el test cuando haya una necesidad real. |
+| REF-DOCS-01b | Review de DOCS-01b, hallazgo 2 | La sesión de OCR atiende las llamadas de una en una: dos fotos lanzadas a la vez con idiomas o bases distintas podrían dejar un worker sin soltar. Hoy no es alcanzable porque solo se versiona el español. Serializar `obtenerWorker` con una cola cuando exista un segundo modelo. |
 | REF-OPS-01 | Review de OPS-01, hallazgo 3 | Dependencias declaradas por adelantado en `apps/web` (`vitest`, `jsdom`, `@testing-library/react`, `cross-env`): confirmar en OPS-04 y en UI-02 cuáles se usan y retirar las que sobren. |
 | REF-OPS-01b | Review de OPS-01, hallazgo 4 | Si algún paquete de `packages/` se va a publicar, hará falta build propio: hoy `main` y `types` apuntan a `./src/index.ts`. |
 | REF-OPS-04 | Review de OPS-04, hallazgo 2 | El guardián de red solo escucha `page.on("request")`: valorar escuchar también `context.on("request")` para cubrir peticiones del service worker antes de los specs de privacidad de la Ola 2. |
@@ -168,5 +175,10 @@ Decisión y diseño en [`desktop.md`](desktop.md). Solo Windows en el alcance in
 | DESK-01 | Build de dos salidas en `apps/web`: servidor para la web y exportación estática para el escritorio, con la ruta de API fuera de la estática | OPS-06 | `pnpm build` sigue produciendo la web; una segunda orden produce el estático sin errores y sin service worker |
 | DESK-02 | `apps/desktop`: ventana Electron con `contextIsolation`, `sandbox`, protocolo `app://`, superficie mínima en el preload, enlaces externos al navegador y CSP | DESK-01 | El binario abre la app, crea el vault, reinicia y el vault persiste; ninguna navegación sale de `app://` |
 | DESK-03 | Canal de entrega de Windows: `electron-builder` con NSIS, actualizador, artefacto en CI y firma cuando haya certificado | DESK-02 | Instalador descargable que se instala, actualiza y desinstala; el aviso de SmartScreen está documentado en la landing |
+| DESK-02d | Puerta de escritorio en el registro del service worker: `import.meta.env.DESKTOP` para no intentar registrar en `app://`, como promete la sección 5 de `desktop.md` | DESK-02 | El registro no se intenta en la app instalada y la web lo mantiene |
 | DESK-04 | macOS y Linux: firma y notarización en macOS, AppImage y `.deb` en Linux, con lo que cada uno exige | DESK-03, licencia de Apple | macOS abre sin bloqueo de Gatekeeper; Linux instala y actualiza por gestor o descarga |
 | REF-DESK-01 | Review de DESK-01 | La exportación de escritorio excluye las rutas `.ts` con `pageExtensions`; hoy todas las páginas son `.tsx`. Añadir en CI una comprobación de que el conjunto de rutas de la web y de la exportación coincide, para que una `page.ts` futura no desaparezca en silencio. |
+| REF-OPS-07a | Review de OPS-07, hallazgo 1 | El `<img>` de la marca está duplicado en cabecera y pie (`page.tsx`), con tamaños distintos (44 y 36): extraer un componente de marca cuando se toque esa zona. |
+| REF-UI-09b | Review de UI-09, hallazgo 2 | `logo-icono.png` pesa 70 KB en RGBA; una cuantización a paleta lo dejaría en 20 o 25 KB sin pérdida visible y mejora el LCP de la landing. |
+| REF-UI-09c | Review de UI-09, hallazgo 1 | Queda una orla de un píxel casi blanca con alfa muy bajo en el icono del escritorio: erosionar el alfa un píxel si alguna vez se ve sobre un fondo oscuro grande. |
+| REF-OPS-07 | Review de OPS-07, hallazgos 2 y 3 | `VistaCarpeta` tiene dos fuentes de verdad (la vista y el estado) y el arreglo del fotograma añade una tercera señal (`montado`). Derivar la vista del estado y dejar el fotograma imposible por construcción, con un test unitario que lo fije. |

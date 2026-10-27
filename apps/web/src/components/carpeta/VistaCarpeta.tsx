@@ -26,13 +26,18 @@ export function VistaCarpeta() {
   }, []);
 
   useEffect(() => {
+    // Antes de arrancar, el estado de la sesión todavía es el valor por defecto
+    // ("no-creada"): reaccionar aquí pintaba un fotograma con el formulario de
+    // crear carpeta antes de pasar al de desbloquear. La vista inicial ya la
+    // fija el efecto de montaje consultando la sesión de forma síncrona.
+    if (!montado) return;
     if (estado === "cerrada") {
       setVista("desbloquear");
     }
     if (estado === "no-creada") {
       setVista("crear");
     }
-  }, [estado]);
+  }, [estado, montado]);
 
   // Solo rutas internas: sin saltos a sitios de fuera de la app. La barra
   // invertida queda fuera porque «/\evil.com» no es una ruta de la app. En

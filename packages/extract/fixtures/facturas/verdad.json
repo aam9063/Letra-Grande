@@ -1,0 +1,743 @@
+{
+  "facturas": {
+    "f01": {
+      "id": "f01",
+      "comercializadora": "Luz Ficticia Energía S.L.",
+      "cups": "ES0021000012345678AB",
+      "periodo": {
+        "desde": "2026-01-01",
+        "hasta": "2026-01-31"
+      },
+      "tarifa": "2.0TD",
+      "potencia": [
+        {
+          "periodo": "P1",
+          "kw": 4.6
+        },
+        {
+          "periodo": "P2",
+          "kw": 4.6
+        }
+      ],
+      "consumo": [
+        {
+          "periodo": "P1",
+          "kwh": 128.4
+        },
+        {
+          "periodo": "P2",
+          "kwh": 96.2
+        },
+        {
+          "periodo": "P3",
+          "kwh": 71.8
+        }
+      ],
+      "importeTotalEur": 62.35
+    },
+    "f02": {
+      "id": "f02",
+      "comercializadora": "Electra de Ejemplo S.A.",
+      "cups": "ES0031400056789012CD",
+      "periodo": {
+        "desde": "2026-02-01",
+        "hasta": "2026-02-28"
+      },
+      "tarifa": "2.0TD",
+      "potencia": [
+        {
+          "periodo": "P1",
+          "kw": 5.75
+        },
+        {
+          "periodo": "P2",
+          "kw": 5.75
+        }
+      ],
+      "consumo": [
+        {
+          "periodo": "P1",
+          "kwh": 110.2
+        },
+        {
+          "periodo": "P2",
+          "kwh": 88.7
+        },
+        {
+          "periodo": "P3",
+          "kwh": 64.1
+        }
+      ],
+      "importeTotalEur": 58.9
+    },
+    "f03": {
+      "id": "f03",
+      "comercializadora": "Comercializadora Imaginaria Verde S.L.",
+      "cups": "ES0022000034567890EF",
+      "periodo": {
+        "desde": "2026-03-01",
+        "hasta": "2026-03-31"
+      },
+      "tarifa": "2.0TD",
+      "potencia": [
+        {
+          "periodo": "P1",
+          "kw": 4.6
+        },
+        {
+          "periodo": "P2",
+          "kw": 5.75
+        }
+      ],
+      "consumo": [
+        {
+          "periodo": "P1",
+          "kwh": 142.6
+        },
+        {
+          "periodo": "P2",
+          "kwh": 101.3
+        },
+        {
+          "periodo": "P3",
+          "kwh": 77.5
+        }
+      ],
+      "importeTotalEur": 68.4
+    },
+    "f04": {
+      "id": "f04",
+      "comercializadora": "Luz Ficticia Energía S.L.",
+      "cups": "ES0021000012345678AB",
+      "periodo": {
+        "desde": "2026-04-01",
+        "hasta": "2026-04-30"
+      },
+      "tarifa": "2.0TD",
+      "potencia": [
+        {
+          "periodo": "P1",
+          "kw": 4.6
+        },
+        {
+          "periodo": "P2",
+          "kw": 4.6
+        }
+      ],
+      "consumo": [
+        {
+          "periodo": "P1",
+          "kwh": 96
+        },
+        {
+          "periodo": "P2",
+          "kwh": 82.4
+        },
+        {
+          "periodo": "P3",
+          "kwh": 61.2
+        }
+      ],
+      "importeTotalEur": 54.1
+    },
+    "f05": {
+      "id": "f05",
+      "comercializadora": "Energía Inventada del Turia S.L.",
+      "cups": "ES0015000078901234GH",
+      "periodo": {
+        "desde": "2026-05-01",
+        "hasta": "2026-05-31"
+      },
+      "tarifa": "3.0TD",
+      "potencia": [
+        {
+          "periodo": "P1",
+          "kw": 15
+        },
+        {
+          "periodo": "P2",
+          "kw": 15
+        },
+        {
+          "periodo": "P3",
+          "kw": 15
+        }
+      ],
+      "consumo": [
+        {
+          "periodo": "P1",
+          "kwh": 210.5
+        },
+        {
+          "periodo": "P2",
+          "kwh": 180.3
+        },
+        {
+          "periodo": "P3",
+          "kwh": 150.8
+        },
+        {
+          "periodo": "P4",
+          "kwh": 120.4
+        },
+        {
+          "periodo": "P5",
+          "kwh": 90.2
+        },
+        {
+          "periodo": "P6",
+          "kwh": 60.1
+        }
+      ],
+      "importeTotalEur": 245.7
+    },
+    "f06": {
+      "id": "f06",
+      "comercializadora": "Suministros Ficticios del Sur S.A.",
+      "cups": "ES0032000090123456IJ",
+      "periodo": {
+        "desde": "2026-06-01",
+        "hasta": "2026-06-30"
+      },
+      "tarifa": "2.0TD",
+      "potencia": [
+        {
+          "periodo": "P1",
+          "kw": 4.6
+        },
+        {
+          "periodo": "P2",
+          "kw": 4.6
+        }
+      ],
+      "consumo": [
+        {
+          "periodo": "P1",
+          "kwh": 88.3
+        },
+        {
+          "periodo": "P2",
+          "kwh": 74.6
+        },
+        {
+          "periodo": "P3",
+          "kwh": 58.9
+        }
+      ],
+      "importeTotalEur": 49.85
+    },
+    "f07": {
+      "id": "f07",
+      "comercializadora": "Electra de Ejemplo S.A.",
+      "cups": "ES0031400056789012CD",
+      "periodo": {
+        "desde": "2026-07-01",
+        "hasta": "2026-07-31"
+      },
+      "tarifa": "2.0TD",
+      "potencia": [
+        {
+          "periodo": "P1",
+          "kw": 4.6
+        },
+        {
+          "periodo": "P2",
+          "kw": 5.75
+        }
+      ],
+      "consumo": [
+        {
+          "periodo": "P1",
+          "kwh": 154.7
+        },
+        {
+          "periodo": "P2",
+          "kwh": 118.2
+        },
+        {
+          "periodo": "P3",
+          "kwh": 89.4
+        }
+      ],
+      "importeTotalEur": 74.2
+    },
+    "f08": {
+      "id": "f08",
+      "comercializadora": "Comercializadora Imaginaria Verde S.L.",
+      "cups": "ES0022000034567890EF",
+      "periodo": {
+        "desde": "2026-08-01",
+        "hasta": "2026-08-31"
+      },
+      "tarifa": "2.0TD",
+      "potencia": [
+        {
+          "periodo": "P1",
+          "kw": 5.75
+        },
+        {
+          "periodo": "P2",
+          "kw": 5.75
+        }
+      ],
+      "consumo": [
+        {
+          "periodo": "P1",
+          "kwh": 101.5
+        },
+        {
+          "periodo": "P2",
+          "kwh": 90.8
+        },
+        {
+          "periodo": "P3",
+          "kwh": 70.3
+        }
+      ],
+      "importeTotalEur": 57.6
+    },
+    "f09": {
+      "id": "f09",
+      "comercializadora": "Suministros Ficticios del Sur S.A.",
+      "cups": "ES0032000090123456IJ",
+      "periodo": {
+        "desde": "2026-09-01",
+        "hasta": "2026-09-30"
+      },
+      "tarifa": "2.0TD",
+      "potencia": [
+        {
+          "periodo": "P1",
+          "kw": 4.6
+        },
+        {
+          "periodo": "P2",
+          "kw": 4.6
+        }
+      ],
+      "consumo": [
+        {
+          "periodo": "P1",
+          "kwh": 92.4
+        },
+        {
+          "periodo": "P2",
+          "kwh": 78.1
+        },
+        {
+          "periodo": "P3",
+          "kwh": 60.7
+        }
+      ],
+      "importeTotalEur": 51.3
+    },
+    "f10": {
+      "id": "f10",
+      "comercializadora": "Comercializadora Imaginaria Verde S.L.",
+      "cups": "ES0022000034567890EF",
+      "periodo": {
+        "desde": "2026-10-01",
+        "hasta": "2026-10-31"
+      },
+      "tarifa": "2.0TD",
+      "potencia": [
+        {
+          "periodo": "P1",
+          "kw": 4.6
+        },
+        {
+          "periodo": "P2",
+          "kw": 4.6
+        }
+      ],
+      "consumo": [
+        {
+          "periodo": "P1",
+          "kwh": 84.6
+        },
+        {
+          "periodo": "P2",
+          "kwh": 72.3
+        },
+        {
+          "periodo": "P3",
+          "kwh": 55.8
+        }
+      ],
+      "importeTotalEur": 47.9
+    },
+    "f11": {
+      "id": "f11",
+      "comercializadora": "Energía Inventada del Turia S.L.",
+      "cups": "ES0015000078901234GH",
+      "periodo": {
+        "desde": "2026-11-01",
+        "hasta": "2026-11-30"
+      },
+      "tarifa": "3.0TD",
+      "potencia": [
+        {
+          "periodo": "P1",
+          "kw": 15
+        },
+        {
+          "periodo": "P2",
+          "kw": 20
+        },
+        {
+          "periodo": "P3",
+          "kw": 20
+        }
+      ],
+      "consumo": [
+        {
+          "periodo": "P1",
+          "kwh": 195.8
+        },
+        {
+          "periodo": "P2",
+          "kwh": 165.4
+        },
+        {
+          "periodo": "P3",
+          "kwh": 140.2
+        },
+        {
+          "periodo": "P4",
+          "kwh": 110.9
+        },
+        {
+          "periodo": "P5",
+          "kwh": 85.6
+        },
+        {
+          "periodo": "P6",
+          "kwh": 55.3
+        }
+      ],
+      "importeTotalEur": 238.4
+    },
+    "f12": {
+      "id": "f12",
+      "comercializadora": "Luz Ficticia Energía S.L.",
+      "cups": "ES0021000012345678AB",
+      "periodo": {
+        "desde": "2026-12-01",
+        "hasta": "2026-12-31"
+      },
+      "tarifa": "2.0TD",
+      "potencia": [
+        {
+          "periodo": "P1",
+          "kw": 4.6
+        },
+        {
+          "periodo": "P2",
+          "kw": 4.6
+        }
+      ],
+      "consumo": [
+        {
+          "periodo": "P1",
+          "kwh": 160.2
+        },
+        {
+          "periodo": "P2",
+          "kwh": 125.4
+        },
+        {
+          "periodo": "P3",
+          "kwh": 95.7
+        }
+      ],
+      "importeTotalEur": 78.65
+    },
+    "f13": {
+      "id": "f13",
+      "comercializadora": "Electra de Ejemplo S.A.",
+      "cups": "ES0031400056789012CD",
+      "periodo": {
+        "desde": "2027-01-01",
+        "hasta": "2027-01-31"
+      },
+      "tarifa": "2.0TD",
+      "potencia": [
+        {
+          "periodo": "P1",
+          "kw": 4.6
+        },
+        {
+          "periodo": "P2",
+          "kw": 5.75
+        }
+      ],
+      "consumo": [
+        {
+          "periodo": "P1",
+          "kwh": 135.8
+        },
+        {
+          "periodo": "P2",
+          "kwh": 104.6
+        },
+        {
+          "periodo": "P3",
+          "kwh": 80.2
+        }
+      ],
+      "importeTotalEur": 66.95
+    },
+    "f14": {
+      "id": "f14",
+      "comercializadora": "Suministros Ficticios del Sur S.A.",
+      "cups": "ES0032000090123456IJ",
+      "periodo": {
+        "desde": "2027-02-01",
+        "hasta": "2027-02-28"
+      },
+      "tarifa": "2.0TD",
+      "potencia": [
+        {
+          "periodo": "P1",
+          "kw": 5.75
+        },
+        {
+          "periodo": "P2",
+          "kw": 5.75
+        }
+      ],
+      "consumo": [
+        {
+          "periodo": "P1",
+          "kwh": 118.7
+        },
+        {
+          "periodo": "P2",
+          "kwh": 95.3
+        },
+        {
+          "periodo": "P3",
+          "kwh": 73.1
+        }
+      ],
+      "importeTotalEur": 59.75
+    },
+    "f15": {
+      "id": "f15",
+      "comercializadora": "Energía Inventada del Turia S.L.",
+      "cups": null,
+      "periodo": {
+        "desde": "2027-03-01",
+        "hasta": "2027-03-31"
+      },
+      "tarifa": "3.0TD",
+      "potencia": [
+        {
+          "periodo": "P1",
+          "kw": 15
+        },
+        {
+          "periodo": "P2",
+          "kw": 20
+        },
+        {
+          "periodo": "P3",
+          "kw": 20
+        }
+      ],
+      "consumo": [
+        {
+          "periodo": "P1",
+          "kwh": 220.1
+        },
+        {
+          "periodo": "P2",
+          "kwh": 190.6
+        },
+        {
+          "periodo": "P3",
+          "kwh": 160.2
+        },
+        {
+          "periodo": "P4",
+          "kwh": 130.8
+        },
+        {
+          "periodo": "P5",
+          "kwh": 95.4
+        },
+        {
+          "periodo": "P6",
+          "kwh": 65.7
+        }
+      ],
+      "importeTotalEur": 262.3
+    },
+    "f16": {
+      "id": "f16",
+      "comercializadora": "Comercializadora Imaginaria Verde S.L.",
+      "cups": "ES0022000034567890EF",
+      "periodo": {
+        "desde": "2027-04-01",
+        "hasta": "2027-04-30"
+      },
+      "tarifa": null,
+      "potencia": [
+        {
+          "periodo": "P1",
+          "kw": 4.6
+        },
+        {
+          "periodo": "P2",
+          "kw": 4.6
+        }
+      ],
+      "consumo": [
+        {
+          "periodo": "P1",
+          "kwh": 99.2
+        },
+        {
+          "periodo": "P2",
+          "kwh": 81.6
+        },
+        {
+          "periodo": "P3",
+          "kwh": 63.4
+        }
+      ],
+      "importeTotalEur": 53.45
+    },
+    "f17": {
+      "id": "f17",
+      "comercializadora": "Luz Ficticia Energía S.L.",
+      "cups": "ES0021000012345678AB",
+      "periodo": {
+        "desde": "2027-05-01",
+        "hasta": "2027-05-31"
+      },
+      "tarifa": "2.0TD",
+      "potencia": [],
+      "consumo": [
+        {
+          "periodo": "P1",
+          "kwh": 104.3
+        },
+        {
+          "periodo": "P2",
+          "kwh": 86.9
+        },
+        {
+          "periodo": "P3",
+          "kwh": 67.2
+        }
+      ],
+      "importeTotalEur": 55.8
+    },
+    "f18": {
+      "id": "f18",
+      "comercializadora": "Electra de Ejemplo S.A.",
+      "cups": "ES0031400056789012CD",
+      "periodo": {
+        "desde": "2027-06-01",
+        "hasta": "2027-06-30"
+      },
+      "tarifa": "2.0TD",
+      "potencia": [
+        {
+          "periodo": "P1",
+          "kw": 4.6
+        },
+        {
+          "periodo": "P2",
+          "kw": 4.6
+        }
+      ],
+      "consumo": [
+        {
+          "periodo": "P1",
+          "kwh": 148.9
+        },
+        {
+          "periodo": "P2",
+          "kwh": 112.5
+        },
+        {
+          "periodo": "P3",
+          "kwh": 88.1
+        }
+      ],
+      "importeTotalEur": 1234.56
+    },
+    "f19": {
+      "id": "f19",
+      "comercializadora": "Comercializadora Imaginaria Verde S.L.",
+      "cups": "ES0022000034567890EF",
+      "periodo": {
+        "desde": "2027-07-01",
+        "hasta": "2027-07-31"
+      },
+      "tarifa": "2.0TD",
+      "potencia": [
+        {
+          "periodo": "P1",
+          "kw": 4.6
+        },
+        {
+          "periodo": "P2",
+          "kw": 5.75
+        }
+      ],
+      "consumo": [
+        {
+          "periodo": "P1",
+          "kwh": 131.6
+        },
+        {
+          "periodo": "P2",
+          "kwh": 100.9
+        },
+        {
+          "periodo": "P3",
+          "kwh": 76.3
+        }
+      ],
+      "importeTotalEur": 64.2
+    },
+    "f20": {
+      "id": "f20",
+      "comercializadora": "Suministros Ficticios del Sur S.A.",
+      "cups": "ES0032000090123456IJ",
+      "periodo": {
+        "desde": "2027-08-01",
+        "hasta": "2027-08-31"
+      },
+      "tarifa": "2.0TD",
+      "potencia": [
+        {
+          "periodo": "P1",
+          "kw": 4.6
+        },
+        {
+          "periodo": "P2",
+          "kw": 4.6
+        }
+      ],
+      "consumo": [
+        {
+          "periodo": "P1",
+          "kwh": 126.5
+        },
+        {
+          "periodo": "P2",
+          "kwh": 98.4
+        },
+        {
+          "periodo": "P3",
+          "kwh": 74.6
+        }
+      ],
+      "importeTotalEur": 61.1
+    }
+  }
+}

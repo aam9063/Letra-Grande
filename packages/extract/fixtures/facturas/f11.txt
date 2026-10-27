@@ -1,0 +1,31 @@
+Energía Inventada del Turia S.L.
+NIF: B44444444
+Servicio de atención al cliente ficticio
+
+FACTURA DE LA LUZ
+
+Titular: Persona de Ejemplo Dos
+Dirección de suministro: Avenida Inventada 3, 08001 Barcelona
+
+COMERCIALIZADORA: Energía Inventada del Turia S.L.
+Codigo CUPS: ES0015000078901234GH
+Periodo: 2026-11-01 - 2026-11-30
+Peaje: 3.0TD
+
+DETALLE DEL SUMINISTRO
+Potencia contratada: P1 15,000 kW
+Potencia contratada: P2 20,000 kW
+Potencia contratada: P3 20,000 kW
+Energia consumida P1: 195,80 kWh
+Energia consumida P2: 165,40 kWh
+Energia consumida P3: 140,20 kWh
+Energia consumida P4: 110,90 kWh
+Energia consumida P5: 85,60 kWh
+Energia consumida P6: 55,30 kWh
+
+Término de energía y potencia según contrato.
+Impuestos incluidos.
+
+TOTAL A PAGAR: 238,40 EUR
+
+Documento ficticio generado para las pruebas de Letra Grande.

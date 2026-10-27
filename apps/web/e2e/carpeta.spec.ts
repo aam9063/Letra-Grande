@@ -69,11 +69,11 @@ test("bloquear desde la sidebar pide la contraseña y desbloquear con error hone
   await expect(page).toHaveURL(/\/carpeta$/);
   await expect(page.getByRole("heading", { name: "Desbloquea tu carpeta" })).toBeVisible();
 
-  await page.getByLabel("Contraseña").fill(CLAVE_OTRA);
+  await page.getByLabel("Contraseña", { exact: true }).fill(CLAVE_OTRA);
   await page.getByRole("button", { name: "Desbloquear" }).click();
   await expect(page.getByText("La contraseña no es correcta.")).toBeVisible();
 
-  await page.getByLabel("Contraseña").fill(CLAVE);
+  await page.getByLabel("Contraseña", { exact: true }).fill(CLAVE);
   await page.getByRole("button", { name: "Desbloquear" }).click();
   await expect(page.getByRole("heading", { name: "Tu carpeta está abierta" })).toBeVisible();
   expect(violaciones).toEqual([]);
@@ -93,7 +93,10 @@ test("desbloquear entra en la ruta solicitada", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Desbloquea tu carpeta" })).toBeVisible();
 
   await page.goto("/carpeta?next=/hoy");
-  await page.getByLabel("Contraseña").fill(CLAVE);
+  // Espera a que la vista resuelva a desbloquear: el campo se llama "Contraseña"
+  // y el de crear carpeta "Repite la contraseña", así que el selector va exacto.
+  await expect(page.getByRole("heading", { name: "Desbloquea tu carpeta" })).toBeVisible();
+  await page.getByLabel("Contraseña", { exact: true }).fill(CLAVE);
   await page.getByRole("button", { name: "Desbloquear" }).click();
 
   await expect(page).toHaveURL(/\/hoy$/);

@@ -1,0 +1,9 @@
+CONTRATO DE ARRENDAMIENTO DE VIVIENDA
+Entre las partes: Persona de Ejemplo Uno (arrendadora) y Persona de Ejemplo Dos (arrendataria).
+Cláusula primera. Duración: doce meses desde la firma.
+Cláusula segunda. Prórroga automática por periodos anuales.
+Cláusula tercera. Penalización por desistimiento anticipado: una mensualidad.
+Renta mensual: 750,00 EUR.
+En prueba de conformidad, firman las partes.
+
+Documento ficticio generado para las pruebas de Letra Grande.

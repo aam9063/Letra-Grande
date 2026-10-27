@@ -2,25 +2,29 @@
 // revalida que el texto venga enmascarado, aplica cuota y degrada con honestidad.
 // AI-02: pide al modelo el JSON del catálogo cerrado, valida la respuesta contra
 // las fuentes recuperadas y reintenta una vez antes de responder outOfScope.
+// AI-05: el prompt de sistema único vive en @letra-grande/ai y la validación
+// añade los guardarraíles de tono y caducidad en el mismo camino.
 // No guarda nada: ni cuerpo de la petición, ni caché de preguntas, ni analítica.
 // No registra nada en consola: cualquier log podría contener el texto recibido.
-import type { LlmCompleteInput, LlmProvider, TokenBucketQuota } from "@letra-grande/ai";
+import type {
+  LlmCompleteInput,
+  LlmProvider,
+  RetrievedSourceData,
+  TokenBucketQuota,
+} from "@letra-grande/ai";
+import {
+  SYSTEM_PROMPT,
+  validateStaleness,
+  validateTone,
+} from "@letra-grande/ai";
 import { detect } from "@letra-grande/privacy";
 import { AssistantAnswer, validateAnswerAgainstSources } from "@letra-grande/schema";
 import type { AssistantAnswer as AssistantAnswerData } from "@letra-grande/schema";
 import type { AnswerIssue } from "@letra-grande/schema";
 
-// Prompt provisional: los prompts definitivos y el guardarraíles los define AI-05.
-// Describe el catálogo cerrado de bloques: el modelo responde solo con JSON.
-export const SYSTEM_PROMPT = [
-  "Eres el asistente de Letra Grande. Explica facturas, contratos y cartas oficiales con frases cortas y en español.",
-  'Responde solo con un objeto JSON, sin texto fuera del JSON, con esta forma exacta: {"question": "pregunta del usuario", "outOfScope": false, "blocks": []}.',
-  'Cada bloque lleva "kind" (uno de "step", "document", "cost", "deadline", "warning", "fact"), "claim" (frase corta) y "citations" (lista con al menos una cita).',
-  'Cada cita lleva "sourceId" con el id de una fuente entregada y, si procede, "quote" con un fragmento literal de esa fuente.',
-  'Los bloques "step" llevan además "n" numerado desde 1. Como máximo un bloque "warning" por respuesta.',
-  "Cada cifra de un claim debe aparecer en el texto de la fuente que cita. Si no tienes una fuente para responder, responde outOfScope true y blocks vacío.",
-  "Nunca escribas HTML ni markdown: el claim es texto plano.",
-].join(" ");
+// El prompt y su versión son la fuente única del paquete (AI-05): aquí solo se
+// reexportan para que las métricas de AI-04 y los tests del handler los lean.
+export { SYSTEM_PROMPT, SYSTEM_PROMPT_VERSION } from "@letra-grande/ai";
 const MAX_TOKENS = 512;
 
 export const MAX_QUESTION_CHARS = 4000;
@@ -53,15 +57,11 @@ export interface FuenteInfo {
 
 export type FuenteCatalogue = Record<string, FuenteInfo>;
 
-/** Fuente recuperada para esta respuesta, con el texto que respalda las cifras. */
-export interface RetrievedSource {
-  id: string;
-  titulo: string;
-  url: string;
-  texto: string;
-  /** Verificación de la ficha de origen: lo fija el recuperador (AI-03a). */
-  verified?: boolean;
-}
+/**
+ * Fuente recuperada para esta respuesta: definición única en el paquete de IA
+ * (AI-05), con `verifiedAt` en AAAA-MM-DD cuando la ficha está verificada.
+ */
+export type RetrievedSource = RetrievedSourceData;
 
 /** Recuperación de fuentes para la pregunta (BM25 llega con AI-03). */
 export type SourceRetriever = (question: string) => Promise<RetrievedSource[]>;
@@ -71,6 +71,8 @@ export interface AssistantDeps {
   quota: TokenBucketQuota;
   deriveAnonymousId: (headers: Headers) => string;
   retrieveSources: SourceRetriever;
+  /** Reloj inyectable para la caducidad; por defecto, la hora actual. */
+  today?: () => Date;
 }
 
 const ERROR_MESSAGES: Record<AssistantErrorCode, string> = {
@@ -260,13 +262,21 @@ export async function handleAssistant(request: Request, deps: AssistantDeps): Pr
       const result = await deps.provider.complete({ ...input, messages: attemptMessages });
       const parsed = parseModelAnswer(result.text);
       if (parsed.ok) {
-        const answerIssues = validateAnswerAgainstSources(parsed.answer, sourceTexts);
-        if (answerIssues.length === 0) {
+        // Los tres guardarraíles (AI-02 y AI-05) se aplican en el mismo camino:
+        // fuentes y cifras, tono y caducidad. Cualquiera de ellos fuerza el
+        // reintento único y, si no corrige, la salida honesta outOfScope.
+        const today = deps.today?.() ?? new Date();
+        const problems = [
+          ...describeIssues(validateAnswerAgainstSources(parsed.answer, sourceTexts)),
+          ...validateTone(parsed.answer).map((issue) => issue.message),
+          ...validateStaleness(parsed.answer, sources, today).map((issue) => issue.message),
+        ];
+        if (problems.length === 0) {
           deps.quota.tryConsume(anonymousId);
           const ok: AssistantOkBody = { answer: { ...parsed.answer, question }, fuentes };
           return Response.json(ok);
         }
-        issues = describeIssues(answerIssues);
+        issues = problems;
       } else {
         issues = parsed.errors;
       }

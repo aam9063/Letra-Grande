@@ -1,0 +1,8 @@
+Ayuntamiento de Villaejemplo
+Ordenanza municipal de ejemplo
+Expediente sancionador: ORD-2026-55
+Infracción: ruido excesivo en horario de descanso.
+Importe a ingresar: 150,00 EUR
+Con pago voluntario, descuento del 30 %.
+
+Documento ficticio generado para las pruebas de Letra Grande.
