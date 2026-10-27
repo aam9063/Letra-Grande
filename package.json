@@ -10,6 +10,7 @@
     "dev": "pnpm --filter @letra-grande/web dev",
     "build": "pnpm --filter @letra-grande/web build",
     "build:desktop": "pnpm --filter @letra-grande/web build:desktop",
+    "package:win": "pnpm --filter @letra-grande/desktop package:win",
     "typecheck": "pnpm -r typecheck",
     "test": "pnpm -r test",
     "content:validate": "pnpm --filter @letra-grande/schema validate-content",

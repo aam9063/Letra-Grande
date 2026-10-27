@@ -9,7 +9,8 @@
     "build": "tsc",
     "start": "electron .",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "package:win": "pnpm --filter @letra-grande/web build:desktop && tsc && electron-builder --win --publish never"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",

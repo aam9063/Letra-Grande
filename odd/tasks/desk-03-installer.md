@@ -28,16 +28,18 @@ DESK-02 abre el renderer en una ventana endurecida, pero solo desde el árbol de
 
 ## Tareas
 
-- [ ] Configuración de `electron-builder` para Windows: `appId` estable, nombre de producto, objetivo NSIS, directorio de salida y nombre del artefacto.
-- [ ] Empaquetar el renderer estático dentro de la app y resolver su ruta también cuando está instalada, con tests.
-- [ ] Script de empaquetado en el paquete y en la raíz; artefactos ignorados por git.
-- [ ] Verificar que el instalador se genera y que el paquete contiene el renderer y el proceso principal, y nada de desarrollo.
-- [ ] Documentar el canal de entrega: qué artefacto se publica, con qué nombre y versión, el aviso de SmartScreen sin firma y qué falta para firmar.
-- [ ] `pnpm check` en verde.
+- [x] Configuración de `electron-builder` para Windows: `appId` estable, nombre de producto, objetivo NSIS, directorio de salida y nombre del artefacto.
+- [x] Empaquetar el renderer estático dentro de la app y resolver su ruta también cuando está instalada, con tests.
+- [x] Script de empaquetado en el paquete y en la raíz; artefactos ignorados por git.
+- [x] Verificar que el instalador se genera y que el paquete contiene el renderer y el proceso principal, y nada de desarrollo.
+- [x] Documentar el canal de entrega: qué artefacto se publica, con qué nombre y versión, el aviso de SmartScreen sin firma y qué falta para firmar.
+- [x] `pnpm check` en verde.
 
 ## Evidencia y progreso
 
-Pendiente de rellenar por quien implementa.
+- TDD: `apps/desktop/src/renderer-root.test.ts` escrito primero, en rojo por módulo ausente, y en verde tras implementar `renderer-root.ts`: 34 tests en verde. La comprobación de directorio ausente devuelve un mensaje claro con la ruta y `main.ts` lo muestra en diálogo y cierra en vez de servir una app vacía.
+- Empaquetado verificado: `pnpm package:win` produce `apps/desktop/release/Letra Grande-0.0.0-x64.exe` (unos 116 MB) y `win-unpacked`. El asar solo lleva `dist` compilado y `package.json` (tests excluidos con `!dist/*.test.js`); el renderer va en `resources/renderer`, fuera del asar. Sin firma (no hay certificado); `electron-builder` descargó el zip de Electron y NSIS desde GitHub.
+- Pendiente del review gate (sección 22).
 
 ## Siguiente paso
 

@@ -100,7 +100,10 @@ Nada de esto toca el vault, la privacidad, el radar ni el motor de contenido: el
 **Windows (alcance inicial)**
 
 - Instalador NSIS, sin firma al principio.
-- Sin firma, Windows SmartScreen muestra "Editor desconocido" en la primera ejecución. No bloquea la instalación, pero asusta. Un certificado de firma de código lo reduce, aunque desde 2024 los certificados EV ya no dan confianza instantánea: la reputación se gana con descargas.
+- El comando `pnpm package:win` construye el renderer, compila el proceso principal y genera el instalador con `electron-builder`. El artefacto publicado es `release/Letra Grande-<version>-x64.exe`, por ejemplo `Letra Grande-0.1.0-x64.exe`, y su bloque de actualización acompaña como `.blockmap`. Solo se genera para Windows x64.
+- El paquete lleva el renderer estático en `resources/renderer` (fuera del asar) y el proceso principal y el preload compilados dentro del asar. No lleva tests, código fuente ni el árbol de `node_modules` de desarrollo, y no lleva ninguna clave de IA.
+- `electron-builder` descarga herramientas al empaquetar (el zip de Electron y NSIS, desde GitHub) y no configura firma de código si no hay certificado.
+- Sin firma, Windows SmartScreen muestra "Editor desconocido" en la primera ejecución. No bloquea la instalación, pero asusta. Un certificado de firma de código lo reduce, aunque desde 2024 los certificados EV ya no dan confianza instantánea: la reputación se gana con descargas. Firmar cambiaría solo la advertencia de SmartScreen y permitiría el actualizador automático, que exige paquetes firmados; exigiría comprar y custodiar un certificado (en el gestor de secretos del CI) y no cambia nada del contenido del paquete.
 - El actualizador funciona igual; su firma es la del paquete.
 
 **macOS (cuando se decida)**

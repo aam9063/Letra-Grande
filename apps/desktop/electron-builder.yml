@@ -1,0 +1,26 @@
+# Empaquetado de la aplicacion de escritorio de Letra Grande (DESK-03).
+# Sin secretos: el binario no lleva ninguna clave, solo la URL publica del
+# proxy del asistente. La firma de codigo queda fuera de esta tarea.
+appId: es.letragrande.app
+productName: Letra Grande
+directories:
+  output: release
+# Solo el proceso principal compilado y el manifiesto. El renderer va en
+# extraResources, fuera del asar, para no duplicarlo.
+files:
+  - dist/**
+  - "!dist/*.test.js"
+  - package.json
+# El renderer estatico (apps/web/dist-desktop) viaja en resources/renderer.
+extraResources:
+  - from: ../web/dist-desktop
+    to: renderer
+win:
+  target:
+    - target: nsis
+      arch:
+        - x64
+  artifactName: ${productName}-${version}-${arch}.${ext}
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
