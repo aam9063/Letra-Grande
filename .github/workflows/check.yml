@@ -57,7 +57,11 @@ jobs:
     # ciclo de implementación no muestra un fallo que todavía no toca corregir.
     if: github.event_name == 'pull_request' && github.event.pull_request.draft == false
     steps:
+      # Checkout del commit de la rama, no del merge ref: GitHub lo construye con
+      # retraso y el run de ready_for_review podía ver un estado sin el informe.
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
       - uses: actions/setup-node@v4
         with:
           node-version: 24
