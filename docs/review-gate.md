@@ -155,6 +155,25 @@ Dos trampas aparecidas al cerrar tareas contra el gate, para no volver a pisarla
 
 La plantilla de PR lleva una línea de riesgo con una convención fija y legible por máquina: el literal es exactamente `Risk: item N` o `Risk: none`, en inglés. No se traduce: así lo espera la plantilla de `.github/PULL_REQUEST_TEMPLATE.md`.
 
+## Entrega a main: fusión, nunca squash
+
+Regla fija desde que costó una tarde: **de `dev` a `main` se fusiona con commit de fusión, jamás con squash**, y antes de abrir esa entrega la rama tiene que llevar toda la historia de `main`.
+
+Por qué. El trabajo del escritorio llegó a `main` en un solo squash ("Dev #35") mientras `dev` tenía esos mismos cambios repartidos en sus commits. La siguiente entrega de `dev` a `main` marcó diez conflictos que no eran de contenido: el mismo código, con dos historias distintas, puesto a la vez en los mismos ficheros. Resolverlo a mano es donde se pierden cambios sin que nadie lo vea.
+
+Cómo se comprueba, sin depender de la buena voluntad:
+
+- El job `check` ejecuta `scripts/check-main-history.mjs` en cada PR. Solo mira los PRs cuyo destino es `main`: si `main` tiene commits que la rama no tiene, falla y explica el arreglo, que es fusionar `main` en la rama con el contenido de la rama.
+- El script tiene sus tests (`scripts/check-main-history.test.mjs`) y se prueban en el mismo job, así que una regresión en la comprobación rompe la build.
+
+Qué hacer en cada entrega, en orden:
+
+1. `git fetch origin` y `git merge origin/main` en la rama de la entrega. Si hay conflictos, el contenido bueno es el de la rama: `git checkout dev -- .` y commit de fusión.
+2. Abrir el PR a `main` y esperar `check`, `e2e` y `review-report` en verde.
+3. Fusionar con **Create a merge commit** en GitHub. El squash está bien para las ramas de tarea hacia `dev`, donde el historial por tarea no aporta nada; no para unir dos ramas de larga vida.
+
+Después de cada entrega, `main` tendrá el commit de fusión que `dev` no tiene. Se vuelve a la normalidad fusionando `main` en `dev` (el paso 1 del siguiente ciclo), que no cambia ni una línea: solo une la historia.
+
 ## Pase de arquitectura por ola (QA-08)
 
 La revisión por tarea no ve la duplicación entre carriles ni el crecimiento del bundle. Al cerrar cada ola, un revisor audita el conjunto: duplicación entre paquetes, grafo de dependencias, tamaño de bundle, coherencia de nombres y deuda acumulada. Genera tareas `REF-<id>` y un informe `odd/reviews/ola-<n>.md`.
