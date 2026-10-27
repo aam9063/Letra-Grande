@@ -269,3 +269,58 @@ describe("parsearFecha", () => {
     expect(parsearFecha("31/02/2026 a 31/03/2026")).toBeNull();
   });
 });
+
+describe("valores ambiguos", () => {
+  it("salta una línea de periodo que no trae fechas y usa la siguiente válida", () => {
+    const factura = extractInvoiceFields(
+      ["Periodo de facturación: ver contrato", "Periodo de facturación: 01/01/2026 a 31/01/2026"].join("\n"),
+    );
+
+    expect(factura.periodo).toEqual({ desde: "2026-01-01", hasta: "2026-01-31" });
+    expect(factura.noLeidos).not.toContain("periodo");
+  });
+
+  it("no elige periodo cuando dos líneas dan periodos distintos", () => {
+    const factura = extractInvoiceFields(
+      [
+        "Periodo de facturación: 01/01/2026 a 31/01/2026",
+        "Periodo de facturación: 01/02/2026 a 28/02/2026",
+      ].join("\n"),
+    );
+
+    expect(factura.periodo).toBeNull();
+    expect(factura.noLeidos).toContain("periodo");
+  });
+
+  it("no elige el consumo de un periodo que aparece con dos valores distintos", () => {
+    const factura = extractInvoiceFields(
+      ["Consumo P1: 10 kWh", "Consumo P2: 5 kWh", "Consumo P1: 20 kWh"].join("\n"),
+    );
+
+    expect(factura.consumo).toEqual([]);
+    expect(factura.noLeidos).toContain("consumo");
+  });
+
+  it("acepta el mismo consumo repetido con el mismo valor", () => {
+    const factura = extractInvoiceFields(["Consumo P1: 10 kWh", "Consumo P1: 10,00 kWh"].join("\n"));
+
+    expect(factura.consumo).toEqual([{ periodo: "P1", kwh: 10 }]);
+  });
+
+  it("no elige un importe cuando dos etiquetas dan importes distintos", () => {
+    const factura = extractInvoiceFields(
+      ["Importe total: 62,35 EUR", "TOTAL A PAGAR: 70,00 EUR"].join("\n"),
+    );
+
+    expect(factura.importeTotalEur).toBeNull();
+    expect(factura.noLeidos).toContain("importeTotalEur");
+  });
+
+  it("acepta dos etiquetas distintas cuando dicen el mismo importe", () => {
+    const factura = extractInvoiceFields(
+      ["Importe total: 62,35 EUR", "TOTAL A PAGAR: 62,35 EUR"].join("\n"),
+    );
+
+    expect(factura.importeTotalEur).toBe(62.35);
+  });
+});

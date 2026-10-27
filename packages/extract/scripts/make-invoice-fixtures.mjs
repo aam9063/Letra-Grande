@@ -10,14 +10,18 @@
  * La verdad esperada se escribe desde los mismos datos que el texto, así que
  * no puede desincronizarse: si un fixture cambia, cambia su verdad.
  *
- * Uso: node scripts/make-invoice-fixtures.mjs (desde la raíz del paquete).
+ * Uso: node scripts/make-invoice-fixtures.mjs [directorio] (desde la raíz del paquete).
+ * Sin directorio escribe en fixtures/facturas.
  */
 import { mkdirSync, writeFileSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const raiz = join(dirname(fileURLToPath(import.meta.url)), "..");
-const destino = join(raiz, "fixtures", "facturas");
+// Un directorio opcional permite a los tests regenerar el corpus en un
+// temporal y comprobar que lo versionado es exactamente lo que sale de aquí.
+const destino =
+  process.argv[2] === undefined ? join(raiz, "fixtures", "facturas") : resolve(process.argv[2]);
 
 /** Separa los miles y usa coma decimal, como una factura española. */
 function eurosEspanol(valor) {

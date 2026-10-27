@@ -112,6 +112,8 @@ interface FacturaLuz {
 }
 ```
 
+Los valores ambiguos tampoco se eligen a cara o cruz: si dos líneas dan importes distintos, si el mismo periodo tarifario aparece con dos consumos distintos o si hay dos periodos de facturación que no coinciden, el campo queda a `null` y se declara no leído. Una línea que no se puede convertir (un importe que no es un número, una fecha imposible) se salta y no bloquea a la siguiente.
+
 `camposParaVault(factura)` aplana el resultado a los tipos primitivos que admite `VaultDocument.fields` del esquema (`comercializadora`, `cups`, `periodoDesde`, `periodoHasta`, `tarifa`, `potenciaP1Kw`, `consumoP1Kwh`, `importeTotalEur` y `camposNoLeidos` con los nombres separados por comas).
 
 ### La regla: no se inventa nada
@@ -133,6 +135,8 @@ Es lógica pura: sin red (lo comprueba un espía sobre `fetch` que rechaza), sin
 - La etiqueta y el valor tienen que ir en la misma línea. Un OCR que parta "Importe total:" y la cifra en dos líneas deja el campo sin leer, que es lo honesto, pero se pierde.
 - Solo facturas de luz en español, con las etiquetas del corpus y sus sinónimos.
 - No se leen desgloses de impuestos, lecturas del contador ni datos del titular: no hacen falta para entender la factura y son datos personales.
+- La etiqueta del importe se busca en cualquier parte de la línea, no solo al principio: una frase como "recibo total a pagar" se leería como importe. No pasa en el corpus, pero conviene saberlo al añadir variantes.
+- El corpus se compara con lo que genera el script en cada `pnpm test`, así que no se puede ablandar editando un fixture a mano.
 
 ## Dependencias
 

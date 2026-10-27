@@ -170,37 +170,65 @@ export function parsearFecha(texto: string): string | null {
   return `${anio}-${dosDigitos(mes)}-${dosDigitos(dia)}`;
 }
 
-/** Primera captura de la primera línea que case con el patrón. */
-function buscar(lineas: string[], patron: RegExp): string | null {
+/**
+ * Valor único de un campo de una sola línea.
+ *
+ * Devuelve `null` si no hay ninguna línea que case o si dos líneas dicen cosas
+ * distintas: un dato ambiguo no se elige a cara o cruz, se declara no leído.
+ * Una línea que no se puede convertir (por ejemplo, un importe que no es un
+ * número) se salta, así que no bloquea a la siguiente que sí valga.
+ */
+function buscarUnico<T>(
+  lineas: string[],
+  patron: RegExp,
+  convertir: (crudo: string) => T | null,
+): T | null {
+  const valores = new Map<string, T>();
   for (const linea of lineas) {
     const coincidencia = patron.exec(linea);
-    if (coincidencia !== null && coincidencia[1] !== undefined) {
-      return coincidencia[1].trim();
-    }
+    const crudo = coincidencia?.[1];
+    if (crudo === undefined) continue;
+    const valor = convertir(crudo.trim());
+    if (valor === null) continue;
+    valores.set(JSON.stringify(valor), valor);
   }
-  return null;
+  if (valores.size !== 1) return null;
+  return [...valores.values()][0] ?? null;
 }
 
-/** Todas las capturas de todas las líneas que casen, sin repetir periodo. */
-function buscarTodos(lineas: string[], patron: RegExp): [string, number][] {
-  const encontrados = new Map<string, number>();
+/**
+ * Valores por periodo tarifario (potencia y consumo).
+ *
+ * Si un mismo periodo aparece con dos valores distintos, la lista entera queda
+ * vacía y el campo se declara no leído: media lista con un valor dudoso dentro
+ * sería peor que ninguna.
+ */
+function buscarPorPeriodo(lineas: string[], patron: RegExp): [string, number][] {
+  const encontrados = new Map<string, Set<number>>();
   for (const linea of lineas) {
     const coincidencia = patron.exec(linea);
     if (coincidencia === null) continue;
     const periodo = coincidencia[1];
+    if (periodo === undefined) continue;
     const valor = parsearNumero(coincidencia[2] ?? "");
-    if (periodo === undefined || valor === null || encontrados.has(periodo)) continue;
-    encontrados.set(periodo, valor);
+    if (valor === null) continue;
+    const valores = encontrados.get(periodo) ?? new Set<number>();
+    valores.add(valor);
+    encontrados.set(periodo, valores);
   }
-  return [...encontrados.entries()];
+
+  const ambiguo = [...encontrados.values()].some((valores) => valores.size > 1);
+  if (ambiguo) return [];
+
+  return [...encontrados.entries()].map(([periodo, valores]) => [
+    periodo,
+    [...valores][0] ?? 0,
+  ]);
 }
 
-/** Lee el periodo facturado a partir de las líneas de la factura. */
-function leerPeriodo(lineas: string[]): PeriodoFacturado | null {
-  const resto = buscar(lineas, ETIQUETA_PERIODO);
-  if (resto === null) return null;
-
-  const partes = resto.split(SEPARADOR_PERIODO);
+/** Convierte "01/01/2026 a 31/01/2026" en un periodo, o `null` si no lo es. */
+function convertirPeriodo(crudo: string): PeriodoFacturado | null {
+  const partes = crudo.split(SEPARADOR_PERIODO);
   if (partes.length !== 2) return null;
 
   const desde = parsearFecha(partes[0] ?? "");
@@ -208,6 +236,11 @@ function leerPeriodo(lineas: string[]): PeriodoFacturado | null {
   if (desde === null || hasta === null) return null;
 
   return { desde, hasta };
+}
+
+/** Lee el periodo facturado; con dos periodos distintos no elige ninguno. */
+function leerPeriodo(lineas: string[]): PeriodoFacturado | null {
+  return buscarUnico(lineas, ETIQUETA_PERIODO, convertirPeriodo);
 }
 
 /**
@@ -219,26 +252,29 @@ function leerPeriodo(lineas: string[]): PeriodoFacturado | null {
 export function extractInvoiceFields(texto: string): FacturaLuz {
   const lineas = texto.split(/\r\n?|\n/).map((linea) => linea.replace(/\s+$/, ""));
 
-  const comercializadora = buscar(lineas, ETIQUETA_COMERCIALIZADORA);
-  const cupsCrudo = buscar(lineas, ETIQUETA_CUPS);
-  const cupsNormalizado = cupsCrudo === null ? null : cupsCrudo.replace(/[\s-]/g, "").toUpperCase();
-  const cups = cupsNormalizado !== null && FORMATO_CUPS.test(cupsNormalizado) ? cupsNormalizado : null;
-  const tarifaCruda = buscar(lineas, ETIQUETA_TARIFA);
-  const tarifa = tarifaCruda !== null && FORMATO_TARIFA.test(tarifaCruda) ? tarifaCruda : null;
-  const importeCrudo = buscar(lineas, ETIQUETA_IMPORTE);
-  const importeTotalEur = importeCrudo === null ? null : parsearNumero(importeCrudo);
+  const comercializadora = buscarUnico(lineas, ETIQUETA_COMERCIALIZADORA, (crudo) =>
+    crudo === "" ? null : crudo,
+  );
+  const cups = buscarUnico(lineas, ETIQUETA_CUPS, (crudo) => {
+    const normalizado = crudo.replace(/[\s-]/g, "").toUpperCase();
+    return FORMATO_CUPS.test(normalizado) ? normalizado : null;
+  });
+  const tarifa = buscarUnico(lineas, ETIQUETA_TARIFA, (crudo) =>
+    FORMATO_TARIFA.test(crudo) ? crudo.toUpperCase() : null,
+  );
+  const importeTotalEur = buscarUnico(lineas, ETIQUETA_IMPORTE, parsearNumero);
 
-  const potencia = buscarTodos(lineas, ETIQUETA_POTENCIA).map(([periodo, kw]) => ({
+  const potencia = buscarPorPeriodo(lineas, ETIQUETA_POTENCIA).map(([periodo, kw]) => ({
     periodo,
     kw,
   }));
-  const consumo = buscarTodos(lineas, ETIQUETA_CONSUMO).map(([periodo, kwh]) => ({
+  const consumo = buscarPorPeriodo(lineas, ETIQUETA_CONSUMO).map(([periodo, kwh]) => ({
     periodo,
     kwh,
   }));
 
   const factura: FacturaLuz = {
-    comercializadora: comercializadora === "" ? null : comercializadora,
+    comercializadora,
     cups,
     periodo: leerPeriodo(lineas),
     tarifa,

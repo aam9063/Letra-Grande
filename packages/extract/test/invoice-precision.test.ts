@@ -1,6 +1,8 @@
-import { readdirSync, readFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import { mkdtempSync, readdirSync, readFileSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { extractInvoiceFields } from "../src/invoice";
 
 const dirFacturas = join(import.meta.dirname, "..", "fixtures", "facturas");
@@ -69,6 +71,37 @@ function resumenDeFallos(fallos: Resultado[]): string {
 }
 
 describe("corpus sintético de facturas", () => {
+  beforeEach(() => {
+    // Cerrojo de red: la extracción sobre el corpus entero no pide nada.
+    vi.spyOn(globalThis, "fetch").mockRejectedValue(new Error("red prohibida"));
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("es exactamente el que genera el script, sin ediciones a mano", () => {
+    const destino = mkdtempSync(join(tmpdir(), "letra-grande-facturas-"));
+    try {
+      execFileSync(
+        process.execPath,
+        [join(import.meta.dirname, "..", "scripts", "make-invoice-fixtures.mjs"), destino],
+        { stdio: "pipe" },
+      );
+
+      const generados = readdirSync(destino).sort();
+      const versionados = readdirSync(dirFacturas).sort();
+      expect(generados).toEqual(versionados);
+      for (const nombre of versionados) {
+        expect(readFileSync(join(destino, nombre), "utf8"), nombre).toBe(
+          readFileSync(join(dirFacturas, nombre), "utf8"),
+        );
+      }
+    } finally {
+      rmSync(destino, { recursive: true, force: true });
+    }
+  });
+
   it("tiene 20 facturas con su verdad esperada", () => {
     const ficheros = readdirSync(dirFacturas).filter((nombre) => nombre.endsWith(".txt"));
     const ids = Object.keys(verdad.facturas);
