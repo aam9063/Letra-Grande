@@ -1569,7 +1569,7 @@ qué dijo la review y qué queda pendiente.
 | D-03 | Licencia del contenido | CC BY 4.0 (atribución), a confirmar |
 | D-04 | Avisos: solo `.ics` o también Web Push | Solo `.ics` en el MVP |
 | D-05 | Embeddings o búsqueda léxica | BM25 con filtros en el MVP. Embeddings solo si AI-04 demuestra mejora, y nunca sobre datos del usuario |
-| D-06 | Cuenta de usuario | Ninguna. Sin cuentas, sin servidor con datos |
+| D-06 | Cuenta de usuario | **Ninguna.** La autenticación es la contraseña del vault, que abre los datos en el propio dispositivo; no hay registro de usuarios ni servidor con datos personales. Multidispositivo: copia cifrada e importación (ya implementado). Si se demuestra necesidad de sincronización, será **sincronización ciega** (el servidor guarda solo el blob cifrado, la clave no sale del dispositivo) y con revisión legal, nunca un login con datos en servidor. Se reconsidera si más de una quinta parte de las personas pide multidispositivo o aparece el caso de un familiar gestionando papeles de otro |
 | D-07 | Modelo de financiación | Abierto y sin comisiones por cambio de compañía, para no comprometer la neutralidad |
 | D-08 | Qué comunidades cubrir primero | La tuya (Comunitat Valenciana), por poder verificar mejor el contenido |
 | D-09 | Modelo del implementador y del revisor | Modelos distintos. Decidir con la métrica de hallazgos aceptados (sección 22.6) |
