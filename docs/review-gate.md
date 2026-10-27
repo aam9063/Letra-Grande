@@ -163,7 +163,7 @@ Por qué. El trabajo del escritorio llegó a `main` en un solo squash ("Dev #35"
 
 Cómo se comprueba, sin depender de la buena voluntad:
 
-- El job `check` ejecuta `scripts/check-main-history.mjs` en cada PR. Solo mira los PRs cuyo destino es `main`: si `main` tiene commits que la rama no tiene, falla y explica el arreglo, que es fusionar `main` en la rama con el contenido de la rama.
+- El job `check` ejecuta `scripts/check-main-history.mjs` en cada PR. Solo mira los PRs cuyo destino es `main`: si `main` tiene commits que la rama no tiene, falla y explica el arreglo, que es fusionar `main` en la rama con el contenido de la rama. Comprueba el **commit de la rama** (`github.event.pull_request.head.sha`), no el merge ref: en el merge ref `main` es ancestro por construcción y la comprobación daría verde siempre.
 - El script tiene sus tests (`scripts/check-main-history.test.mjs`) y se prueban en el mismo job, así que una regresión en la comprobación rompe la build.
 
 Qué hacer en cada entrega, en orden:

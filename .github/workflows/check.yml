@@ -29,6 +29,10 @@ jobs:
         run: node scripts/check-main-history.mjs
         env:
           GITHUB_BASE_REF: ${{ github.base_ref }}
+          GITHUB_HEAD_REF: ${{ github.head_ref }}
+          # El commit de la rama, no el merge ref: en el merge ref main es
+          # ancestro por construcción y la comprobación daría verde siempre.
+          GITHUB_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
       - run: pnpm check
       - run: pnpm build
       # La exportación estática del escritorio se construye también: si se rompe
