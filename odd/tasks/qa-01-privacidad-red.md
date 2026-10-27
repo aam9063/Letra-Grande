@@ -56,6 +56,7 @@ Rama `lg/qa-01-privacidad-red`.
 - Los datos personales se detectan con `detect()` de `@letra-grande/privacy`: fuera los patrones duplicados que tenía el guardián, que podían desviarse de los que enmascaran.
 - `privacidad-red.spec.ts` recorre `/`, `/hoy`, `/ajustes`, `/carpeta` y `/onboarding` con el guardián puesto y exige cero violaciones y haber visto peticiones. Otro test del mismo fichero fija que el guardián ve lo que pide una segunda página del contexto, que era el hueco de `REF-OPS-04`.
 - `network-guard.spec.ts` prueba el guardián contra sí mismo: origen ajeno, documento en el cuerpo, cuerpo limpio sin falso positivo y composición de la lista de orígenes. Los seis tests corren en los cuatro proyectos de Playwright (Chromium, Firefox, WebKit y móvil): 24 comprobaciones.
+- Review gate (`odd/reviews/qa-01.md`, aprobado con cambios) y una ronda aplicada: vigilancia de WebSocket (que Playwright no emite como petición), test directo de las peticiones del service worker medido navegador a navegador, `carpeta.spec.ts` migrado al guardián compartido, IBAN ficticio en el test de cuerpos y `vigilarRed` devolviendo también el contador de peticiones.
 - Nota de compatibilidad encontrada al hacerlo: en Firefox una `fetch` a un origen ajeno interceptado por `context.route` no siempre genera evento de petición; el test de cobertura entre páginas usa una navegación, que sí es fiable en los tres motores.
 
 ## Siguiente paso
