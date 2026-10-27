@@ -2,6 +2,8 @@
 // Todas las fichas de este archivo son ficticias: nunca datos reales.
 import { describe, expect, it } from "vitest";
 import { Authority, Company, Procedure } from "@letra-grande/schema";
+import type { AssistantAnswer } from "@letra-grande/schema";
+import { validateStaleness } from "../src/guardrails/staleness.js";
 import {
   buildIndex,
   buildIndexFromDocuments,
@@ -441,5 +443,92 @@ describe("puerta de evidencia del gate (revisión AI-03a)", () => {
     // de la fuente, no contra los términos del índice, así que no se pierde
     // ninguna validación por esta reducción.
     expect(tokenize("1.500 euros")).toEqual(["500", "euros"]);
+  });
+});
+
+describe("fecha de verificación en las fuentes recuperadas (AI-05)", () => {
+  const fuenteVerificada = {
+    id: "web-verificada",
+    title: "Web de Verificada Ejemplo",
+    url: "https://example.com/verificada",
+    kind: "empresa" as const,
+    retrievedOn: "2026-01-15",
+  };
+
+  function empresaVerificada(verifiedOn: string): Company {
+    return Company.parse({
+      id: "verificada-ejemplo",
+      name: "Verificada Ejemplo S.L.",
+      sector: "energia",
+      channels: {
+        atencionCliente: [
+          { kind: "web", value: "https://example.com/verificada/ayuda", sourceId: "web-verificada" },
+        ],
+        reclamacion: [],
+        baja: [],
+      },
+      escalation: [],
+      sources: [fuenteVerificada],
+      verification: { verified: true, verifiedOn, verifiedBy: "Revisión humana ficticia" },
+    });
+  }
+
+  function haceDias(dias: number): string {
+    return new Date(Date.now() - dias * 86_400_000).toISOString().slice(0, 10);
+  }
+
+  function respuestaQueCita(sourceId: string): AssistantAnswer {
+    return {
+      question: "¿Pregunta de prueba?",
+      outOfScope: false,
+      blocks: [
+        { kind: "fact", claim: "Afirmación sin cifras, según la fuente.", citations: [{ sourceId }] },
+      ],
+    };
+  }
+
+  it("una ficha verificada lleva su fecha de verificación como verifiedAt en AAAA-MM-DD", () => {
+    const index = buildIndex({ companies: [], authorities: [organismoCataluna()], procedures: [] });
+    const resultados = search(index, "OMAC Cataluña");
+    expect(resultados).toHaveLength(1);
+    expect(resultados[0]?.verified).toBe(true);
+    expect(resultados[0]?.verifiedAt).toBe("2026-02-01");
+  });
+
+  it("una ficha sin verificar no lleva verifiedAt y validateStaleness la cuenta como caducada", () => {
+    const index = buildIndex({ companies: [empresaTeleco()], authorities: [], procedures: [] });
+    const resultados = search(index, "darse de baja");
+    expect(resultados[0]?.verified).toBe(false);
+    expect(resultados[0]?.verifiedAt).toBeUndefined();
+    const issues = validateStaleness(
+      respuestaQueCita(resultados[0]?.sourceId ?? ""),
+      [{ id: resultados[0]?.sourceId ?? "" }],
+      new Date(),
+    );
+    expect(issues).toHaveLength(1);
+  });
+
+  it("una fuente verificada hace menos de 180 días no está caducada para validateStaleness", () => {
+    const index = buildIndex({ companies: [empresaVerificada(haceDias(10))], authorities: [], procedures: [] });
+    const resultados = search(index, "atención al cliente");
+    expect(resultados[0]?.verifiedAt).toBe(haceDias(10));
+    const issues = validateStaleness(
+      respuestaQueCita(resultados[0]?.sourceId ?? ""),
+      resultados.map((d) => ({ id: d.sourceId, verifiedAt: d.verifiedAt })),
+      new Date(),
+    );
+    expect(issues).toEqual([]);
+  });
+
+  it("una fuente verificada hace más de 180 días sigue caducada para validateStaleness", () => {
+    const index = buildIndex({ companies: [empresaVerificada(haceDias(200))], authorities: [], procedures: [] });
+    const resultados = search(index, "atención al cliente");
+    expect(resultados[0]?.verifiedAt).toBe(haceDias(200));
+    const issues = validateStaleness(
+      respuestaQueCita(resultados[0]?.sourceId ?? ""),
+      resultados.map((d) => ({ id: d.sourceId, verifiedAt: d.verifiedAt })),
+      new Date(),
+    );
+    expect(issues).toHaveLength(1);
   });
 });

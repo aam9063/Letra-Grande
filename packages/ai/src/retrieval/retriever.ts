@@ -14,6 +14,8 @@ export interface RetrievedSourceData {
   readonly texto: string;
   /** Si la ficha de origen está verificada: la respuesta lo traslada a la interfaz. */
   readonly verified: boolean;
+  /** Fecha de verificación en AAAA-MM-DD; ausente si la ficha no está verificada. */
+  readonly verifiedAt?: string;
 }
 
 /** Contadores de diagnóstico del recuperador: solo cifras, nunca contenido. */
@@ -42,11 +44,12 @@ export interface ContentRetrieverOptions {
 /**
  * Crea un recuperador sobre content/. Carga e indexa el contenido una sola
  * vez por raíz (caché del cargador) y, para cada pregunta, devuelve los
- * fragmentos con mejor puntuación en `{ id, titulo, url, texto, verified }`.
- * Si la ficha de origen no está verificada, `verified: false` viaja hasta la
- * respuesta para que la interfaz pueda avisar. Si no se encuentra la carpeta
- * de contenido, responde sin fuentes: el asistente degrada a outOfScope,
- * como prevé el proxy.
+ * fragmentos con mejor puntuación en `{ id, titulo, url, texto, verified,
+ * verifiedAt }`. Si la ficha de origen no está verificada, `verified: false`
+ * viaja hasta la respuesta para que la interfaz pueda avisar y no hay fecha:
+ * el guardarraíl de caducidad (AI-05) la cuenta como caducada. Si no se
+ * encuentra la carpeta de contenido, responde sin fuentes: el asistente
+ * degrada a outOfScope, como prevé el proxy.
  */
 export function createContentRetriever(options: ContentRetrieverOptions = {}): ContentRetriever {
   let raizResuelta: string | undefined = options.contentRoot;
@@ -65,13 +68,20 @@ export function createContentRetriever(options: ContentRetrieverOptions = {}): C
     if (cargado === undefined) return [];
     // La pregunta no lleva filtros: el proxy no conoce el sector de antemano.
     const filtros: SearchFilters = {};
-    return search(cargado.index, question, filtros).map((doc) => ({
-      id: doc.sourceId,
-      titulo: doc.titulo,
-      url: doc.url,
-      texto: doc.texto,
-      verified: doc.verified,
-    }));
+    // Sin ficha verificada no hay fecha: el campo se omite del todo, no va a
+    // undefined, para que la forma del objeto sea exactamente la esperada.
+    return search(cargado.index, question, filtros).map((doc) =>
+      doc.verifiedAt === undefined
+        ? { id: doc.sourceId, titulo: doc.titulo, url: doc.url, texto: doc.texto, verified: doc.verified }
+        : {
+            id: doc.sourceId,
+            titulo: doc.titulo,
+            url: doc.url,
+            texto: doc.texto,
+            verified: doc.verified,
+            verifiedAt: doc.verifiedAt,
+          },
+    );
   };
 
   const diagnostics = (): RetrievalDiagnostics => {

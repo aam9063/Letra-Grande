@@ -135,3 +135,43 @@ describe("findContentRoot", () => {
     expect(findContentRoot(join(raiz, "solo", "pruebas"))).toBeUndefined();
   });
 });
+
+describe("createContentRetriever: fecha de verificación (AI-05)", () => {
+  const yamlEmpresaVerificada = `id: empresa-verificada
+name: Empresa Verificada S.L. (ficticia)
+sector: energia
+channels:
+  atencionCliente:
+    - kind: web
+      value: https://example.com/verificada
+      sourceId: web-verificada
+escalation: []
+sources:
+  - id: web-verificada
+    title: Web verificada de prueba
+    url: https://example.com/verificada
+    kind: empresa
+    retrievedOn: "2026-01-15"
+verification:
+  verified: true
+  verifiedOn: "2026-05-01"
+  verifiedBy: "Revisión humana ficticia"
+`;
+
+  it("una ficha verificada llega con su verifiedAt y una sin verificar llega sin él", async () => {
+    const raiz = crearRaizContenido();
+    mkdirSync(join(raiz, "content", "companies"), { recursive: true });
+    writeFileSync(join(raiz, "content", "companies", "verificada.yaml"), yamlEmpresaVerificada);
+    writeFileSync(join(raiz, "content", "companies", "sin-verificar.yaml"), yamlEmpresaValida);
+
+    const recuperador = createContentRetriever({ contentRoot: join(raiz, "content") });
+    const verificadas = await recuperador("Empresa Verificada");
+    const verificada = verificadas.find((f) => f.id === "web-verificada");
+    expect(verificada?.verified).toBe(true);
+    expect(verificada?.verifiedAt).toBe("2026-05-01");
+    // El campo solo existe cuando hay fecha: la forma sin verificar no cambia.
+    const sinVerificar = (await recuperador("darse de baja")).find((f) => f.id === "web-prueba");
+    expect(sinVerificar?.verified).toBe(false);
+    expect(Object.keys(sinVerificar ?? {})).not.toContain("verifiedAt");
+  });
+});
