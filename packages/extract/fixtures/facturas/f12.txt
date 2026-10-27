@@ -1,0 +1,27 @@
+Luz Ficticia Energía S.L.
+NIF: B11111111
+Servicio de atención al cliente ficticio
+
+FACTURA DE LA LUZ
+
+Titular: Persona de Ejemplo Uno
+Dirección de suministro: Calle Falsa 12, 46001 Valencia
+
+Nombre comercial: Luz Ficticia Energía S.L.
+Punto de suministro (CUPS): ES0021000012345678AB
+Del 01/12/2026 al 31/12/2026
+Tarifa de acceso: 2.0TD
+
+DETALLE DEL SUMINISTRO
+Potencia contratada P1 4,600 kW
+Potencia contratada P2 4,600 kW
+Consumo del periodo P1: 160,20 kWh
+Consumo del periodo P2: 125,40 kWh
+Consumo del periodo P3: 95,70 kWh
+
+Término de energía y potencia según contrato.
+Impuestos incluidos.
+
+Importe total de la factura: 78.65 EUR
+
+Documento ficticio generado para las pruebas de Letra Grande.

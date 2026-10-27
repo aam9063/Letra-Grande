@@ -1,0 +1,27 @@
+Suministros Ficticios del Sur S.A.
+NIF: A55555555
+Servicio de atención al cliente ficticio
+
+FACTURA DE LA LUZ
+
+Titular: Persona de Ejemplo Uno
+Dirección de suministro: Calle Falsa 12, 46001 Valencia
+
+Comercializadora de energía: Suministros Ficticios del Sur S.A.
+CUPS: ES00320000 90123456IJ
+Periodo de facturación: 01/02/2027 a 28/02/2027
+Tarifa de acceso:   2.0TD
+
+DETALLE DEL SUMINISTRO
+Potencia contratada P1:  5,750 kW
+Potencia contratada P2:  5,750 kW
+Consumo   P1:  118,70 kWh
+Consumo   P2:  95,30 kWh
+Consumo   P3:  73,10 kWh
+
+Término de energía y potencia según contrato.
+Impuestos incluidos.
+
+Importe total:  59,75 EUR
+
+Documento ficticio generado para las pruebas de Letra Grande.

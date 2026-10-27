@@ -93,6 +93,47 @@ Probado con `vitest`, sin ejecutar OCR real: la resolución de rutas y el rechaz
 
 Sin probar, y por qué: el reconocimiento real sobre una imagen en un navegador. Eso necesita que la app sirva los activos y un flujo de subida que hoy no existe (carril de interfaz, CARPETA-01), y una prueba de OCR de verdad tarda y depende del motor. Queda para el spec de Playwright de esa tarea, con una imagen sintética y los activos reales, y ese spec tiene que fallar ante cualquier petición a un origen ajeno (interceptando la red y comparando el origen), no solo comprobar que el texto sale. Es lo único que puede cazar una opción de `tesseract.js` que cambie de nombre y caiga en su CDN por defecto.
 
+## Factura de la luz (DOCS-02)
+
+`extractInvoiceFields(texto)` lee los datos de una factura de la luz a partir del texto que ya está en el dispositivo.
+
+```ts
+function extractInvoiceFields(texto: string): FacturaLuz
+
+interface FacturaLuz {
+  comercializadora: string | null;
+  cups: string | null;                                     // mayúsculas, sin espacios ni guiones
+  periodo: { desde: string; hasta: string } | null;        // AAAA-MM-DD
+  tarifa: string | null;                                   // 2.0TD, 3.0TD...
+  potencia: { periodo: string; kw: number }[];             // vacío si no se ha leído
+  consumo: { periodo: string; kwh: number }[];             // vacío si no se ha leído
+  importeTotalEur: number | null;                          // euros, como número
+  noLeidos: CampoFactura[];                                // lo que no se ha podido leer
+}
+```
+
+`camposParaVault(factura)` aplana el resultado a los tipos primitivos que admite `VaultDocument.fields` del esquema (`comercializadora`, `cups`, `periodoDesde`, `periodoHasta`, `tarifa`, `potenciaP1Kw`, `consumoP1Kwh`, `importeTotalEur` y `camposNoLeidos` con los nombres separados por comas).
+
+### La regla: no se inventa nada
+
+Un campo que no aparece en el texto, o que aparece imposible (un 31 de febrero, un importe que no es un número, un CUPS que no tiene el formato `ES` más 16 dígitos y dos letras), queda a `null` y se declara en `noLeidos`. De estos campos salen avisos y comparaciones, así que un hueco visible es mejor que un dato falso. Un campo con valor nunca aparece en `noLeidos`, y la lista se calcula, no se rellena a mano.
+
+Los valores se normalizan: importes con coma o punto decimal y separador de miles (`1.234,56`, `1234.56`, `€ 62,35`) a número de euros; fechas `DD/MM/AAAA` o `AAAA-MM-DD` a `AAAA-MM-DD`; consumos a kWh y potencias a kW.
+
+Es lógica pura: sin red (lo comprueba un espía sobre `fetch` que rechaza), sin ficheros y determinista.
+
+### Corpus sintético y precisión
+
+`fixtures/facturas/` tiene 20 facturas de texto con su verdad esperada en `verdad.json`, generadas por `scripts/make-invoice-fixtures.mjs` (`pnpm --filter @letra-grande/extract facturas`). Todo es ficticio: comercializadoras, NIF, titulares, direcciones, CUPS e importes. Las variantes son las que de verdad cambian entre compañías: cinco plantillas de etiquetas y formato de fecha e importe, peajes 2.0TD con tres periodos de consumo y dos de potencia y 3.0TD con seis y tres, y tres facturas a las que les falta a propósito un campo (CUPS, tarifa o detalle de potencia).
+
+`test/invoice-precision.test.ts` mide campo a campo contra esa verdad y falla por debajo del 90 % (hoy acierta 140 de 140), comprueba que no se inventa ningún valor donde la factura no lo trae y que `noLeidos` coincide exactamente con lo que falta. **El corpus es una línea base de regresión, no una prueba de precisión sobre facturas reales**: las reglas son genéricas (sinónimos de etiqueta, formatos de número y fecha), pero una comercializadora con maquetación distinta puede fallar. Cuando aparezca una factura real que no se lea, se añade una variante al generador (nunca la factura real) y se ajusta la regla.
+
+### Límites conocidos
+
+- La etiqueta y el valor tienen que ir en la misma línea. Un OCR que parta "Importe total:" y la cifra en dos líneas deja el campo sin leer, que es lo honesto, pero se pierde.
+- Solo facturas de luz en español, con las etiquetas del corpus y sus sinónimos.
+- No se leen desgloses de impuestos, lecturas del contador ni datos del titular: no hacen falta para entender la factura y son datos personales.
+
 ## Dependencias
 
 - `pdfjs-dist` (Apache-2.0), para leer PDF. Es la librería de referencia para PDF en el navegador, con mantenimiento activo y funciona sin red con la configuración de arriba.

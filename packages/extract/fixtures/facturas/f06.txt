@@ -1,0 +1,27 @@
+Suministros Ficticios del Sur S.A.
+NIF: A55555555
+Servicio de atención al cliente ficticio
+
+FACTURA DE LA LUZ
+
+Titular: Persona de Ejemplo Tres
+Dirección de suministro: Plaza Imaginaria 8, 28001 Madrid
+
+Nombre comercial: Suministros Ficticios del Sur S.A.
+Punto de suministro (CUPS): ES0032000090123456IJ
+Del 01/06/2026 al 30/06/2026
+Tarifa de acceso: 2.0TD
+
+DETALLE DEL SUMINISTRO
+Potencia contratada P1 4,600 kW
+Potencia contratada P2 4,600 kW
+Consumo del periodo P1: 88,30 kWh
+Consumo del periodo P2: 74,60 kWh
+Consumo del periodo P3: 58,90 kWh
+
+Término de energía y potencia según contrato.
+Impuestos incluidos.
+
+Importe total de la factura: 49.85 EUR
+
+Documento ficticio generado para las pruebas de Letra Grande.

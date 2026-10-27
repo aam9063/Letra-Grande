@@ -137,3 +137,17 @@ export {
   type ExtractImageOptions,
   type ImagenOcr,
 } from "./ocr";
+
+// Extractor de factura de luz (DOCS-02): texto en local, nada inventado.
+export {
+  CAMPOS_FACTURA,
+  camposParaVault,
+  extractInvoiceFields,
+  parsearFecha,
+  parsearNumero,
+  type CampoFactura,
+  type ConsumoPeriodo,
+  type FacturaLuz,
+  type PeriodoFacturado,
+  type PotenciaPeriodo,
+} from "./invoice";
