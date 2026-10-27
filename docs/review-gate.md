@@ -11,7 +11,7 @@ El informe se escribe **después** de la revisión, así que un PR recién abier
 3. Se marca el PR como **listo para revisión** (`ready_for_review`). Ahí el job `review-report` se ejecuta por primera vez, y a partir de ese momento cada push lo vuelve a comprobar.
 4. Si al marcar listo falta el informe, el job falla con la ruta exacta que hay que crear. Si el veredicto es `rechazado`, también falla.
 
-Si el run de "listo" no ve el informe, GitHub puede haber construido el merge ref con retraso y el job comprueba un estado anterior: editar el PR o empujar un commit lo relanza sobre el estado actual. La solución de fondo está registrada como `REF-OPS-05e`: que el job haga checkout del commit de la rama (`github.event.pull_request.head.sha`) en lugar del merge ref.
+El job hace checkout del **commit de la rama** (`github.event.pull_request.head.sha`), no del merge ref que GitHub construye por su cuenta. Así comprueba exactamente lo que hay en la rama cuando se marca el PR como listo, sin depender de que GitHub haya refrescado una referencia interna.
 
 Con esto el rojo significa siempre lo mismo: falta algo o hay algo mal, nunca "todavía no llegó el turno del informe".
 
@@ -143,6 +143,13 @@ node scripts/check-review-report.mjs "OPS-05: review gate en CI"
 
 - Si el título lleva dos ids de tarea (por ejemplo `OPS-05 y QA-08`), solo se comprueba el primero.
 - La comprobación no compara el front matter `base` y `revisado` del informe con el diff del PR: un id reutilizado de una tarea anterior pasaría con el informe antiguo. La persona que hace el merge es la última barrera.
+
+## Trampas del gate encontradas al usarlo (DESK-02)
+
+Dos trampas aparecidas al cerrar tareas contra el gate, para no volver a pisarlas:
+
+1. **El evento `ready_for_review` puede llegar con un payload viejo.** Al marcar un borrador como listo, el payload del webhook puede corresponder a un push anterior al último, así que el job `review-report` se ejecutaría sobre un commit viejo. Regla práctica: antes de marcar el PR como listo, comprueba que en el PR ya aparece la ejecución de checks del último push (el SHA de la pestaña Checks coincide con el head de la rama). Si el run todavía no ha llegado, espera y vuelve a marcar listo, o el job se disparará con datos rancios.
+2. **La protección de rama es estricta y bloquea el merge si la rama va por detrás.** La rama base avanza mientras la feature está en revisión y, con "Require branches to be up to date before merging" activo, el merge se rechaza. Regla práctica: antes del merge, incorpora la base a la rama de la feature (`git merge main` en la feature, resuelve y sube) para que la comprobación de actualidad pase. Sin ese paso previo, GitHub bloquea el merge aunque todo esté en verde.
 
 ## La línea de riesgo en el PR
 
