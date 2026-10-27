@@ -29,3 +29,16 @@ export function rendererDistFromEnv(
   const valor = env[RENDERER_DIST_ENV_VAR]?.trim();
   return valor === undefined || valor === "" ? undefined : valor;
 }
+
+/**
+ * Sobrecarga de la raiz del renderer, solo fuera del paquete. En la app
+ * instalada se ignora a proposito: una variable de entorno no debe poder
+ * cambiar que archivos sirve una aplicacion ya distribuida.
+ */
+export function rendererDistOverride(options: {
+  isPackaged: boolean;
+  env?: NodeJS.ProcessEnv;
+}): string | undefined {
+  if (options.isPackaged) return undefined;
+  return rendererDistFromEnv(options.env);
+}

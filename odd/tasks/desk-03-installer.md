@@ -41,6 +41,8 @@ DESK-02 abre el renderer en una ventana endurecida, pero solo desde el árbol de
 - Empaquetado verificado: `pnpm package:win` produce `apps/desktop/release/Letra Grande-0.0.0-x64.exe` (unos 116 MB) y `win-unpacked`. El asar solo lleva `dist` compilado y `package.json` (tests excluidos con `!dist/*.test.js`); el renderer va en `resources/renderer`, fuera del asar. Sin firma (no hay certificado); `electron-builder` descargó el zip de Electron y NSIS desde GitHub.
 - Pendiente del review gate (sección 22).
 
+Ronda de correcciones aplicada: la documentación remite a DESK-03b para el actualizador, se documentan las descargas del empaquetado y el comportamiento sin red, y la sobrecarga de la raíz por entorno se ignora en la app empaquetada con dos tests nuevos. Informe en `odd/reviews/desk-03.md`.
+
 ## Siguiente paso
 
 Desbloquea `DESK-03b` (actualizador) y `DESK-04` (macOS y Linux).

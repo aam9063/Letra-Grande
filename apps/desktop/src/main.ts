@@ -10,7 +10,7 @@ import { fileURLToPath } from "node:url";
 import { BrowserWindow, app, dialog, protocol, session, shell } from "electron";
 import { resolveAppUrl, type AppUrlResolution } from "./app-url.js";
 import { buildCsp } from "./csp.js";
-import { proxyOriginFromEnv, rendererDistFromEnv } from "./config.js";
+import { proxyOriginFromEnv, rendererDistOverride } from "./config.js";
 import { inlineScriptHashes } from "./inline-scripts.js";
 import { APP_ORIGIN, isExternalWebUrl, isNavigationAllowed } from "./navigation.js";
 import { NO_PERMISSIONS_ALLOWED, isPermissionAllowed } from "./permissions.js";
@@ -41,7 +41,7 @@ const MIME_TYPES: Readonly<Record<string, string>> = {
 
 /** Raiz del renderer estatico, segun desarrollo o paquete instalado. */
 function rendererDistRoot(): string {
-  const sobrecarga = rendererDistFromEnv();
+  const sobrecarga = rendererDistOverride({ isPackaged: app.isPackaged });
   if (sobrecarga !== undefined) return path.resolve(sobrecarga);
   return resolveRendererRoot({
     isPackaged: app.isPackaged,
