@@ -10,6 +10,7 @@
  * Regenera:
  *   fixtures/factura-sintetica.pdf: 3 páginas con texto conocido.
  *   fixtures/escaneado-sintetico.pdf: 1 pagina sin capa de texto.
+ *   fixtures/grueso-sintetico.pdf: 60 paginas, para probar el limite por defecto.
  */
 import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -101,10 +102,18 @@ const factura = crearPdf([
   flujoTexto(["Pagina 3: condiciones de ejemplo"]),
 ]);
 
+// Documento largo sintético: 60 páginas, para probar el límite de 50.
+const paginasGrueso = [];
+for (let numero = 1; numero <= 60; numero++) {
+  paginasGrueso.push(flujoTexto(["Pagina " + numero + " de un documento largo inventado"]));
+}
+const grueso = crearPdf(paginasGrueso);
+
 // Escaneado sintético: una página sin ningún texto, como un PDF de foto.
 const escaneado = crearPdf([flujoTexto([])]);
 
 mkdirSync(dirFixtures, { recursive: true });
 writeFileSync(join(dirFixtures, "factura-sintetica.pdf"), factura);
 writeFileSync(join(dirFixtures, "escaneado-sintetico.pdf"), escaneado);
+writeFileSync(join(dirFixtures, "grueso-sintetico.pdf"), grueso);
 console.log("Fixtures escritos en", dirFixtures);

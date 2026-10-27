@@ -144,6 +144,7 @@ Estas tareas no se ejecutan dentro de la tarea que las origina: se registran aqu
 
 | ID | Origen | Qué revisar |
 |---|---|---|
+| REF-DOCS-01a | Review de DOCS-01a | Falta una fixture de PDF cifrado y su test: la rama de `PasswordException` no está cubierta porque escribir cifrado a mano es desproporcionado para esta tarea. Crear la fixture y el test cuando haya una necesidad real. |
 | REF-OPS-01 | Review de OPS-01, hallazgo 3 | Dependencias declaradas por adelantado en `apps/web` (`vitest`, `jsdom`, `@testing-library/react`, `cross-env`): confirmar en OPS-04 y en UI-02 cuáles se usan y retirar las que sobren. |
 | REF-OPS-01b | Review de OPS-01, hallazgo 4 | Si algún paquete de `packages/` se va a publicar, hará falta build propio: hoy `main` y `types` apuntan a `./src/index.ts`. |
 | REF-OPS-04 | Review de OPS-04, hallazgo 2 | El guardián de red solo escucha `page.on("request")`: valorar escuchar también `context.on("request")` para cubrir peticiones del service worker antes de los specs de privacidad de la Ola 2. |

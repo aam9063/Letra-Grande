@@ -12,7 +12,9 @@ function fixture(nombre: string): Uint8Array {
 
 describe("extractPdfText", () => {
   beforeEach(() => {
-    vi.spyOn(globalThis, "fetch");
+    // Si pdf.js intentara alguna petición, debe fracasar aquí y no salir:
+    // el espía también sirve de cerrojo, no solo de contador.
+    vi.spyOn(globalThis, "fetch").mockRejectedValue(new Error("red prohibida"));
   });
 
   afterEach(() => {
@@ -56,13 +58,34 @@ describe("extractPdfText", () => {
     expect(globalThis.fetch).not.toHaveBeenCalled();
   });
 
-  it("maxPages trunca la lectura de paginas", async () => {
+  it("maxPages trunca la lectura de páginas", async () => {
     const resultado = await extractPdfText(fixture("factura-sintetica.pdf"), { maxPages: 2 });
 
     expect(resultado.pages).toHaveLength(2);
     expect(resultado.pageCount).toBe(3);
     expect(resultado.text).not.toContain("Pagina 3");
     expect(resultado.text).toContain("Importe total: 42,50 EUR");
+  });
+
+  it("el límite por defecto de 50 páginas acota documentos muy largos", async () => {
+    const resultado = await extractPdfText(fixture("grueso-sintetico.pdf"));
+
+    expect(resultado.pageCount).toBe(60);
+    expect(resultado.pages).toHaveLength(50);
+    expect(resultado.text).toContain("Pagina 50");
+    expect(resultado.text).not.toContain("Pagina 51");
+  });
+
+  it("no toca el buffer que le pasa quien llama", async () => {
+    const bytes = fixture("factura-sintetica.pdf");
+    const copia = new Uint8Array(bytes);
+    const buffer = new ArrayBuffer(bytes.byteLength);
+    new Uint8Array(buffer).set(bytes);
+
+    await extractPdfText(bytes);
+    await extractPdfText(buffer);
+
+    expect(bytes).toEqual(copia);
   });
 
   it("rechaza un maxPages que no sea un entero mayor que cero", async () => {

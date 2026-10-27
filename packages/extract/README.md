@@ -20,6 +20,10 @@ interface ExtractedText {
 
 `maxPages` limita las páginas leídas y por defecto es 50, para acotar documentos patológicos. `pageCount` sigue siendo el total del documento, así quien llama puede avisar de que faltan páginas.
 
+Ojo con `hasTextLayer`: solo mira las páginas que permite `maxPages`. Con un límite bajo, un documento escaneado cuya capa de texto empieza más tarde se declara `false`; antes de decidir pasar el documento al OCR, mira también `pageCount`.
+
+El texto se junta tal cual: los fragmentos que reporta pdf.js se pegan sin separador, salvo donde pdf.js marca fin de línea. Así, algunos documentos pierden límites de palabra (dos palabras pegadas o un salto donde había espacio). Es deliberado: el OCR y los extractores no deben suponer un espaciado perfecto.
+
 ## Garantía de sin red
 
 Durante la extracción no hay ninguna petición de red y no se lee del sistema de archivos: la función solo consume los bytes que le pasan. Lo comprueba un test con un espía sobre `globalThis.fetch` que debe seguir en cero. La configuración de pdf.js que lo hace posible:
@@ -29,7 +33,7 @@ Durante la extracción no hay ninguna petición de red y no se lee del sistema d
 - `disableFontFace: true` y `useSystemFonts: false`: no se tocan fuentes del sistema ni del navegador, solo se lee texto.
 - Nota: `isEvalSupported: false` ya no existe en pdfjs-dist v6, la opción se retiró de la API, así que no hace falta pasarla.
 
-Si el buffer está corrupto o el PDF está cifrado, la función rechaza con un mensaje claro en español en vez de colgarse.
+Si el buffer está corrupto o vacío, la función rechaza con un mensaje claro en español en vez de colgarse: lo verifica una fixture. Los documentos cifrados se mapean a su propio mensaje (por `PasswordException`), pero aún no hay fixture cifrada que cubra ese camino: queda registrado como `REF-DOCS-01a` en el backlog.
 
 ## El worker en el navegador
 
@@ -48,6 +52,7 @@ Copiar el fichero es trabajo de la tarea de interfaz que integre la extracción,
 
 - `factura-sintetica.pdf`: 3 páginas con texto conocido, para probar el texto, el recorte de `maxPages` y el recuento.
 - `escaneado-sintetico.pdf`: 1 página sin capa de texto, para probar `hasTextLayer: false`.
+- `grueso-sintetico.pdf`: 60 páginas, para probar el límite por defecto de 50.
 
 ## Fuera de alcance: OCR (DOCS-01b)
 

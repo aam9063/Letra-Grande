@@ -36,13 +36,23 @@ export interface ExtractPdfOptions {
 function mensajeDeError(error: unknown): Error {
   const nombre = error instanceof Error ? error.name : "";
   if (nombre === "PasswordException") {
-    return new Error("El PDF está protegido con contraseña y no se puede leer sin ella.");
+    return new Error("El PDF está protegido con contraseña y no se puede leer sin ella.", {
+      cause: error,
+    });
   }
-  return new Error("No se ha podido leer el PDF: el archivo parece corrupto o no es un PDF válido.");
+  return new Error(
+    "No se ha podido leer el PDF: el archivo parece corrupto o no es un PDF válido.",
+    { cause: error },
+  );
 }
 
 /**
  * Extrae el texto de un PDF sin salir del dispositivo.
+ *
+ * Ojo: `hasTextLayer` solo mira las páginas que permite `maxPages`. Con un
+ * límite bajo, un documento escaneado cuya capa de texto empieza más tarde
+ * se declara sin texto; quien llama debe mirar también `pageCount` antes
+ * de decidir pasar el documento al OCR.
  *
  * @param data Bytes del PDF, tal como llegan de la subida del usuario.
  * @param options Límites de lectura; `maxPages` acota documentos grandes.
