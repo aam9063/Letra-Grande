@@ -120,3 +120,20 @@ export async function extractPdfText(
     await loadingTask.destroy();
   }
 }
+
+// OCR de fotos (DOCS-01b): todo se sirve desde nuestro propio origen.
+export {
+  LANG_POR_DEFECTO,
+  OCR_ASSETS,
+  OCR_ASSET_DIR,
+  OCR_BASE_PATH,
+  resolveOcrAssets,
+  type OcrAssets,
+} from "./ocr-assets";
+export { construirResultadoOcr, normalizarTextoOcr, type ExtractedImageText } from "./ocr-text";
+export {
+  extractImageText,
+  releaseOcrWorker,
+  type ExtractImageOptions,
+  type ImagenOcr,
+} from "./ocr";
