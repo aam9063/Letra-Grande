@@ -29,17 +29,23 @@ El prompt del asistente está hoy dentro del handler, marcado como provisional, 
 
 ## Tareas
 
-- [ ] `packages/ai/src/guardrails/system-prompt.ts`: prompt de sistema único, derivado de la sección 13.1 y del catálogo real, con versión exportada para las métricas de AI-04.
-- [ ] `validateTone(answer)`: rechaza lenguaje prescriptivo ("debes", "deberías", "tienes que", "te corresponde", "tienes derecho a") y exige atribución en los bloques que afirman hechos.
-- [ ] `staleSourcesWarning(answer, sources, today)`: si alguna fuente citada se verificó hace más de 180 días, la respuesta debe incluir un bloque de aviso; si no lo incluye, es una incidencia.
-- [ ] Cableado en el handler: prompt desde el paquete y las dos validaciones en el mismo camino que ya reintenta y degrada a `outOfScope`.
-- [ ] Tests de los casos deterministas de la tabla 13.2: asesoramiento, cifra no respaldada, fuera de alcance, inyección en documento (el texto de la fuente con órdenes se trata como dato), marcadores no reconstruidos, datos caducados y ambigüedad.
-- [ ] `docs/ai-guardrails.md` con las reglas, los casos y qué queda para AI-04.
-- [ ] `pnpm check` en verde.
+- [x] `packages/ai/src/guardrails/system-prompt.ts`: prompt de sistema único, derivado de la sección 13.1 y del catálogo real, con versión exportada para las métricas de AI-04.
+- [x] `validateTone(answer)`: rechaza lenguaje prescriptivo ("debes", "deberías", "tienes que", "te corresponde", "tienes derecho a", "te devolverán", "ganarás", "reclamarás con éxito") y exige atribución en los bloques que afirman hechos.
+- [x] `validateStaleness(answer, sources, today)`: si alguna fuente citada se verificó hace más de 180 días, la respuesta debe incluir un bloque de aviso; si no lo incluye, es una incidencia.
+- [x] Cableado en el handler: prompt desde el paquete y las dos validaciones en el mismo camino que ya reintenta y degrada a `outOfScope`.
+- [x] Tests de los casos deterministas de la tabla 13.2: asesoramiento, cifra no respaldada, fuera de alcance, inyección en documento (el texto de la fuente con órdenes se trata como dato), marcadores no reconstruidos, datos caducados y ambigüedad.
+- [x] `docs/ai-guardrails.md` con las reglas, los casos y qué queda para AI-04.
+- [x] `pnpm check` en verde.
 
 ## Evidencia y progreso
 
-Pendiente de rellenar por quien implementa.
+- TDD: los tests de tono y caducidad vieron fallar primero cada guardarraíl (módulos inexistentes y handler sin validar) y pasan tras la implementación.
+- Atribución: ya la cubre el contrato (citas obligatorias en todo bloque y cifras contra la fuente en `validateAnswerAgainstSources`); fijada con tests en `packages/ai/test/guardrails-attribution.test.ts`, sin duplicar.
+- Integración cerrada en review: el recuperador (AI-03a) ahora rellena `verifiedAt` (AAAA-MM-DD) cuando la ficha está verificada y declara `verifiedOn`; sin verificar se omite el campo y la fuente cuenta como caducada. `RetrievedSource` del handler es alias de `RetrievedSourceData` (definición única).
+- suites: `packages/ai` 144 tests en verde; handler 29 tests en verde; `pnpm check` en verde.
+- Ronda de corrección del review gate: la lista de tono añade las formas impersonales y de trato formal (sin rechazar el "debe" descriptivo) y el aviso de caducidad debe hablar de datos desactualizados o citar la fuente caducada.
+
+Ronda de correcciones aplicada: lista de tono ampliada a diecisiete formas sin atrapar frases descriptivas, y aviso de caducidad que debe hablar de desactualización o citar la fuente vieja. El recuperador aporta `verifiedAt` desde la verificación de la ficha. Informe en `odd/reviews/ai-05.md`.
 
 ## Siguiente paso
 

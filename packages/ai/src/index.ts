@@ -54,3 +54,16 @@ export {
   type RetrievalDiagnostics,
   type RetrievedSourceData,
 } from "./retrieval/retriever.js";
+export {
+  SYSTEM_PROMPT,
+  SYSTEM_PROMPT_VERSION,
+  buildSystemPrompt,
+} from "./guardrails/system-prompt.js";
+export { PROHIBITED_PHRASES, validateTone, type ToneIssue } from "./guardrails/tone.js";
+export {
+  STALENESS_LIMIT_DAYS,
+  daysSinceVerification,
+  validateStaleness,
+  type StalenessIssue,
+  type StalenessSource,
+} from "./guardrails/staleness.js";
