@@ -38,6 +38,8 @@ El backlog seguía diciendo que AI-05 estaba "en rama" y no mencionaba el escrit
 - Causa del fallo, en corto: `useSesionCarpeta` arranca con `"no-creada"`; el efecto que reacciona al estado se ejecutaba en el mismo commit que el de montaje y dejaba la vista en `crear`, así que se pintaba un fotograma con dos campos de contraseña antes de pasar a desbloquear. Con la guarda de montaje, la vista inicial la fija solo la consulta síncrona.
 - `playwright test e2e/carpeta.spec.ts --project=webkit`: 5 de 5 en verde en esta máquina, donde antes fallaba siempre.
 
+Ronda de correcciones aplicada: el refactor del markup duplicado se reatribuye a esta review como `REF-OPS-07a`, H-09 queda marcado con su explicación y OPS-05d entra en el bloque de proceso. `REF-OPS-07` registra derivar la vista del estado. Informe en `odd/reviews/ops-07.md`.
+
 ## Siguiente paso
 
 Ninguno: es mantenimiento del proyecto y del arnés.

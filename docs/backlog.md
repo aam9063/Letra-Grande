@@ -14,7 +14,7 @@ Actualizado tras la Ola 1, la entrega del escritorio y el trabajo de interfaz. C
 | Ola 2 (módulos) | RADAR-01 (motor de plazos y `.ics`), AI-03a (recuperación BM25), AI-05 (guardarraíles) | DOCS-01 a DOCS-03 (extracción), RADAR-02 (interfaz de Hoy), AI-03 (pantalla del chat), AI-04 (evaluaciones), MOD-01 a MOD-03, CONTENT-02 a CONTENT-04 |
 | Ola 2 (interfaz) | UI-03 a UI-07: landing, shell responsive, onboarding, ajustes y carpeta, con sus specs de Playwright; UI-08 y UI-09: logo del proyecto en landing, icono recortado y icono de la app | el resto de pantallas de los módulos |
 | Escritorio (Windows) | DESK-01 build de dos salidas, DESK-02 ventana con `app://`, DESK-02c arranque en Hoy, DESK-03 instalador NSIS, DESK-03c icono de la marca | DESK-02d puerta del service worker, DESK-03b actualizador (espera canal de publicaciones), DESK-04 macOS y Linux |
-| Proceso y entrega | OPS-05c (el gate no da falsos rojos), OPS-05e (checkout del commit de la rama) | ninguno |
+| Proceso y entrega | OPS-05, OPS-05c (el gate no da falsos rojos), OPS-05d (el informe se acepta con el id o el id base), OPS-05e (checkout del commit de la rama), H-10 (ramas protegidas) | ninguno |
 
 ## Detalle de las olas
 
@@ -42,7 +42,7 @@ Cada tarea la ejecuta un agente en su carril. `Dep.` indica dependencias. Los cr
 | H-06 | Decidir avisos: solo `.ics` en el MVP, o también Web Push sin datos personales | Decisión escrita |
 | D-01 | Elegir acento de color y nombre de la tipografía | Tokens fijados |
 | H-08 | Preguntar a NaN Builders: si la clave permite servir a usuarios finales, límites por clave, retención y uso de datos de las peticiones, y soporte de salida estructurada por modelo | Respuesta por escrito archivada en `docs/ai-provider.md` |
-| H-09 | Instalar y comprobar gentle-ai y gentle-shell (sección 21.6): `doctor`, estado de la revisión, proveedor NaN, lectura de `AGENTS.md`, versión y sistema operativo | Lista "no confirmado" de 21.7 resuelta o anotada |
+| H-09 | Instalar y comprobar gentle-ai y gentle-shell (sección 21.6): `doctor`, estado de la revisión, proveedor NaN, lectura de `AGENTS.md`, versión y sistema operativo. **Hecho** en la práctica: el entorno funciona y de él salieron OPS-04b, OPS-05c y OPS-05e. No hay commit que lo acredite porque es verificación humana del entorno | Lista "no confirmado" de 21.7 resuelta o anotada |
 | H-10 | Proteger `main` en GitHub: PR obligatorio, CI en verde, informe de review presente y aprobación humana | **Hecho**: `dev` y `main` protegidas con PR obligatorio, los checks `check`, `e2e` y `review-report` como requeridos, y `enforce_admins` activo. La aprobación no la exige GitHub (0 aprobaciones): la decisión humana es el propio merge |
 
 ### Ola 1: fundamentos (todo en paralelo)
@@ -175,6 +175,7 @@ Decisión y diseño en [`desktop.md`](desktop.md). Solo Windows en el alcance in
 | DESK-02d | Puerta de escritorio en el registro del service worker: `import.meta.env.DESKTOP` para no intentar registrar en `app://`, como promete la sección 5 de `desktop.md` | DESK-02 | El registro no se intenta en la app instalada y la web lo mantiene |
 | DESK-04 | macOS y Linux: firma y notarización en macOS, AppImage y `.deb` en Linux, con lo que cada uno exige | DESK-03, licencia de Apple | macOS abre sin bloqueo de Gatekeeper; Linux instala y actualiza por gestor o descarga |
 | REF-DESK-01 | Review de DESK-01 | La exportación de escritorio excluye las rutas `.ts` con `pageExtensions`; hoy todas las páginas son `.tsx`. Añadir en CI una comprobación de que el conjunto de rutas de la web y de la exportación coincide, para que una `page.ts` futura no desaparezca en silencio. |
-| REF-UI-09 | Review de UI-09, code smells | El `<img>` del logo está duplicado en cabecera y pie con los mismos atributos: extraer un componente de marca cuando se toque esa zona. |
+| REF-OPS-07a | Review de OPS-07, hallazgo 1 | El `<img>` de la marca está duplicado en cabecera y pie (`page.tsx`), con tamaños distintos (44 y 36): extraer un componente de marca cuando se toque esa zona. |
 | REF-UI-09b | Review de UI-09, hallazgo 2 | `logo-icono.png` pesa 70 KB en RGBA; una cuantización a paleta lo dejaría en 20 o 25 KB sin pérdida visible y mejora el LCP de la landing. |
 | REF-UI-09c | Review de UI-09, hallazgo 1 | Queda una orla de un píxel casi blanca con alfa muy bajo en el icono del escritorio: erosionar el alfa un píxel si alguna vez se ve sobre un fondo oscuro grande. |
+| REF-OPS-07 | Review de OPS-07, hallazgos 2 y 3 | `VistaCarpeta` tiene dos fuentes de verdad (la vista y el estado) y el arreglo del fotograma añade una tercera señal (`montado`). Derivar la vista del estado y dejar el fotograma imposible por construcción, con un test unitario que lo fije. |
