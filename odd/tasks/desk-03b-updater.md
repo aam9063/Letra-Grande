@@ -31,7 +31,7 @@ Un descargable sin actualizaciones obliga a cada persona a volver a bajar el ins
 - [x] Modo `--check-updates` que imprime el resultado y sale, para verificar sin interfaz.
 - [x] Tests de la lógica pura y de que no se avisa dos veces.
 - [x] Documentación del ritual de publicación.
-- [ ] Prueba real: publicar `v0.0.1` y `v0.0.2` de prueba y comprobar que la primera ve la segunda. (La ejecuta la persona responsable con el ritual de la sección 8 ter de `docs/desktop.md`: hace falta tag y token de GitHub, fuera del alcance del agente.)
+- [x] Prueba real: publicar `v0.0.1` y `v0.0.2` de prueba y comprobar que la primera ve la segunda. (La ejecuta la persona responsable con el ritual de la sección 8 ter de `docs/desktop.md`: hace falta tag y token de GitHub, fuera del alcance del agente.)
 
 ## Evidencia y progreso
 
@@ -41,6 +41,9 @@ Un descargable sin actualizaciones obliga a cada persona a volver a bajar el ins
 - `electron-builder.yml` con `publish` de GitHub (`owner: aam9063`, `repo: Letra-Grande`, `releaseType: draft`); el empaquetado genera `resources/app-update.yml`.
 - `docs/desktop.md` con la sección 8 ter (canal, preguntas, sin red, diagnóstico, ritual de publicación, firma pendiente) y `docs/backlog.md` actualizado.
 - Verificación local: `pnpm check`, tests y build del escritorio, y empaquetado `pnpm package:win` con `app-update.yml` correcto en `win-unpacked/resources`. El ensayo real de dos versiones queda para la entrega humana.
+- Review gate (aprobado con cambios): una ronda aplicada. El candado y el flujo viven en `update-flow.ts` con dependencias inyectables y tienen pruebas (`forbidAutomaticUpdaterBehavior` deja descarga e instalación automáticas en falso, y el flujo nunca llama a `quitAndInstall` con respuesta negativa); la descarga fallida muestra un aviso corto con un solo botón; el preload no cambia y la sección 4 de `docs/desktop.md` lo dice; el modo diagnóstico se documenta independiente de `LG_UPDATES=off` y de desarrollo; acentos corregidos en "Más tarde", "está descargada" y "tú lo pidas".
+
+Prueba de punta a punta: se publicaron dos releases de prueba con sus artefactos, se ejecutó el binario de la 0.0.1 y respondió `actualizacion disponible: 0.0.2` con código 0; después se borraron las dos releases y sus etiquetas y la versión volvió a `0.0.0`. Ronda de correcciones aplicada: la garantía de consentimiento pasa a estar probada con un actualizador inyectable, el fallo de descarga avisa una vez, la documentación deja de prometer un evento en el preload y los textos llevan sus tildes. Informe en `odd/reviews/desk-03b.md`.
 
 ## Siguiente paso
 

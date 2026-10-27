@@ -25,8 +25,16 @@ export function updateReadyText(newVersion: string): DialogText {
   return {
     title: "Letra Grande: actualizacion lista",
     message:
-      `La version ${newVersion} ya esta descargada. ` +
+      `La version ${newVersion} ya está descargada. ` +
       "¿Reiniciar ahora para instalarla? " +
-      "Si prefieres seguir trabajando, no se instala nada hasta que tu lo pidas.",
+      "Si prefieres seguir trabajando, no se instala nada hasta que tú lo pidas.",
+  };
+}
+
+/** Aviso corto cuando la descarga falla. Un solo boton, sin reintentos. */
+export function downloadErrorText(): DialogText {
+  return {
+    title: "Letra Grande",
+    message: "No se pudo descargar la actualización. Prueba más tarde.",
   };
 }

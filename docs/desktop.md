@@ -56,7 +56,7 @@ IndexedDB, igual que en la PWA, pero en el directorio de datos de la aplicación
 El proceso principal es código privilegiado. Reglas mínimas, todas verificables en revisión:
 
 - `contextIsolation: true`, `nodeIntegration: false`, `sandbox: true`.
-- El `preload` expone una superficie mínima y explícita. Hoy son exactamente tres valores: `version`, `platform` y `isDesktop`. Nada de `ipcRenderer` en crudo. La ruta de la copia cifrada elegida por la persona y el evento de actualización disponible llegarán con DESK-03b, cuando existan el diálogo nativo y el canal de actualización; hasta entonces el preload no los expone.
+- El `preload` expone una superficie mínima y explícita. Hoy son exactamente tres valores: `version`, `platform` y `isDesktop`. Nada de `ipcRenderer` en crudo. Los avisos de actualización son diálogos nativos del proceso principal, no del renderer (sección 8 ter), así que no pasan por el preload y la superficie no cambia. La ruta de la copia cifrada elegida por la persona llegará con su tarea propia.
 - `will-navigate` y `setWindowOpenHandler` bloquean navegación fuera de `app://`; los enlaces externos se abren en el navegador del sistema.
 - CSP estricta en la respuesta del protocolo propio, con `connect-src` limitado al proxy configurado. La única excepción es `style-src 'unsafe-inline'`, y es deliberada: las páginas prerenderizadas llevan atributos `style` en línea para los colores de estado, y CSS no ejecuta código. Los scripts siguen protegidos por hashes sha256 calculados por archivo servido, y con `connect-src` e `img-src` limitados al propio origen una inyección de CSS no tiene manera de exfiltrar nada a terceros.
 - Sin telemetría, sin analytics, sin scripts remotos. Lo mismo que en la web.
@@ -144,7 +144,7 @@ Nada se instala sin consentimiento: `autoDownload` y `autoInstallOnAppQuit` est�
 
 **Sin red.** La comprobación falla en silencio: el error queda en la consola del proceso principal y no se muestra nada. La app funciona igual sin conexión; solo el asistente la necesita, y ya avisa de ello.
 
-**Modo diagnóstico.** Ejecutar la app con `--check-updates` (desde el instalador o desde `win-unpacked`) hace una única comprobación, imprime una línea y sale, sin abrir ventana: `actualizacion disponible: 0.0.2` o `sin actualizaciones` con código 0, y `error: <motivo>` con código 1 si la comprobación falla. Es la herramienta para probar el canal sin interfaz.
+**Modo diagnóstico.** Ejecutar la app con `--check-updates` (desde el instalador o desde `win-unpacked`) hace una única comprobación, imprime una línea y sale, sin abrir ventana: `actualizacion disponible: 0.0.2` o `sin actualizaciones` con código 0, y `error: <motivo>` con código 1 si la comprobación falla. Es la herramienta para probar el canal sin interfaz. El diagnóstico se ejecuta siempre que el indicador esté presente: no le afecta `LG_UPDATES=off` y funciona también en desarrollo. En desarrollo, `electron-updater` salta la comprobación fuera del paquete, así que el resultado es `sin actualizaciones`: la comprobación de verdad solo ocurre en la app empaquetada, que lleva su `app-update.yml` en `resources`.
 
 **Ritual de publicación.** La entrega la decide una persona:
 

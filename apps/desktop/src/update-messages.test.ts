@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { updateAvailableText, updateReadyText } from "./update-messages.js";
+import { downloadErrorText, updateAvailableText, updateReadyText } from "./update-messages.js";
 
 describe("texto del dialogo de actualizacion disponible", () => {
   it("nombra las dos versiones y pregunta antes de descargar", () => {
@@ -22,6 +22,14 @@ describe("texto del dialogo de actualizacion lista para instalar", () => {
     expect(texto.title).toContain("Letra Grande");
     expect(texto.message).toContain("0.0.2");
     expect(texto.message).toContain("¿Reiniciar ahora");
+  });
+});
+
+describe("texto del aviso de fallo de descarga", () => {
+  it("explica el fallo y pide reintentar mas tarde, sin promesas", () => {
+    const texto = downloadErrorText();
+    expect(texto.title).toContain("Letra Grande");
+    expect(texto.message).toBe("No se pudo descargar la actualización. Prueba más tarde.");
   });
 });
 
