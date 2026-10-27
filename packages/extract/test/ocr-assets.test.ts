@@ -1,22 +1,31 @@
-import { readdirSync, statSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import {
+  LANG_POR_DEFECTO,
   OCR_ASSETS,
   OCR_ASSET_DIR,
   OCR_BASE_PATH,
-  LANG_POR_DEFECTO,
   resolveOcrAssets,
 } from "../src/ocr-assets";
 
 const dirActivos = join(import.meta.dirname, "..", OCR_ASSET_DIR);
 
-function rutaDe(nombre: string): string {
-  return join(dirActivos, nombre);
+interface FichaActivo {
+  name: string;
+  bytes: number;
+  sha256: string;
+  origin: string;
+  license: string;
 }
 
+const manifiesto = JSON.parse(
+  readFileSync(join(dirActivos, "manifest.json"), "utf8"),
+) as { files: FichaActivo[] };
+
 function tamanoDe(nombre: string): number {
-  return statSync(rutaDe(nombre)).size;
+  return statSync(join(dirActivos, nombre)).size;
 }
 
 describe("resolveOcrAssets", () => {
@@ -63,16 +72,26 @@ describe("resolveOcrAssets", () => {
 });
 
 describe("activos versionados", () => {
-  it("están los ficheros que el código pide, con el modelo de español por defecto", () => {
-    const esperados = [
+  it("cada fichero coincide byte a byte con el manifiesto", () => {
+    for (const ficha of manifiesto.files) {
+      const datos = readFileSync(join(dirActivos, ficha.name));
+
+      expect(datos.length, ficha.name).toBe(ficha.bytes);
+      expect(createHash("sha256").update(datos).digest("hex"), ficha.name).toBe(ficha.sha256);
+    }
+  });
+
+  it("el código pide ficheros que el manifiesto versiona", () => {
+    const versionados = new Set(manifiesto.files.map((ficha) => ficha.name));
+    const quePideElCodigo = [
       OCR_ASSETS.worker,
       ...OCR_ASSETS.cores,
       OCR_ASSETS.languageData(LANG_POR_DEFECTO),
     ];
 
     expect(LANG_POR_DEFECTO).toBe("spa");
-    for (const nombre of esperados) {
-      expect(() => tamanoDe(nombre)).not.toThrow();
+    for (const nombre of quePideElCodigo) {
+      expect(versionados.has(nombre), nombre).toBe(true);
     }
   });
 
@@ -84,24 +103,21 @@ describe("activos versionados", () => {
     ]);
   });
 
-  it("el modelo de español es el de verdad y no un fichero vacío ni una página de error", () => {
-    // El modelo `best` de español ronda los 13 MB: si baja de 5 MB es que la
-    // descarga trajo otra cosa (un 404 en HTML, por ejemplo).
-    expect(tamanoDe(OCR_ASSETS.languageData(LANG_POR_DEFECTO))).toBeGreaterThan(5 * 1024 * 1024);
-  });
-
-  it("el worker y los núcleos tienen el peso de un script wasm real", () => {
-    expect(tamanoDe(OCR_ASSETS.worker)).toBeGreaterThan(10 * 1024);
-    for (const core of OCR_ASSETS.cores) {
-      expect(tamanoDe(core)).toBeGreaterThan(1 * 1024 * 1024);
+  it("cada activo declara su origen y su licencia Apache-2.0, y las licencias están al lado", () => {
+    for (const ficha of manifiesto.files) {
+      expect(ficha.license, ficha.name).toBe("Apache-2.0");
+      expect(ficha.origin.length, ficha.name).toBeGreaterThan(10);
     }
-  });
 
-  it("cada activo binario tiene su licencia al lado", () => {
     const ficheros = readdirSync(dirActivos);
-
     expect(ficheros).toContain("LICENSE-tesseract.js.txt");
     expect(ficheros).toContain("LICENSE-tesseract.js-core.txt");
     expect(ficheros).toContain("LICENSE-tessdata.txt");
+  });
+
+  it("el modelo de español es el modelo, no una página de error con otro nombre", () => {
+    // El sha256 ya lo fija, pero este umbral explica el fallo si algún día se
+    // sustituye: el `best` de español ronda los 13 MB y el `fast`, 2 MB.
+    expect(tamanoDe(OCR_ASSETS.languageData(LANG_POR_DEFECTO))).toBeGreaterThan(5 * 1024 * 1024);
   });
 });

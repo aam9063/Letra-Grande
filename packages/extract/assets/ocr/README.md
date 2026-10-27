@@ -4,6 +4,8 @@ Ficheros que el OCR necesita para funcionar sin conexión y sin pedirle nada a u
 
 Todo es **Apache-2.0**, compatible con la licencia MIT del proyecto. Las tres licencias completas están junto a los binarios.
 
+`manifest.json` es la fuente de verdad legible por máquina: nombre, bytes, sha256, origen y licencia de cada fichero. Un test recalcula el sha256 de todo lo que hay en esta carpeta contra el manifiesto, así que un binario corrupto o sustituido a medias falla en la suite y no en el navegador. La tabla de abajo es la versión para leer, no la que se comprueba.
+
 | Fichero | Bytes | Origen | sha256 |
 |---|---|---|---|
 | `worker.min.js` | 111 307 | `tesseract.js` 7.0.0, `dist/worker.min.js` | `576b7df7e3393e137e51849357c9adb53fe7ac1bb69bfa06cf3d61520f182c6d` |
@@ -27,7 +29,7 @@ Los tres núcleos son las variantes LSTM (relaxed SIMD, SIMD y sin SIMD). El wor
 pnpm --filter @letra-grande/extract ocr:assets
 ```
 
-El script `scripts/fetch-ocr-assets.mjs` copia el worker, los núcleos y sus licencias desde las dependencias instaladas y descarga el modelo y su licencia de `tessdata_best` en el commit fijado. Comprueba el sha256 de lo que descarga y falla si no coincide, para no dejar un binario a medias que rompería el OCR lejos, ya en el navegador.
+El script `scripts/fetch-ocr-assets.mjs` copia el worker, los núcleos y sus licencias desde las dependencias instaladas, descarga el modelo y su licencia de `tessdata_best` en el commit fijado y comprueba tamaño y sha256 de los ocho ficheros contra `manifest.json`. Si algo no cuadra, falla en vez de dejar un binario a medias.
 
 Subir de versión de `tesseract.js` obliga a volver a ejecutarlo: los tres núcleos tienen que ser de la misma versión que el worker.
 

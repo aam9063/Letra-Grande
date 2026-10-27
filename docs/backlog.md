@@ -145,6 +145,7 @@ Estas tareas no se ejecutan dentro de la tarea que las origina: se registran aqu
 | ID | Origen | Qué revisar |
 |---|---|---|
 | REF-DOCS-01a | Review de DOCS-01a | Falta una fixture de PDF cifrado y su test: la rama de `PasswordException` no está cubierta porque escribir cifrado a mano es desproporcionado para esta tarea. Crear la fixture y el test cuando haya una necesidad real. |
+| REF-DOCS-01b | Review de DOCS-01b, hallazgo 2 | La sesión de OCR atiende las llamadas de una en una: dos fotos lanzadas a la vez con idiomas o bases distintas podrían dejar un worker sin soltar. Hoy no es alcanzable porque solo se versiona el español. Serializar `obtenerWorker` con una cola cuando exista un segundo modelo. |
 | REF-OPS-01 | Review de OPS-01, hallazgo 3 | Dependencias declaradas por adelantado en `apps/web` (`vitest`, `jsdom`, `@testing-library/react`, `cross-env`): confirmar en OPS-04 y en UI-02 cuáles se usan y retirar las que sobren. |
 | REF-OPS-01b | Review de OPS-01, hallazgo 4 | Si algún paquete de `packages/` se va a publicar, hará falta build propio: hoy `main` y `types` apuntan a `./src/index.ts`. |
 | REF-OPS-04 | Review de OPS-04, hallazgo 2 | El guardián de red solo escucha `page.on("request")`: valorar escuchar también `context.on("request")` para cubrir peticiones del service worker antes de los specs de privacidad de la Ola 2. |

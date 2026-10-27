@@ -1,90 +1,82 @@
 // Regenera packages/extract/assets/ocr a partir de las dependencias instaladas
-// (tesseract.js y tesseract.js-core) y del modelo `best` de español de
-// tessdata_best. Existe para que los activos sean reproducibles y auditables:
-// cada fichero lleva su sha256 y, si no coincide, el script falla en vez de
-// dejar un binario a medias.
+// (tesseract.js y tesseract.js-core) y de tessdata_best, y comprueba cada
+// fichero contra assets/ocr/manifest.json.
+//
+// Existe para que los activos sean reproducibles y auditables: el manifiesto
+// fija el tamaño y el sha256 de cada uno, y tanto este script como la suite de
+// tests fallan si algo no cuadra. Un binario a medias rompería el OCR lejos, ya
+// en el navegador, así que se comprueba aquí.
 //
 // Uso: pnpm --filter @letra-grande/extract ocr:assets
 import { createHash } from "node:crypto";
-import { copyFileSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { copyFileSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const paquete = fileURLToPath(new URL("..", import.meta.url));
 const destino = join(paquete, "assets", "ocr");
-
-/** Commit de tessdata_best que fija el modelo: el que se versiona aquí. */
-const COMMIT_TESSDATA = "9ddc24e750eec0994223a9edc3fcb434a2244f3b";
-
-const MODELO = {
-  url: `https://raw.githubusercontent.com/tesseract-ocr/tessdata_best/${COMMIT_TESSDATA}/spa.traineddata`,
-  sha256: "e2c1ffdad8b30f26c45d4017a9183d3a7f9aa69e59918be4f88b126fac99ab2c",
-};
+const manifiesto = JSON.parse(readFileSync(join(destino, "manifest.json"), "utf8"));
 
 // Resolución desde tesseract.js: tesseract.js-core es dependencia suya, no nuestra.
 const dirTesseract = dirname(dirname(fileURLToPath(import.meta.resolve("tesseract.js"))));
 const requerirDesdeTesseract = createRequire(join(dirTesseract, "package.json"));
 const dirCore = dirname(requerirDesdeTesseract.resolve("tesseract.js-core/package.json"));
 
-/** Ficheros que se copian tal cual desde las dependencias instaladas. */
-const COPIAS = [
-  { origen: join(dirTesseract, "dist", "worker.min.js"), nombre: "worker.min.js" },
-  {
-    origen: join(dirCore, "tesseract-core-relaxedsimd-lstm.wasm.js"),
-    nombre: "tesseract-core-relaxedsimd-lstm.wasm.js",
-  },
-  {
-    origen: join(dirCore, "tesseract-core-simd-lstm.wasm.js"),
-    nombre: "tesseract-core-simd-lstm.wasm.js",
-  },
-  { origen: join(dirCore, "tesseract-core-lstm.wasm.js"), nombre: "tesseract-core-lstm.wasm.js" },
-  {
-    origen: join(dirTesseract, "LICENSE.md"),
-    nombre: "LICENSE-tesseract.js.txt",
-  },
-  { origen: join(dirCore, "LICENSE"), nombre: "LICENSE-tesseract.js-core.txt" },
-];
-
-// La licencia llegó al repositorio después del modelo, así que se fija a su propio commit.
-const LICENCIA_TESSDATA = {
-  url: "https://raw.githubusercontent.com/tesseract-ocr/tessdata_best/e744fa9056c07feeba2e9d10d64f834c176d546b/LICENSE",
-  nombre: "LICENSE-tessdata.txt",
-  sha256: "a6cba85bc92e0cff7a450b1d873c0eaa2e9fc96bf472df0247a26bec77bf3ff9",
+/** De dónde sale cada fichero que no se descarga. */
+const ORIGENES_LOCALES = {
+  "worker.min.js": join(dirTesseract, "dist", "worker.min.js"),
+  "tesseract-core-relaxedsimd-lstm.wasm.js": join(
+    dirCore,
+    "tesseract-core-relaxedsimd-lstm.wasm.js",
+  ),
+  "tesseract-core-simd-lstm.wasm.js": join(dirCore, "tesseract-core-simd-lstm.wasm.js"),
+  "tesseract-core-lstm.wasm.js": join(dirCore, "tesseract-core-lstm.wasm.js"),
+  "LICENSE-tesseract.js.txt": join(dirTesseract, "LICENSE.md"),
+  "LICENSE-tesseract.js-core.txt": join(dirCore, "LICENSE"),
 };
 
 function sha256(datos) {
   return createHash("sha256").update(datos).digest("hex");
 }
 
+/** Comprueba tamaño y hash contra el manifiesto. */
+function verificar(ficha, ruta) {
+  const datos = readFileSync(ruta);
+  if (datos.length !== ficha.bytes) {
+    throw new Error(
+      `${ficha.name}: ${datos.length} bytes, el manifiesto dice ${ficha.bytes}. Actualiza el manifiesto si el cambio es intencionado.`,
+    );
+  }
+  const obtenido = sha256(datos);
+  if (obtenido !== ficha.sha256) {
+    throw new Error(
+      `${ficha.name}: sha256 ${obtenido}, el manifiesto dice ${ficha.sha256}. Actualiza el manifiesto si el cambio es intencionado.`,
+    );
+  }
+  console.log(`${ficha.name}: ${datos.length} bytes, sha256 ${obtenido}`);
+}
+
+async function descargar(ficha, ruta) {
+  const respuesta = await fetch(ficha.origin);
+  if (!respuesta.ok) {
+    throw new Error(`No se ha podido descargar ${ficha.origin}: ${respuesta.status}`);
+  }
+  writeFileSync(ruta, new Uint8Array(await respuesta.arrayBuffer()));
+}
+
 mkdirSync(destino, { recursive: true });
 
-for (const { origen, nombre } of COPIAS) {
-  copyFileSync(origen, join(destino, nombre));
-  const datos = readFileSync(join(destino, nombre));
-  console.log(`${nombre}: ${datos.length} bytes, sha256 ${sha256(datos)}`);
-}
-
-async function descargar({ url, nombre, sha256: esperado }) {
-  const respuesta = await fetch(url);
-  if (!respuesta.ok) {
-    throw new Error(`No se ha podido descargar ${url}: ${respuesta.status}`);
+for (const ficha of manifiesto.files) {
+  const ruta = join(destino, ficha.name);
+  if (ficha.origin.startsWith("https://")) {
+    await descargar(ficha, ruta);
+  } else {
+    const origenLocal = ORIGENES_LOCALES[ficha.name];
+    if (origenLocal === undefined) {
+      throw new Error(`${ficha.name}: el manifiesto no dice de dónde sale.`);
+    }
+    copyFileSync(origenLocal, ruta);
   }
-  const datos = new Uint8Array(await respuesta.arrayBuffer());
-  const obtenido = sha256(datos);
-  if (esperado !== undefined && obtenido !== esperado) {
-    throw new Error(`sha256 inesperado para ${url}: ${obtenido} (se esperaba ${esperado})`);
-  }
-  const ruta = join(destino, nombre);
-  writeFileSync(ruta, datos);
-  console.log(`${nombre}: ${datos.length} bytes, sha256 ${obtenido}`);
-}
-
-try {
-  await descargar({ ...MODELO, nombre: "spa.traineddata" });
-  await descargar(LICENCIA_TESSDATA);
-} catch (error) {
-  // Un activo a medias es peor que ninguno: el OCR fallaría lejos, en el navegador.
-  rmSync(join(destino, "spa.traineddata"), { force: true });
-  throw error;
+  verificar(ficha, ruta);
 }

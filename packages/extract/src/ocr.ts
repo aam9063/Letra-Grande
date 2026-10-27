@@ -73,6 +73,12 @@ export const cargarTesseractPorDefecto: CargarTesseract = async () => {
  * base distintos, suelta el worker anterior y arranca uno nuevo: mezclar dos
  * modelos en el mismo worker daría texto en el idioma equivocado sin avisar.
  *
+ * Límite conocido: las llamadas se atienden de una en una, así que dos fotos
+ * lanzadas a la vez con idiomas distintos podrían dejar un worker sin soltar.
+ * Hoy solo se versiona el español y nadie pide dos idiomas, de modo que el caso
+ * no es alcanzable; queda como `REF-DOCS-01b` en el backlog por si se añade un
+ * segundo modelo.
+ *
  * @param cargar Cargador de `tesseract.js`; los tests le pasan uno falso.
  * @returns Sesión con `extract` y `release`.
  */

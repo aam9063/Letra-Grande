@@ -158,6 +158,17 @@ describe("extractImageText", () => {
     expect(opciones.langPath).toBe("/recursos/ocr/");
   });
 
+  it("rechaza una base con origen a través de la API, sin llegar a cargar tesseract", async () => {
+    const worker = workerFalso(() => ({ text: "Factura", confidence: 90 }));
+    const { cargar } = cargadorFalso(worker);
+    const sesion = crearSesionOcr(cargar);
+
+    await expect(
+      sesion.extract(new Blob(["foto"]), { basePath: "https://cdn.jsdelivr.net/npm/tesseract.js" }),
+    ).rejects.toThrow(/propio origen/);
+    expect(cargar).not.toHaveBeenCalled();
+  });
+
   it("ante un fallo al arrancar el OCR, lo dice en español con la causa y no se queda roto", async () => {
     const causa = new Error("importScripts falló");
     const worker = workerFalso(() => ({ text: "Factura", confidence: 90 }));
