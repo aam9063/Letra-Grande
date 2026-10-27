@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { guardNetwork } from "./helpers/network-guard";
+import { guardNetwork, origenesPermitidos } from "./helpers/network-guard";
 
 // Carpeta privada (UI-07): crear, desbloquear y bloquear. El vault es local:
 // con el guard de red comprobamos que no sale nada del dispositivo. Las
@@ -30,8 +30,9 @@ function sinScrollHorizontal(page: Page): Promise<number> {
 
 test("crear con contraseñas distintas avisa; con la misma deja la carpeta abierta", async ({
   page,
+  baseURL,
 }) => {
-  const violaciones = guardNetwork(page, [process.env.baseURL ?? "http://localhost:3100"]);
+  const violaciones = guardNetwork(page, origenesPermitidos(baseURL!));
   await page.setViewportSize({ width: 375, height: 720 });
   await page.goto("/carpeta");
 
@@ -57,8 +58,9 @@ test("crear con contraseñas distintas avisa; con la misma deja la carpeta abier
 
 test("bloquear desde la sidebar pide la contraseña y desbloquear con error honesto", async ({
   page,
+  baseURL,
 }) => {
-  const violaciones = guardNetwork(page, [process.env.baseURL ?? "http://localhost:3100"]);
+  const violaciones = guardNetwork(page, origenesPermitidos(baseURL!));
   // La sidebar es de escritorio: fijamos el viewport como en shell.spec.
   await page.setViewportSize({ width: 1280, height: 800 });
   await crearCarpeta(page);

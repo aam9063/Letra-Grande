@@ -1,0 +1,4 @@
+{
+  "extraOrigins": [],
+  "nota": "Orígenes a los que la app puede hablar además del suyo. Vacío a propósito: ningún dato sale del dispositivo. Añadir uno exige justificarlo en el PR y aprobación humana; la auditoría de privacidad no admite excepciones silenciosas."
+}
