@@ -11,7 +11,7 @@ El informe se escribe **después** de la revisión, así que un PR recién abier
 3. Se marca el PR como **listo para revisión** (`ready_for_review`). Ahí el job `review-report` se ejecuta por primera vez, y a partir de ese momento cada push lo vuelve a comprobar.
 4. Si al marcar listo falta el informe, el job falla con la ruta exacta que hay que crear. Si el veredicto es `rechazado`, también falla.
 
-Si el run de "listo" no ve el informe, GitHub puede haber construido el merge ref con retraso y el job comprueba un estado anterior: editar el PR o empujar un commit lo relanza sobre el estado actual. La solución de fondo está registrada como `REF-OPS-05e`: que el job haga checkout del commit de la rama (`github.event.pull_request.head.sha`) en lugar del merge ref.
+El job hace checkout del **commit de la rama** (`github.event.pull_request.head.sha`), no del merge ref que GitHub construye por su cuenta. Así comprueba exactamente lo que hay en la rama cuando se marca el PR como listo, sin depender de que GitHub haya refrescado una referencia interna.
 
 Con esto el rojo significa siempre lo mismo: falta algo o hay algo mal, nunca "todavía no llegó el turno del informe".
 

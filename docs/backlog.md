@@ -157,7 +157,7 @@ Estas tareas no se ejecutan dentro de la tarea que las origina: se registran aqu
 
 | REF-UI-02 | Review de UI-02, hallazgo 5 | La comprobación de 375 px se hizo a mano y no quedó como spec: entra en `QA-07` (accesibilidad, responsive y offline). |
 | REF-OPS-05b | Revisión de AI-03a | El comprobador de informes extrae el id del título con el patrón `[a-z]+-\d+`, así que una tarea con letra final (`AI-03a`) busca `ai-03.md` y no `ai-03a.md`. Ampliar el patrón a `[a-z]+-\d+[a-z]?` antes de que se repita. |
-| REF-OPS-05e | Review de OPS-05d | El job `review-report` hace checkout del merge ref del PR; cuando GitHub lo construye con retraso, el run de `ready_for_review` comprueba un estado anterior y no ve el informe. Fijar `ref: ${{ github.event.pull_request.head.sha }}` en el checkout del job. |
+| REF-OPS-05e | Review de OPS-05d | **Hecho en OPS-05e**: el job `review-report` hace checkout del commit de la rama (`github.event.pull_request.head.sha`) en lugar del merge ref. |
 
 ## Escritorio (Electron)
 
