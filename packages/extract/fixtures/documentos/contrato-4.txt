@@ -1,0 +1,8 @@
+PRÉSTAMO PERSONAL
+Por una parte, la entidad financiera ficticia; por otra, la persona prestataria.
+Cláusula 1. Capital prestado: 6.000,00 EUR.
+Cláusula 2. Duración: 24 meses.
+Cláusula 3. Penalización por amortización anticipada: 1 % del capital pendiente.
+En prueba de conformidad, firma la persona prestataria.
+
+Documento ficticio generado para las pruebas de Letra Grande.

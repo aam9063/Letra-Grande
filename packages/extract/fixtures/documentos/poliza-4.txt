@@ -1,0 +1,9 @@
+Mutua Ficticia de Salud
+Cuadro de coberturas del seguro de salud
+Asegurado: Persona de Ejemplo Uno
+Prima mensual: 42,00 EUR
+Coberturas: consultas, urgencias y hospitalización.
+Franquicia en prótesis: 100,00 EUR
+Vigencia: 01/03/2026 a 28/02/2027
+
+Documento ficticio generado para las pruebas de Letra Grande.

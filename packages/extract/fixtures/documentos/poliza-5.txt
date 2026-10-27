@@ -1,0 +1,8 @@
+Seguros de Viaje de Ejemplo
+Póliza de asistencia en viaje
+Asegurado: Persona de Ejemplo Dos
+Prima única: 25,00 EUR
+Coberturas: cancelación, equipaje y asistencia médica.
+Siniestro: comuníquelo desde el país de destino.
+
+Documento ficticio generado para las pruebas de Letra Grande.
