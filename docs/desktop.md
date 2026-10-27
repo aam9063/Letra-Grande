@@ -56,9 +56,9 @@ IndexedDB, igual que en la PWA, pero en el directorio de datos de la aplicación
 El proceso principal es código privilegiado. Reglas mínimas, todas verificables en revisión:
 
 - `contextIsolation: true`, `nodeIntegration: false`, `sandbox: true`.
-- El `preload` expone una superficie mínima y explícita: versión de la app, ruta de la copia cifrada elegida por la persona y evento de actualización disponible. Nada de `ipcRenderer` en crudo.
+- El `preload` expone una superficie mínima y explícita. Hoy son exactamente tres valores: `version`, `platform` y `isDesktop`. Nada de `ipcRenderer` en crudo. La ruta de la copia cifrada elegida por la persona y el evento de actualización disponible llegarán con DESK-03, cuando existan el diálogo nativo y el canal de actualización; hasta entonces el preload no los expone.
 - `will-navigate` y `setWindowOpenHandler` bloquean navegación fuera de `app://`; los enlaces externos se abren en el navegador del sistema.
-- CSP estricta en la respuesta del protocolo propio, con `connect-src` limitado al proxy configurado.
+- CSP estricta en la respuesta del protocolo propio, con `connect-src` limitado al proxy configurado. La única excepción es `style-src 'unsafe-inline'`, y es deliberada: las páginas prerenderizadas llevan atributos `style` en línea para los colores de estado, y CSS no ejecuta código. Los scripts siguen protegidos por hashes sha256 calculados por archivo servido, y con `connect-src` e `img-src` limitados al propio origen una inyección de CSS no tiene manera de exfiltrar nada a terceros.
 - Sin telemetría, sin analytics, sin scripts remotos. Lo mismo que en la web.
 - Una sola instancia por usuario.
 - **Permisos denegados por defecto.** `setPermissionRequestHandler` y `setPermissionCheckHandler` rechazan cámara, micrófono, geolocalización, notificaciones y portapapeles salvo que una función concreta lo necesite y se justifique en revisión. Con documentos personales dentro, una página comprometida pidiendo permisos es un vector real.
