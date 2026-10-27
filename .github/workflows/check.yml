@@ -16,12 +16,19 @@ jobs:
           node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - run: node --test scripts/check-decisions.test.mjs
       - run: pnpm check
       - run: pnpm build
       # La exportación estática del escritorio se construye también: si se rompe
       # una de las dos salidas, el PR falla (docs/desktop.md, sección 9).
       # Sin Playwright ni navegadores: solo next build en modo export.
       - run: pnpm build:desktop
+      # La app de escritorio arranca en /hoy/: si la exportación deja de generar
+      # ruta/index.html, ese arranque cae al respaldo y vuelve a la landing.
+      - name: Comprobar la exportación de escritorio
+        run: |
+          test -f apps/web/dist-desktop/index.html
+          test -f apps/web/dist-desktop/hoy/index.html
 
   e2e:
     runs-on: ubuntu-latest

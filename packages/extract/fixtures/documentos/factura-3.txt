@@ -1,0 +1,9 @@
+Aguas Ficticias Municipales
+Factura del agua
+Periodo de facturación: 01/03/2026 a 31/03/2026
+Lectura anterior: 120 m3
+Lectura actual: 128 m3
+Consumo: 8 m3
+Importe total: 18,45 EUR
+
+Documento ficticio generado para las pruebas de Letra Grande.

@@ -1,0 +1,7 @@
+Agencia Ficticia de Consumo
+Expediente: AC-2026-778
+Le informamos de que se ha recibido su reclamación y se traslada a la empresa afectada.
+Puede consultar el estado del expediente en la oficina de ejemplo.
+Atentamente, el Área de Atención a la Ciudadanía.
+
+Documento ficticio generado para las pruebas de Letra Grande.

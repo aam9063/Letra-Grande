@@ -1,0 +1,27 @@
+{
+  "name": "@letra-grande/extract",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": { ".": "./src/index.ts" },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "fixtures": "node scripts/make-fixtures.mjs",
+    "facturas": "node scripts/make-invoice-fixtures.mjs",
+    "ocr:assets": "node scripts/fetch-ocr-assets.mjs",
+    "documentos": "node scripts/make-document-fixtures.mjs"
+  },
+  "dependencies": {
+    "@letra-grande/schema": "workspace:*",
+    "pdfjs-dist": "^6.4.299",
+    "tesseract.js": "^7.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.19.2",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.5"
+  }
+}

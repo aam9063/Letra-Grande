@@ -1,0 +1,9 @@
+Telefonía Imaginaria S.A.
+Factura de telefonía móvil
+Número de factura: 2026-000123
+Periodo de facturación: 01/02/2026 a 28/02/2026
+Cuota mensual: 19,90 EUR
+Consumo de datos: 12,4 GB de 20 GB
+Importe total: 23,80 EUR
+
+Documento ficticio generado para las pruebas de Letra Grande.

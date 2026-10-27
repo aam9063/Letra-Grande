@@ -15,15 +15,19 @@ import {
   SYSTEM_PROMPT,
   handleAssistant,
   type AssistantDeps,
+  type RetrievedSource,
 } from "./handler";
 
 // Fuente recuperada de prueba: el texto es lo que respalda cifras y citas.
+// Ficha verificada con fecha reciente: el guardarraíl de caducidad (AI-05)
+// cuenta como caducada una fuente sin fecha o verificada hace más de 180 días.
 const FUENTE_PRUEBA = {
   id: "fuente-prueba",
   titulo: "Ficha de prueba",
   url: "https://example.com/ficha",
   texto: "El plazo de reclamación es de 30 días. La reclamación es gratuita.",
-  verified: false,
+  verified: true,
+  verifiedAt: new Date(Date.now() - 10 * 86_400_000).toISOString(),
 };
 
 const BLOQUE_VALIDO = {
@@ -40,6 +44,7 @@ function respuestaModelo(bloques: unknown[] = [BLOQUE_VALIDO]): string {
 function makeDeps(options?: {
   quota?: TokenBucketQuota;
   provider?: LlmProvider;
+  sources?: RetrievedSource[];
 }): { deps: AssistantDeps; calls: LlmCompleteInput[] } {
   const calls: LlmCompleteInput[] = [];
   const provider: LlmProvider = {
@@ -64,7 +69,7 @@ function makeDeps(options?: {
           now: () => Date.now(),
         }),
       deriveAnonymousId,
-      retrieveSources: async () => [FUENTE_PRUEBA],
+      retrieveSources: async () => options?.sources ?? [FUENTE_PRUEBA],
     },
   };
 }
@@ -131,7 +136,7 @@ describe("POST /api/assistant", () => {
     expect(body.fuentes["fuente-prueba"]).toEqual({
       titulo: "Ficha de prueba",
       url: "https://example.com/ficha",
-      verified: false,
+      verified: true,
     });
     expect(calls).toHaveLength(1);
     expect(calls[0]?.messages[0]).toEqual({ role: "user", content: question });
@@ -502,6 +507,144 @@ describe("validación de la respuesta del modelo contra las fuentes (AI-02)", ()
     };
     expect(body.answer.outOfScope).toBe(true);
     expect(body.answer.blocks).toEqual([]);
+    expect(calls).toHaveLength(1);
+  });
+});
+
+describe("guardarraíles de tono y caducidad en el handler (AI-05)", () => {
+  it("no exige aviso cuando la fuente citada está verificada y fresca", async () => {
+    const { deps, calls } = makeDeps();
+    const response = await handleAssistant(makeRequest({ question: "¿Cuántos días tengo?" }), deps);
+    expect(response.status).toBe(200);
+    const body = (await response.json()) as {
+      answer: { outOfScope: boolean; blocks: { kind: string }[] };
+    };
+    expect(body.answer.outOfScope).toBe(false);
+    expect(body.answer.blocks.map((b) => b.kind)).toEqual(["fact"]);
+    expect(calls).toHaveLength(1);
+  });
+
+  it("degrada a outOfScope cuando el tono prescribe una decisión y no corrige", async () => {
+    const prescriptivo = respuestaModelo([
+      {
+        kind: "fact",
+        claim: "Debes recurrir la multa.",
+        citations: [{ sourceId: "fuente-prueba" }],
+      },
+    ]);
+    const { deps, calls } = makeDeps({
+      provider: { name: "fake", complete: async () => ({ text: prescriptivo }) },
+    });
+    const response = await handleAssistant(makeRequest({ question: "¿Debo recurrir?" }), deps);
+    expect(response.status).toBe(200);
+    const body = (await response.json()) as {
+      answer: { outOfScope: boolean; blocks: unknown[] };
+    };
+    expect(body.answer.outOfScope).toBe(true);
+    expect(body.answer.blocks).toEqual([]);
+    expect(calls).toHaveLength(2);
+  });
+
+  it("reintenta con el error de tono y acepta la versión con matiz", async () => {
+    let llamada = 0;
+    const { deps, calls } = makeDeps({
+      provider: {
+        name: "fake",
+        complete: async () => {
+          llamada += 1;
+          const bloques =
+            llamada === 1
+              ? [
+                  {
+                    kind: "fact",
+                    claim: "Debes recurrir la multa.",
+                    citations: [{ sourceId: "fuente-prueba" }],
+                  },
+                ]
+              : [
+                  {
+                    kind: "fact",
+                    claim: "Según la web oficial, puede corresponderte presentar reclamación.",
+                    citations: [{ sourceId: "fuente-prueba" }],
+                  },
+                ];
+          return { text: respuestaModelo(bloques) };
+        },
+      },
+    });
+    const response = await handleAssistant(makeRequest({ question: "¿Debo recurrir?" }), deps);
+    expect(response.status).toBe(200);
+    const body = (await response.json()) as {
+      answer: { outOfScope: boolean; blocks: { claim: string }[] };
+    };
+    expect(body.answer.outOfScope).toBe(false);
+    expect(body.answer.blocks).toHaveLength(1);
+    expect(body.answer.blocks[0]?.claim).toContain("puede corresponderte");
+    expect(calls).toHaveLength(2);
+    const reintento = calls[1];
+    expect(reintento?.messages.at(-1)?.content).toContain("lenguaje prescriptivo");
+    // El reintento lleva la frase prohibida, nunca la respuesta completa del modelo.
+    expect(reintento?.messages.at(-1)?.content).not.toContain("recurrir la multa");
+  });
+
+  it("exige un bloque warning cuando la fuente citada se verificó hace más de 180 días", async () => {
+    const caducada: RetrievedSource = {
+      ...FUENTE_PRUEBA,
+      id: "fuente-caducada",
+      verifiedAt: new Date(Date.now() - 200 * 86_400_000).toISOString(),
+    };
+    const sinAviso = respuestaModelo([
+      {
+        kind: "fact",
+        claim: "El plazo de reclamación es de 30 días.",
+        citations: [{ sourceId: "fuente-caducada" }],
+      },
+    ]);
+    const { deps, calls } = makeDeps({
+      sources: [caducada],
+      provider: { name: "fake", complete: async () => ({ text: sinAviso }) },
+    });
+    const response = await handleAssistant(makeRequest({ question: "¿Cuántos días tengo?" }), deps);
+    expect(response.status).toBe(200);
+    const body = (await response.json()) as {
+      answer: { outOfScope: boolean; blocks: unknown[] };
+    };
+    expect(body.answer.outOfScope).toBe(true);
+    expect(body.answer.blocks).toEqual([]);
+    expect(calls).toHaveLength(2);
+    const reintento = calls[1];
+    expect(reintento?.messages.at(-1)?.content).toContain("fuente-caducada");
+  });
+
+  it("acepta la respuesta cuando el aviso de caducidad está presente", async () => {
+    const caducada: RetrievedSource = {
+      ...FUENTE_PRUEBA,
+      id: "fuente-caducada",
+      verifiedAt: new Date(Date.now() - 200 * 86_400_000).toISOString(),
+    };
+    const conAviso = respuestaModelo([
+      {
+        kind: "warning",
+        claim: "Esta información puede estar desactualizada.",
+        citations: [{ sourceId: "fuente-caducada" }],
+      },
+      {
+        kind: "fact",
+        claim: "El plazo de reclamación es de 30 días.",
+        citations: [{ sourceId: "fuente-caducada" }],
+      },
+    ]);
+    const { deps, calls } = makeDeps({
+      sources: [caducada],
+      provider: { name: "fake", complete: async () => ({ text: conAviso }) },
+    });
+    const response = await handleAssistant(makeRequest({ question: "¿Cuántos días tengo?" }), deps);
+    expect(response.status).toBe(200);
+    const body = (await response.json()) as {
+      answer: { outOfScope: boolean; blocks: { kind: string }[] };
+    };
+    expect(body.answer.outOfScope).toBe(false);
+    expect(body.answer.blocks.map((b) => b.kind)).toEqual(["warning", "fact"]);
     expect(calls).toHaveLength(1);
   });
 });

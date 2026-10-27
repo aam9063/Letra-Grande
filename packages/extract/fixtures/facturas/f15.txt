@@ -1,0 +1,30 @@
+Energía Inventada del Turia S.L.
+NIF: B44444444
+Servicio de atención al cliente ficticio
+
+FACTURA DE LA LUZ
+
+Titular: Persona de Ejemplo Tres
+Dirección de suministro: Plaza Imaginaria 8, 28001 Madrid
+
+Comercializadora: Energía Inventada del Turia S.L.
+Periodo de facturación: 01/03/2027 a 31/03/2027
+Tarifa: 3.0TD
+
+DETALLE DEL SUMINISTRO
+Potencia contratada P1: 15,000 kW
+Potencia contratada P2: 20,000 kW
+Potencia contratada P3: 20,000 kW
+Consumo P1: 220,10 kWh
+Consumo P2: 190,60 kWh
+Consumo P3: 160,20 kWh
+Consumo P4: 130,80 kWh
+Consumo P5: 95,40 kWh
+Consumo P6: 65,70 kWh
+
+Término de energía y potencia según contrato.
+Impuestos incluidos.
+
+Importe total: 262,30 EUR
+
+Documento ficticio generado para las pruebas de Letra Grande.

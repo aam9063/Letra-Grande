@@ -1,0 +1,27 @@
+Electra de Ejemplo S.A.
+NIF: A22222222
+Servicio de atención al cliente ficticio
+
+FACTURA DE LA LUZ
+
+Titular: Persona de Ejemplo Dos
+Dirección de suministro: Avenida Inventada 3, 08001 Barcelona
+
+Comercializadora eléctrica: Electra de Ejemplo S.A.
+CUPS (punto de suministro): ES0031400056789012CD
+Periodo de facturación: 01/01/2027 - 31/01/2027
+Tarifa de acceso: 2.0TD
+
+DETALLE DEL SUMINISTRO
+Potencia contratada: P1 4,600 kW
+Potencia contratada: P2 5,750 kW
+Consumo P1: 135,80 kWh
+Consumo P2: 104,60 kWh
+Consumo P3: 80,20 kWh
+
+Término de energía y potencia según contrato.
+Impuestos incluidos.
+
+Total factura: 66,95 €
+
+Documento ficticio generado para las pruebas de Letra Grande.

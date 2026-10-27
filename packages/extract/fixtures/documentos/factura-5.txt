@@ -1,0 +1,10 @@
+Comercializadora Ejemplo Verde S.L.
+Titular: Persona de Ejemplo Dos
+CUPS: ES0031400056789012CD
+Periodo de facturación: 01/05/2026 a 31/05/2026
+Potencia contratada P1: 5,750 kW
+Consumo P1: 96,20 kWh
+Consumo P2: 71,80 kWh
+Total a pagar: 54,90 EUR
+
+Documento ficticio generado para las pruebas de Letra Grande.

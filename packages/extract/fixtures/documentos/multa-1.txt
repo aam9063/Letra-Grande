@@ -1,0 +1,9 @@
+Ayuntamiento de Villaejemplo
+Boletín de denuncia por estacionamiento
+Expediente sancionador: SAN-2026-101
+Vehículo con matrícula ficticia 0000AAA
+Infracción: estacionar en zona reservada.
+Importe a ingresar: 90,00 EUR
+Con pago voluntario en 20 días, descuento del 50 %.
+
+Documento ficticio generado para las pruebas de Letra Grande.

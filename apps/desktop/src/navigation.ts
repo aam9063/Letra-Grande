@@ -12,6 +12,19 @@ export const APP_HOST = "letra-grande";
 export const APP_ORIGIN = `${APP_SCHEME}//${APP_HOST}`;
 
 /**
+ * Pantalla de arranque del escritorio. La app instalada abre directamente en
+ * Hoy: la landing es la puerta de la web, donde se descarga la aplicación, y no
+ * tiene sentido mostrarla dentro del producto ya instalado. El primer arranque
+ * lo resuelve `GateOnboarding` desde el propio shell.
+ */
+export const DESKTOP_START_PATH = "/hoy/";
+
+/** URL con la que se carga la ventana. */
+export function startUrl(origin: string = APP_ORIGIN): string {
+  return `${origin}${DESKTOP_START_PATH}`;
+}
+
+/**
  * Origen de una URL ya analizada. Se calcula a mano porque el estandar devuelve
  * "null" para esquemas que no reconoce, y el nuestro es un esquema propio.
  */

@@ -1560,21 +1560,23 @@ qué dijo la review y qué queda pendiente.
 
 ---
 
-## 19. Decisiones abiertas
+## 19. Decisiones de producto
 
 | Id | Pregunta | Mi recomendación |
 |---|---|---|
-| D-01 | Acento de color y tipografía | Una sola acción primaria y fuentes OFL autoalojadas |
+| D-01 | Acento de color y tipografía | **Decidido**: acento verde azulado de la marca y tipografía Host Grotesk autoalojada, ya aplicados en la interfaz |
 | D-02 | Alojamiento y proveedor de IA | NaN para desarrollo y staging. Para producción, decidir tras H-08 y mantener `LlmProvider` para poder cambiar |
 | D-03 | Licencia del contenido | CC BY 4.0 (atribución), a confirmar |
 | D-04 | Avisos: solo `.ics` o también Web Push | Solo `.ics` en el MVP |
 | D-05 | Embeddings o búsqueda léxica | BM25 con filtros en el MVP. Embeddings solo si AI-04 demuestra mejora, y nunca sobre datos del usuario |
-| D-06 | Cuenta de usuario | Ninguna. Sin cuentas, sin servidor con datos |
+| D-06 | Cuenta de usuario | **Ninguna.** La autenticación es la contraseña del vault, que abre los datos en el propio dispositivo; no hay registro de usuarios ni servidor con datos personales. Multidispositivo: copia cifrada e importación (ya implementado). Si se demuestra necesidad de sincronización, será **sincronización ciega** (el servidor guarda solo el blob cifrado, la clave no sale del dispositivo) y con revisión legal, nunca un login con datos en servidor. Se reconsidera si se acumulan veinte o más peticiones escritas de multidispositivo en seis meses por el canal de contacto del repositorio (medible sin analítica, que el proyecto prohíbe) o si aparece el caso de un familiar gestionando papeles de otro |
 | D-07 | Modelo de financiación | Abierto y sin comisiones por cambio de compañía, para no comprometer la neutralidad |
 | D-08 | Qué comunidades cubrir primero | La tuya (Comunitat Valenciana), por poder verificar mejor el contenido |
 | D-09 | Modelo del implementador y del revisor | Modelos distintos. Decidir con la métrica de hallazgos aceptados (sección 22.6) |
 | D-10 | Quién aprueba los merges | Siempre una persona (H-10), aunque la review sea favorable |
 | D-11 | Escritorio descargable: ¿Tauri, Electron o solo PWA? | **Decidido**: Electron, con el proxy de IA alojado y Windows primero; la PWA se mantiene. Detalle en `desktop.md`. |
+| D-12 | Dónde se publican los binarios del escritorio | **Decidido**: GitHub Releases. Coste cero, versionado y el manifiesto de actualización servido desde la propia release, sin infraestructura que mantener. El actualizador (`DESK-03b`) se apoya en ese canal y todavía está pendiente |
+| D-13 | Datos de idioma del OCR | **Decidido y medido en DOCS-01b**: se versionan en el repositorio los datos del modelo `best` de español de tesseract, 13,6 MB, más el worker (0,1 MB) y los tres núcleos wasm LSTM (11,7 MB) que necesita el navegador: 25,4 MB en total, unos 24 MiB. A cambio, el OCR funciona sin conexión desde el primer uso. Se descargan una sola vez, del propio origen y bajo demanda al subir la primera foto, y quedan en caché. Se acepta el peso en el repositorio y en cada clon |
 
 ---
 

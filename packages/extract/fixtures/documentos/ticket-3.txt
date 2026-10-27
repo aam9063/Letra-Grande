@@ -1,0 +1,8 @@
+Farmacia Ficticia
+Ticket de compra
+Artículos: 3 unidades
+Total: 12,35 EUR
+IVA incluido
+Pago en efectivo. Cambio: 0,65 EUR.
+
+Documento ficticio generado para las pruebas de Letra Grande.
