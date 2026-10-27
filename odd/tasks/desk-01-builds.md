@@ -28,15 +28,22 @@ El escritorio necesita el renderer como archivos estáticos, y la web sigue nece
 
 ## Tareas
 
-- [ ] Modo de build por variable de entorno: salida de servidor (por defecto) y salida estática (escritorio).
-- [ ] La ruta de API no entra en la salida estática.
-- [ ] Scripts: `build` (web) y `build:desktop` (estático), con un directorio de salida distinto para no pisar `.next`.
-- [ ] Paso de CI que construye las dos.
-- [ ] Verificado: rutas de la web intactas y salida estática sin `/api`.
+- [x] Modo de build por variable de entorno: salida de servidor (por defecto) y salida estática (escritorio).
+- [x] La ruta de API no entra en la salida estática.
+- [x] Scripts: `build` (web) y `build:desktop` (estático), con un directorio de salida distinto para no pisar `.next`.
+- [x] Paso de CI que construye las dos.
+- [x] Verificado: rutas de la web intactas y salida estática sin `/api`.
 
 ## Evidencia y progreso
 
-Pendiente de rellenar por quien implementa.
+Implementado y verificado el 2026-10-27 (worktree desk-01, rama `lg/desk-01-builds`):
+
+- Mecanismo elegido para la API: `pageExtensions: ["tsx", "jsx", "js"]` solo en modo escritorio. La ruta `api/assistant/route.ts` es `.ts`, así que queda fuera de la exportación, mientras que todas las páginas y layouts son `.tsx` y entran igual. Sin renombrar ni duplicar nada. Justificado en comentario en `next.config.ts`.
+- `pnpm build` (web, salida `.next`): rutas sin cambios antes y después: `/`, `/_not-found`, `/ajustes`, `ƒ /api/assistant`, `/asistente`, `/ayudas`, `/carpeta`, `/datos`, `/familia`, `/hoy`, `/onboarding`, `/reclamar`, `/vida`.
+- `pnpm build:desktop` (estático, salida `apps/web/dist-desktop`, que se limpia antes de construir): `index.html`, las 11 rutas de la app más `/_not-found` y `404.html`, y traza de build en el registro ("Collecting build traces"). Sin ningún directorio `api` en la salida (comprobado con `find dist-desktop -iname "*api*"`).
+- CI: paso `pnpm build:desktop` en el job `check`, justo después de `pnpm build`, sin Playwright ni navegadores.
+- Scripts raíz: añadido `build:desktop` en `package.json` y `apps/web/package.json` (usa `cross-env` y `node -e` con `fs.rmSync`, sin dependencias nuevas).
+- `pnpm check` en verde (style, typecheck, test y content:validate).
 
 ## Siguiente paso
 

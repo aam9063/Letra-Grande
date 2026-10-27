@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev --webpack -p 3000",
     "build": "next build --webpack",
+    "build:desktop": "node -e \"require('node:fs').rmSync('dist-desktop', { recursive: true, force: true })\" && cross-env LG_DESKTOP=1 next build --webpack",
     "start": "next start -p 3000",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
