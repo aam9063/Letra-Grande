@@ -38,6 +38,15 @@ Tres decisiones llevaban semanas abiertas y bloqueaban trabajo real: la cuenta d
 - D-12: GitHub Releases por coste cero, versionado y manifiesto de actualización servido desde la propia release, sin infraestructura que mantener.
 - D-13: unos 15 MB de datos de idioma en el repositorio a cambio de que el OCR funcione sin conexión desde el primer uso; se cargan solo al subir una foto.
 
+Ronda de correcciones aplicada tras la review:
+
+- Las filas D-12 y D-13 no se habían insertado: la comprobación buscaba la cadena "D-12" en el texto y la encontró dentro de `MOD-12`, así que saltó la inserción. Es la tercera vez que ese atajo me falla hoy; ahora el ancla es la fila exacta.
+- El criterio de reconsideración de D-06 pasa a ser medible sin analítica: veinte o más peticiones escritas en seis meses por el canal de contacto del repositorio.
+- D-13 nombra el modelo (`best` de español, unos 15 MB) y resuelve el conflicto con el criterio de red de DOCS-01: el PDF no hace ninguna petición, el OCR descarga una vez del propio origen y el test falla si aparece un origen ajeno.
+- D-01 queda marcada como decidida (acento de la marca y Host Grotesk autoalojada, ya aplicados) y sale de las tareas humanas pendientes. La sección 19 pasa a titularse "Decisiones de producto".
+
+Informe en `odd/reviews/ops-08.md`.
+
 ## Siguiente paso
 
 Desbloquea DESK-03b y DOCS-01b.

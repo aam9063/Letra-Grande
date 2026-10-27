@@ -8,7 +8,7 @@ Actualizado tras la Ola 1, la entrega del escritorio y el trabajo de interfaz. C
 
 | Bloque | Hecho | Pendiente |
 |---|---|---|
-| Ola 0 (humano) | H-09 (entorno) y H-10 (ramas protegidas) | H-01 nombre y marca, H-02 revisión legal, H-03 cuentas y presupuesto, H-04 licencia del contenido, H-05 asociación de consumidores, H-06 avisos, **H-07 verificación de fichas** y **H-08 condiciones de NaN**; D-01 acento y tipografía |
+| Ola 0 (humano) | H-09 (entorno) y H-10 (ramas protegidas) | H-01 nombre y marca, H-02 revisión legal, H-03 cuentas y presupuesto, H-04 licencia del contenido, H-05 asociación de consumidores, H-06 avisos, **H-07 verificación de fichas** y **H-08 condiciones de NaN** |
 | Ola 1 (fundamentos) | OPS-01, CORE-01, CORE-02, UI-01, OPS-04, AI-06, VAULT-01, UI-02, CONTENT-01, OPS-05, AI-01, AI-02, VAULT-02, OPS-04b, OPS-06 | ninguno |
 | Ola 1 (documentación) | CORE-03: `ARCHITECTURE.md` y `data-model.md` | ninguno |
 | Ola 2 (módulos) | RADAR-01 (motor de plazos y `.ics`), AI-03a (recuperación BM25), AI-05 (guardarraíles) | DOCS-01a en curso, DOCS-01b OCR (datos de idioma versionados, D-13), DOCS-02 y DOCS-03, RADAR-02 (interfaz de Hoy), AI-03 (pantalla del chat), AI-04 (evaluaciones), MOD-01 a MOD-03, CONTENT-02 a CONTENT-04 |
@@ -68,7 +68,7 @@ Cada tarea la ejecuta un agente en su carril. `Dep.` indica dependencias. Los cr
 
 | ID | Tarea | Dep. | Criterio de aceptación |
 |---|---|---|---|
-| DOCS-01 | Subida y lectura local de PDF (texto) y de fotos (OCR en navegador, carga diferida) | VAULT-01 | Sin ninguna petición de red durante la extracción (comprobado en test) |
+| DOCS-01 | Subida y lectura local de PDF (texto) y de fotos (OCR en navegador, carga diferida). Partida en DOCS-01a y DOCS-01b | VAULT-01 | Lectura de PDF sin ninguna petición de red (comprobado en test). El OCR descarga una sola vez los datos de idioma del propio origen, bajo demanda, y los deja en caché (D-13); el test falla si aparece cualquier origen ajeno |
 | DOCS-02 | Extractor de factura de luz: comercializadora, CUPS, periodo, potencia, tarifa, consumo por periodo, importe | DOCS-01 | Precisión superior al 90 % sobre 20 facturas sintéticas; si falla un campo, lo marca como no leído |
 | DOCS-03 | Clasificador de tipo de documento (factura, contrato, carta oficial, multa, ticket, póliza) | DOCS-01 | Precisión superior al 85 % en el conjunto sintético |
 | RADAR-01 | `packages/radar`: cálculo de fechas, estados, exportación `.ics` | CORE-01 | Tests de cada unidad de plazo; días hábiles marcados como aproximados |
