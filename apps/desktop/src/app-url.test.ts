@@ -213,3 +213,13 @@ describe("arranque de la ventana", () => {
     expect(startUrl("app://otro")).toBe("app://otro/hoy/");
   });
 });
+
+describe("resolucion del arranque contra la exportacion", () => {
+  it("la URL de arranque resuelve al indice de su carpeta", () => {
+    // La exportacion de escritorio genera ruta/index.html (trailingSlash).
+    const resolucion = resolveAppUrl(`${APP_ORIGIN}${DESKTOP_START_PATH}`, (rel) =>
+      rel === "index.html" || rel === "hoy/index.html",
+    );
+    expect(resolucion).toEqual({ kind: "directoryIndex", relativePath: "hoy/index.html" });
+  });
+});

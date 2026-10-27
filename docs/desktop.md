@@ -69,7 +69,7 @@ El proceso principal es código privilegiado. Reglas mínimas, todas verificable
 
 | Aspecto | PWA | Escritorio |
 |---|---|---|
-| Arranque | La landing, con la puerta de entrada al producto | **Hoy**, directo a la aplicación: la landing es de la web, donde se descarga la app |
+| Arranque | La landing, con la puerta de entrada al producto | **Hoy**, directo a la aplicación: la landing es de la web, donde se descarga la app. La exportación usa `trailingSlash` para que cada ruta tenga su `index.html` y el protocolo pueda servir `/hoy/` |
 | Service worker | Sí, cachea el shell | **No**. El binario ya es local y el ciclo de actualización es otro |
 | Aviso de almacenamiento | Sí: el navegador puede desalojar | No hace falta |
 | Copia cifrada | Descarga del navegador | Diálogo nativo a una carpeta real |

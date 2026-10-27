@@ -35,8 +35,10 @@ Al abrir el instalador aparecía la landing. Esa página es la puerta de entrada
 ## Evidencia y progreso
 
 - 38 tests en `apps/desktop`, dos de ellos nuevos.
-- `/hoy/` resuelve a `hoy/index.html` por la misma regla de directorio que ya estaba probada para otras rutas.
+- La review rechazó la primera versión por un motivo real: la exportación de Next escribía `hoy.html` plano, así que `/hoy/` caía al respaldo y seguía abriendo la landing. Corregido con `trailingSlash: true` en el modo escritorio, un test que resuelve la URL de arranque contra la forma real de la exportación y una comprobación en CI de que existen `index.html` y `hoy/index.html` después de construir la exportación.
 - El primer arranque sigue pasando por `GateOnboarding`, que vive en el layout del grupo de la aplicación: el cambio no lo salta, solo evita la landing.
+
+Corrección tras el rechazo: `trailingSlash` en el modo escritorio, test que resuelve la URL de arranque contra la exportación real y guard en CI sobre `index.html` y `hoy/index.html`. Informe en `odd/reviews/desk-02c.md`.
 
 ## Siguiente paso
 
