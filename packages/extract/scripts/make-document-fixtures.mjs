@@ -199,7 +199,7 @@ const MULTAS = [
     "Con pago voluntario en 20 días, descuento del 50 %.",
   ],
   [
-    "Dirección General de Tráfico de Ejemplo",
+    "Organismo Ficticio de Tráfico",
     "Notificación de sanción por exceso de velocidad",
     "Vehículo: turismo con matrícula ficticia 1111BBB",
     "Infracción grave según el boletín de denuncia.",

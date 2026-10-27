@@ -38,11 +38,12 @@ interface Senal {
 /**
  * Señales por tipo, con su peso.
  *
- * Los pesos no son caprichosos: las señales que casi solo aparecen en un tipo
- * valen 3 (un CUPS, un boletín de denuncia, una prima); las que comparten
- * varios tipos valen 2; y las de cortesía formal, 1. Así una multa firmada por
- * un ayuntamiento no se convierte en carta oficial, porque la carta solo suma
- * el organismo y la multa suma denuncia, sanción e importe a ingresar.
+ * Los pesos no son caprichosos: las señales casi exclusivas de un tipo valen 4
+ * (un expediente sancionador, un importe a ingresar) o 3 (un CUPS, un boletín
+ * de denuncia, una prima); las que comparten varios tipos valen 2; y las de
+ * cortesía formal, 1. Así una multa firmada por un ayuntamiento no se
+ * convierte en carta oficial, porque la carta solo suma el organismo y la
+ * multa suma denuncia, sanción e importe a ingresar.
  */
 const SENALES: Record<TipoDocumento, Senal[]> = {
   factura: [

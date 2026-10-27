@@ -69,6 +69,7 @@ Rama `lg/docs-03-clasificador`, worktree aparte sobre `dev`.
 - Un documento de cada tipo omite su palabra más característica: una factura sin "factura", un contrato sin "contrato", una carta sin "expediente", una multa sin "denuncia", un ticket sin "ticket" y una póliza sin "póliza".
 - Precisión medida: **36 de 36 documentos** (100 %), con confianzas entre 29 y 74, y el test fallando por debajo del 85 % como pide S2. El conjunto se regenera en un temporal y se compara byte a byte, así que no se puede ablandar editando un fixture.
 - Dos decisiones de pesos que costaron un fallo real: una multa con "recurso de reposición" puntuaba igual que una carta oficial (7 y 7) y caía en `otro`; se separó "expediente sancionador" e "importe a ingresar" como señales casi exclusivas de 4 puntos, y desde entonces la multa gana con margen. El caso está fijado por un test.
+- Review gate (`odd/reviews/docs-03.md`, veredicto aprobado con cambios) y una ronda aplicada: el comentario de pesos corregido y el organismo de `multa-2` renombrado para no imitar a uno real.
 - Tests: 87 en el paquete. Nuevos: 13 del clasificador (un texto mínimo por tipo, sin red, texto vacío, empate, multa contra carta, ticket contra factura, confianza creciente con la evidencia, señales legibles, documento muy largo) y 5 del conjunto y la precisión.
 
 ## Siguiente paso
