@@ -71,9 +71,7 @@ export default function LandingPage() {
       <header className="lg-land-cabecera">
         <div className="lg-land-envoltura lg-land-cabecera-fila">
           <a href="/" className="lg-land-logo">
-            <span className="lg-land-logo-cubo" aria-hidden="true">
-              A
-            </span>
+            <img src="/logo-96.jpg" alt="" aria-hidden="true" className="lg-land-logo-marca" width={44} height={44} />
             <span className="lg-land-logo-texto">
               Letra <strong>Grande</strong>
             </span>
@@ -504,9 +502,14 @@ export default function LandingPage() {
           <div className="lg-land-footer-filas">
             <div className="lg-land-footer-marca">
               <div className="lg-land-logo">
-                <span className="lg-land-logo-cubo lg-land-logo-cubo-claro" aria-hidden="true">
-                  A
-                </span>
+                <img
+                  src="/logo-96.jpg"
+                  alt=""
+                  aria-hidden="true"
+                  className="lg-land-logo-marca lg-land-logo-marca-pie"
+                  width={36}
+                  height={36}
+                />
                 <span className="lg-land-logo-texto">
                   Letra <strong>Grande</strong>
                 </span>
