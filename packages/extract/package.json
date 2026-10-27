@@ -10,6 +10,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "fixtures": "node scripts/make-fixtures.mjs",
+    "facturas": "node scripts/make-invoice-fixtures.mjs",
     "ocr:assets": "node scripts/fetch-ocr-assets.mjs"
   },
   "dependencies": {

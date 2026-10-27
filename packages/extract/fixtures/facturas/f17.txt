@@ -1,0 +1,26 @@
+Luz Ficticia Energía S.L.
+NIF: B11111111
+Servicio de atención al cliente ficticio
+
+FACTURA DE LA LUZ
+
+Titular: Persona de Ejemplo Dos
+Dirección de suministro: Avenida Inventada 3, 08001 Barcelona
+
+Comercializadora eléctrica: Luz Ficticia Energía S.L.
+CUPS (punto de suministro): ES0021000012345678AB
+Periodo de facturación: 01/05/2027 - 31/05/2027
+Tarifa de acceso: 2.0TD
+
+DETALLE DEL SUMINISTRO
+Potencia contratada: consulta el contrato
+Consumo P1: 104,30 kWh
+Consumo P2: 86,90 kWh
+Consumo P3: 67,20 kWh
+
+Término de energía y potencia según contrato.
+Impuestos incluidos.
+
+Total factura: 55,80 €
+
+Documento ficticio generado para las pruebas de Letra Grande.

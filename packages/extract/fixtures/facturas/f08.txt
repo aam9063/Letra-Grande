@@ -1,0 +1,27 @@
+Comercializadora Imaginaria Verde S.L.
+NIF: B33333333
+Servicio de atención al cliente ficticio
+
+FACTURA DE LA LUZ
+
+Titular: Persona de Ejemplo Dos
+Dirección de suministro: Avenida Inventada 3, 08001 Barcelona
+
+Comercializadora eléctrica: Comercializadora Imaginaria Verde S.L.
+CUPS (punto de suministro): ES0022000034567890EF
+Periodo de facturación: 01/08/2026 - 31/08/2026
+Tarifa de acceso: 2.0TD
+
+DETALLE DEL SUMINISTRO
+Potencia contratada: P1 5,750 kW
+Potencia contratada: P2 5,750 kW
+Consumo P1: 101,50 kWh
+Consumo P2: 90,80 kWh
+Consumo P3: 70,30 kWh
+
+Término de energía y potencia según contrato.
+Impuestos incluidos.
+
+Total factura: 57,60 €
+
+Documento ficticio generado para las pruebas de Letra Grande.
