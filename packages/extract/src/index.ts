@@ -151,3 +151,6 @@ export {
   type PeriodoFacturado,
   type PotenciaPeriodo,
 } from "./invoice";
+
+// Clasificador de tipo de documento (DOCS-03): sin evidencia, `otro`.
+export { classifyDocument, type DocumentClassification, type TipoDocumento } from "./classify";

@@ -1,0 +1,9 @@
+Tienda de Ejemplo
+Resguardo de compra
+Artículos: 2 unidades
+Base imponible: 16,53 EUR
+IVA incluido
+Total: 20,00 EUR
+Pago con tarjeta.
+
+Documento ficticio generado para las pruebas de Letra Grande.

@@ -138,9 +138,46 @@ Es lógica pura: sin red (lo comprueba un espía sobre `fetch` que rechaza), sin
 - La etiqueta del importe se busca en cualquier parte de la línea, no solo al principio: una frase como "recibo total a pagar" se leería como importe. No pasa en el corpus, pero conviene saberlo al añadir variantes.
 - El corpus se compara con lo que genera el script en cada `pnpm test`, así que no se puede ablandar editando un fixture a mano.
 
+## Tipo de documento (DOCS-03)
+
+`classifyDocument(texto)` dice de qué documento se trata a partir del texto que ya está en el dispositivo.
+
+```ts
+function classifyDocument(texto: string): DocumentClassification
+
+interface DocumentClassification {
+  kind: DocumentKind;   // factura, contrato, carta_oficial, multa, ticket, poliza u otro
+  confidence: number;   // 0 a 100; otro siempre lleva 0
+  signals: string[];    // las señales que han decidido, en texto legible
+}
+```
+
+El tipo es el `DocumentKind` de `@letra-grande/schema`: no hay una copia local de la lista que pueda desviarse del contrato.
+
+### Sin evidencia no hay clasificación
+
+Cada tipo tiene un conjunto de señales con peso: las que casi solo aparecen en un tipo valen 3 o 4 (un CUPS, una potencia contratada, un boletín de denuncia, un expediente sancionador, una prima), las que comparten varios tipos valen 2 y las de cortesía formal, 1. Si un documento suma menos de cinco puntos, o si los dos tipos mejor puntuados empatan, la respuesta es `otro` con confianza 0.
+
+Eso es deliberado: el tipo decide qué se le enseña a la persona y qué módulo lo explica (MOD-03, MOD-05, MOD-08, MOD-10). Una multa tratada como carta, o una carta tratada como multa, lleva a la acción equivocada. Es mejor decir "no lo reconozco" y dejar que la persona elija.
+
+La confianza combina cuánta evidencia hay y cuánto margen saca al segundo tipo: `100 × margen / (puntos + 5)`. Un documento con dos señales no puede llevar la misma confianza que uno con siete.
+
+### Conjunto sintético y precisión
+
+`fixtures/documentos/` tiene 36 documentos (6 por tipo) con su verdad en `verdad.json`, generados por `scripts/make-document-fixtures.mjs` (`pnpm --filter @letra-grande/extract documentos`). Todo es ficticio y lo dice el pie de cada documento. Un documento de cada tipo omite su palabra más característica (una factura sin la palabra "factura", un contrato sin "contrato", una póliza sin "póliza"), para que el clasificador no dependa de una sola pista.
+
+`test/classify-corpus.test.ts` mide documento a documento y falla por debajo del 85 % (hoy acierta 36 de 36, con confianzas entre 29 y 74), y comprueba que el conjunto se regenera y coincide byte a byte, así que no se puede ablandar editando un fixture. **Es una línea base de regresión, no una prueba sobre documentos reales**: las señales son genéricas, pero un documento con vocabulario poco habitual puede caer en `otro`, que es el lado seguro.
+
+### Límites conocidos
+
+- Mira el texto, no el sobre ni el remitente: un documento sin sus señales (una carta escaneada a medias) queda en `otro`.
+- Un documento que mezcla dos tipos con la misma fuerza queda en `otro`, a propósito.
+- Las señales están en español y pensadas para los tipos del MVP.
+
 ## Dependencias
 
 - `pdfjs-dist` (Apache-2.0), para leer PDF. Es la librería de referencia para PDF en el navegador, con mantenimiento activo y funciona sin red con la configuración de arriba.
 - `tesseract.js` 7 (Apache-2.0), para leer fotos. Se carga de forma diferida y todos sus activos se sirven desde nuestro origen.
+- `@letra-grande/schema` (workspace), solo para el tipo `DocumentKind`: el clasificador consume el contrato, no lo reescribe.
 
 Las dos licencias son compatibles con la MIT del proyecto. El detalle de los activos del OCR, con origen, tamaño y sha256, está en `assets/ocr/README.md`.

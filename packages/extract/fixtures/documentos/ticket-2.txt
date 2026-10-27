@@ -1,0 +1,9 @@
+Gasolinera Imaginada
+Resguardo de compra
+Surtidor 2
+Carburante: 32,15 litros
+IVA incluido
+Total: 45,00 EUR
+Pago con tarjeta. Vuelva pronto.
+
+Documento ficticio generado para las pruebas de Letra Grande.

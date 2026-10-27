@@ -1,0 +1,10 @@
+Supermercado de Ejemplo S.L.
+Ticket de compra
+Caja 3
+Artículos: 12 unidades
+Leche, pan, fruta y limpieza
+IVA incluido
+Total: 24,70 EUR
+Pago en efectivo. Gracias por su compra.
+
+Documento ficticio generado para las pruebas de Letra Grande.

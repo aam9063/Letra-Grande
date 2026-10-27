@@ -1,0 +1,9 @@
+Seguros Ficticios del Sur
+Póliza de automóvil
+Asegurado: Persona de Ejemplo Dos
+Vigencia: 01/02/2026 a 31/01/2027
+Prima: 430,50 EUR
+Coberturas: responsabilidad civil y lunas.
+Para declarar un siniestro, llame al teléfono indicado en la póliza.
+
+Documento ficticio generado para las pruebas de Letra Grande.

@@ -1,0 +1,8 @@
+Cafetería Imaginaria
+Ticket
+Caja 1
+Dos cafés y un bocadillo
+Total: 7,20 EUR
+Pago en efectivo.
+
+Documento ficticio generado para las pruebas de Letra Grande.

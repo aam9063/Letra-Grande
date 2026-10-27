@@ -1,0 +1,10 @@
+Aseguradora de Ejemplo S.A.
+PÓLIZA DE HOGAR
+Tomador: Persona de Ejemplo Uno
+Asegurado: Persona de Ejemplo Uno
+Vigencia: 01/01/2026 a 31/12/2026
+Prima anual: 210,00 EUR
+Coberturas: incendio, robo y daños por agua.
+Franquicia: 150,00 EUR
+
+Documento ficticio generado para las pruebas de Letra Grande.

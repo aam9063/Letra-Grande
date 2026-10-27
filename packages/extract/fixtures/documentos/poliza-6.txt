@@ -1,0 +1,8 @@
+Aseguradora Ficticia de Mascotas
+Póliza de mascota
+Tomador: Persona de Ejemplo Tres
+Prima anual: 96,00 EUR
+Coberturas: veterinario y responsabilidad civil.
+Vigencia: 01/04/2026 a 31/03/2027
+
+Documento ficticio generado para las pruebas de Letra Grande.

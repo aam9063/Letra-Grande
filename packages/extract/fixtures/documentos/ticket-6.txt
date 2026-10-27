@@ -1,0 +1,7 @@
+Aparcamiento Ficticio
+Ticket de aparcamiento
+Entrada: 10:15, salida: 11:45
+Total: 3,20 EUR
+Pago en efectivo en caja.
+
+Documento ficticio generado para las pruebas de Letra Grande.
