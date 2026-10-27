@@ -35,8 +35,9 @@ UI-08 puso `logo.svg` en la cabecera y en el pie, y se vio el problema en pantal
 
 ## Evidencia y progreso
 
-- Recuadro detectado en el lienzo: 338,223 a 708,613, es decir 371 por 391 px, que corresponde al icono y excluye el texto.
-- `logo-icono.png`: 128 por 128, 18,9 KB. `apps/desktop/build/icon.png`: 512 por 512.
+- Primera versión rechazada por la review: el recorte terminaba en la fila 613 y el icono llega a la 629, así que se perdían la base del documento y la punta del mango de la lupa. El fallo venía de limitar el barrido al 60 % del lienzo, un atajo mío.
+- Rehecho detectando los bloques de filas con contenido: el primero es el icono (filas 223 a 629) y el segundo el texto (682 a 774). Recuadro del icono: 338,223 a 708,629.
+- `logo-icono.png`: 256 por 256, 70 KB, para cubrir pantallas de 3x y 4x sobre una caja de 44 px. `apps/desktop/build/icon.png`: 512 por 512.
 - Captura de la cabecera: el icono se ve a 44 px, con el texto al lado, sin marco blanco.
 - `logo.svg` se conserva como fuente; ningún page lo referencia, así que no pesa en la portada.
 
