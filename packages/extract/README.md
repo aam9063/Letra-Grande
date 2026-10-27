@@ -1,6 +1,6 @@
 # @letra-grande/extract
 
-Lectura de texto de PDF en el dispositivo. Extrae el texto página a página con `pdfjs-dist` y declara cuando el PDF no tiene capa de texto (un escaneo, por ejemplo), para que el OCR de `DOCS-01b` pueda ocuparse después.
+Lectura de documentos en el dispositivo. Extrae el texto de un PDF página a página con `pdfjs-dist` y declara cuando el PDF no tiene capa de texto (un escaneo, por ejemplo); una foto de ese mismo documento la lee el OCR con `tesseract.js`, sin salir del dispositivo y sin pedirle nada a un tercero.
 
 ## API
 
@@ -54,10 +54,48 @@ Copiar el fichero es trabajo de la tarea de interfaz que integre la extracción,
 - `escaneado-sintetico.pdf`: 1 página sin capa de texto, para probar `hasTextLayer: false`.
 - `grueso-sintetico.pdf`: 60 páginas, para probar el límite por defecto de 50.
 
-## Fuera de alcance: OCR (DOCS-01b)
+## OCR de fotos (DOCS-01b)
 
-El OCR de fotos se deja fuera a propósito: los datos de idioma pesan unos 15 MB y decidir si viajan en el repositorio o se descargan una vez es una decisión pendiente de la persona responsable del proyecto. Cuando se decida, el OCR puede apoyarse en la señal `hasTextLayer: false` de este paquete.
+Una foto de una factura no tiene capa de texto: `extractPdfText` la declara con `hasTextLayer: false` y la lee `extractImageText`.
 
-## Dependencia
+```ts
+function extractImageText(
+  image: Blob | string | HTMLCanvasElement | HTMLImageElement | ImageBitmap,
+  options?: { basePath?: string; lang?: string },
+): Promise<ExtractedImageText>
 
-`pdfjs-dist` (Apache-2.0) es la única dependencia en tiempo de ejecución. La licencia es compatible con MIT del proyecto. Es la librería de referencia para leer PDF en el navegador, se mantiene activamente y funciona sin red si se configura como arriba.
+function releaseOcrWorker(): Promise<void>
+
+interface ExtractedImageText {
+  text: string;       // texto limpio: una línea por línea, sin líneas vacías
+  confidence: number; // confianza media del OCR, de 0 a 100
+  hasText: boolean;   // falso cuando no se ha leído nada
+}
+```
+
+`hasText` es a la foto lo que `hasTextLayer` al PDF: la señal de que hay que avisar en vez de seguir. `text` queda con un solo espacio entre palabras y sin líneas vacías, porque el OCR no conserva columnas; el extractor de factura de DOCS-02 no debe suponer maquetación.
+
+### Sin red ajena, y sin cargar nada hasta la primera foto
+
+`tesseract.js` entra con un `import()` dinámico: ni el paquete ni los activos cuestan algo hasta que alguien sube una foto. En esa primera llamada se descarga el modelo de español del **propio origen** (unos 13,5 MB), se queda en la caché de `tesseract.js` (IndexedDB) y el worker se reutiliza, así que la segunda foto no vuelve a descargar ni a arrancar nada. `releaseOcrWorker()` suelta el worker y su modelo; es lo que hay que llamar al bloquear el vault.
+
+Las tres rutas se pasan explícitas, porque los valores por defecto de `tesseract.js` apuntan a jsDelivr:
+
+- `workerPath`, `corePath` y `langPath` salen de `resolveOcrAssets(basePath)`, con `/ocr` por defecto. Una base con origen (`https://...` o `//host/...`) se rechaza con un error: reintroducir un CDN tiene que romper en un test, no en producción.
+- `workerBlobURL: false`: el worker se carga de una ruta propia y la CSP no necesita `blob:`.
+- `cacheMethod: "write"` y `gzip: false`: el modelo se sirve sin comprimir y se guarda en la caché tras la primera descarga.
+
+Los activos versionados y su licencia están en `assets/ocr/` (ver su `README.md`): el worker, los tres núcleos wasm LSTM y el modelo `best` de español. D-13 aceptó el peso en el repositorio. La app tiene que servir esa carpeta en `/ocr`; en `apps/web` eso es copiarla a `apps/web/public/ocr`, y es trabajo de la tarea que integre el OCR en la interfaz, igual que el worker de pdf.js.
+
+### Qué está probado y qué no
+
+Probado con `vitest`, sin ejecutar OCR real: la resolución de rutas y el rechazo de bases con origen, la carga diferida (no se importa `tesseract.js` hasta la primera foto), la reutilización del worker y de su modelo entre fotos, las tres rutas de mismo origen y la caché activada, la normalización del texto, la confianza acotada, el caso de "no se ha leído nada", el cambio de idioma o de base sin mezclar modelos, el arranque fallido que se reintenta y el espía sobre `fetch` que rechaza y comprueba que nadie pide red. También se comprueba, contra `assets/ocr/manifest.json`, que los activos versionados están, pesan lo que dice el manifiesto y su sha256 coincide; y que lo que pide el código es lo que el manifiesto versiona.
+
+Sin probar, y por qué: el reconocimiento real sobre una imagen en un navegador. Eso necesita que la app sirva los activos y un flujo de subida que hoy no existe (carril de interfaz, CARPETA-01), y una prueba de OCR de verdad tarda y depende del motor. Queda para el spec de Playwright de esa tarea, con una imagen sintética y los activos reales, y ese spec tiene que fallar ante cualquier petición a un origen ajeno (interceptando la red y comparando el origen), no solo comprobar que el texto sale. Es lo único que puede cazar una opción de `tesseract.js` que cambie de nombre y caiga en su CDN por defecto.
+
+## Dependencias
+
+- `pdfjs-dist` (Apache-2.0), para leer PDF. Es la librería de referencia para PDF en el navegador, con mantenimiento activo y funciona sin red con la configuración de arriba.
+- `tesseract.js` 7 (Apache-2.0), para leer fotos. Se carga de forma diferida y todos sus activos se sirven desde nuestro origen.
+
+Las dos licencias son compatibles con la MIT del proyecto. El detalle de los activos del OCR, con origen, tamaño y sha256, está en `assets/ocr/README.md`.

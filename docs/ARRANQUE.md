@@ -1576,7 +1576,7 @@ qué dijo la review y qué queda pendiente.
 | D-10 | Quién aprueba los merges | Siempre una persona (H-10), aunque la review sea favorable |
 | D-11 | Escritorio descargable: ¿Tauri, Electron o solo PWA? | **Decidido**: Electron, con el proxy de IA alojado y Windows primero; la PWA se mantiene. Detalle en `desktop.md`. |
 | D-12 | Dónde se publican los binarios del escritorio | **Decidido**: GitHub Releases. Coste cero, versionado y el manifiesto de actualización servido desde la propia release, sin infraestructura que mantener. El actualizador (`DESK-03b`) se apoya en ese canal y todavía está pendiente |
-| D-13 | Datos de idioma del OCR | **Decidido**: se versionan en el repositorio los datos del modelo `best` de español de tesseract, unos 15 MB, a cambio de que el OCR funcione sin conexión desde el primer uso. Se descargan una sola vez, del propio origen y bajo demanda al subir la primera foto, y quedan en caché. Se acepta el peso en el repositorio y en cada clon |
+| D-13 | Datos de idioma del OCR | **Decidido y medido en DOCS-01b**: se versionan en el repositorio los datos del modelo `best` de español de tesseract, 13,6 MB, más el worker (0,1 MB) y los tres núcleos wasm LSTM (11,7 MB) que necesita el navegador: 25,4 MB en total, unos 24 MiB. A cambio, el OCR funciona sin conexión desde el primer uso. Se descargan una sola vez, del propio origen y bajo demanda al subir la primera foto, y quedan en caché. Se acepta el peso en el repositorio y en cada clon |
 
 ---
 
