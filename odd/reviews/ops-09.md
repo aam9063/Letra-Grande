@@ -16,7 +16,7 @@ El validador hace lo que promete y no tiene el defecto que viene a evitar: proba
 
 ### 1. [recomendado] scripts/check-decisions.mjs:44
 
-Problema: la lista de documentos era fija y dejaba fuera `docs/ai-guardrails.md`, `ai-provider.md`, `e2e.md`, `review-gate.md` y todo `odd/tasks/`, que **sí** cita decisiones hoy. Un documento nuevo que citara `D-99` habría pasado la CI sin aviso, que es justo el fallo que la tarea viene a evitar. La lista tampoco estaba documentada.
+Problema: la lista de documentos era fija y dejaba fuera `docs/ai-guardrails.md`, `ai-provider.md`, `e2e.md`, `review-gate.md` y todo `odd/tasks/`, que **sí** cita decisiones hoy. Un documento nuevo que citara una decisión inexistente habría pasado la CI sin aviso, que es justo el fallo que la tarea viene a evitar. La lista tampoco estaba documentada.
 Propuesta: recorrer las carpetas en lugar de enumerar archivos. Aplicado: se escanean `docs/*.md`, `odd/tasks/*.md` y `odd/reviews/*.md`, y el comentario del script lo dice, junto con el motivo de leer el documento de arranque completo y no solo la sección 19.
 
 ### 2. [recomendado] scripts/check-decisions.mjs:27
