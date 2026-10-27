@@ -16,6 +16,7 @@ jobs:
           node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - run: node --test scripts/check-decisions.test.mjs
       - run: pnpm check
       - run: pnpm build
       # La exportación estática del escritorio se construye también: si se rompe
