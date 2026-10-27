@@ -12,6 +12,9 @@
     "test": "vitest run",
     "package:win": "pnpm --filter @letra-grande/web build:desktop && tsc && electron-builder --win --publish never"
   },
+  "dependencies": {
+    "electron-updater": "^6.6.2"
+  },
   "devDependencies": {
     "@types/node": "^24.0.0",
     "electron": "^45.0.0",

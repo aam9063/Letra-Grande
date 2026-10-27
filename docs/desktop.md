@@ -62,8 +62,8 @@ El proceso principal es código privilegiado. Reglas mínimas, todas verificable
 - Sin telemetría, sin analytics, sin scripts remotos. Lo mismo que en la web.
 - Una sola instancia por usuario.
 - **Permisos denegados por defecto.** `setPermissionRequestHandler` y `setPermissionCheckHandler` rechazan cámara, micrófono, geolocalización, notificaciones y portapapeles salvo que una función concreta lo necesite y se justifique en revisión. Con documentos personales dentro, una página comprometida pidiendo permisos es un vector real.
-- **Canal de actualización con confianza explícita.** La firma del paquete no protege del secuestro del feed: la URL de actualizaciones es fija y va por HTTPS, se exige firma también en el manifiesto de actualización y el certificado de firma se guarda en el gestor de secretos del CI, nunca en el repositorio.
-- El actualizador solo acepta paquetes firmados; sin firma, no hay actualización silenciosa.
+- **Canal de actualización con confianza explícita.** La firma del paquete no protege del secuestro del feed: la URL de actualizaciones es fija y va por HTTPS. El canal es GitHub Releases y es el único proveedor (sección 8 ter); el certificado de firma, cuando exista, se guarda en el gestor de secretos del CI, nunca en el repositorio.
+- Sin firma no hay actualización silenciosa: la instalación solo ocurre cuando la persona acepta el diálogo de reinicio (sección 8 ter).
 
 ## 5. Diferencia con la PWA en el comportamiento
 
@@ -128,6 +128,33 @@ pnpm --filter @letra-grande/web exec playwright screenshot --viewport-size=512,5
 ```
 
 Sustituye `<ruta-al-repo>` por la ruta de tu copia, con barras normales también en Windows. Se versiona el PNG y no el comando, porque el empaquetado no debe depender de tener navegadores instalados. Si cambia la identidad visual, se regenera con esa orden.
+
+## 8 ter. Canal de actualizaciones (DESK-03b)
+
+El descargable se actualiza con `electron-updater` contra GitHub Releases. Es la decisión D-12: un solo proveedor, sin telemetría y sin servidores de actualización de terceros. La configuración vive en `apps/desktop/electron-builder.yml` (`publish` con `provider: github`, `owner: aam9063`, `repo: Letra-Grande`, `releaseType: draft`); con ella, cada empaquetado genera `resources/app-update.yml`, el manifiesto que lee `electron-updater` en la app instalada.
+
+**Cuándo se comprueba.** Solo en la app empaquetada: en desarrollo no hay feed que consultar. La variable de entorno `LG_UPDATES=off` desactiva la comprobación de forma explícita. La comprobación ocurre una vez al arrancar.
+
+**Qué pregunta la app.** Dos diálogos nativos, siempre con la persona al mando:
+
+1. Si hay versión nueva: "¿Descargar ahora?" con los botones "Descargar ahora" y "Ahora no". Solo se descarga si la respuesta es afirmativa.
+2. Cuando la descarga termina: "¿Reiniciar ahora para instalarla?" con los botones "Reiniciar e instalar" y "Más tarde". `quitAndInstall` solo se llama si la respuesta es afirmativa.
+
+Nada se instala sin consentimiento: `autoDownload` y `autoInstallOnAppQuit` están desactivados, así que ni la descarga ni la instalación son automáticas. La misma versión no se anuncia dos veces en la misma sesión, para que no haya bucles de avisos.
+
+**Sin red.** La comprobación falla en silencio: el error queda en la consola del proceso principal y no se muestra nada. La app funciona igual sin conexión; solo el asistente la necesita, y ya avisa de ello.
+
+**Modo diagnóstico.** Ejecutar la app con `--check-updates` (desde el instalador o desde `win-unpacked`) hace una única comprobación, imprime una línea y sale, sin abrir ventana: `actualizacion disponible: 0.0.2` o `sin actualizaciones` con código 0, y `error: <motivo>` con código 1 si la comprobación falla. Es la herramienta para probar el canal sin interfaz.
+
+**Ritual de publicación.** La entrega la decide una persona:
+
+1. Subir la versión en `apps/desktop/package.json` y crear el tag `v<version>`, por ejemplo `v0.0.2`.
+2. Empaquetar y publicar con el token de GitHub: `pnpm package:win` con `GH_TOKEN` en el entorno y `--publish always` en lugar de `--publish never`. El empaquetado sube al borrador de la release los tres artefactos: `Letra Grande-<version>-x64.exe`, su `.blockmap` y `latest.yml`.
+3. Revisar el borrador en GitHub Releases y publicarlo. Mientras siga en borrador, la app instalada no ve la versión nueva.
+
+Para ensayar el canal de principio a fin se publican dos versiones de prueba (por ejemplo `v0.0.1` y `v0.0.2`) y se ejecuta `--check-updates` con la primera instalada: debe imprimir `actualizacion disponible: 0.0.2`.
+
+**Firma pendiente.** El paquete sigue sin firmar, así que Windows SmartScreen muestra "Editor desconocido" en la primera ejecución (sección 8). No bloquea la instalación ni la actualización, pero avisa. La firma de código se queda en el backlog como tarea de entrega.
 
 ## 9. Riesgos y límites
 

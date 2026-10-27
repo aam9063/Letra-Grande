@@ -13,7 +13,7 @@ Actualizado tras la Ola 1, la entrega del escritorio y el trabajo de interfaz. C
 | Ola 1 (documentación) | CORE-03: `ARCHITECTURE.md` y `data-model.md` | ninguno |
 | Ola 2 (módulos) | RADAR-01 (motor de plazos y `.ics`), AI-03a (recuperación BM25), AI-05 (guardarraíles), DOCS-01a (lectura de PDF en local) | DOCS-01b OCR (datos de idioma versionados, D-13), DOCS-02 y DOCS-03, RADAR-02 (interfaz de Hoy), AI-03 (pantalla del chat), AI-04 (evaluaciones), MOD-01 a MOD-03, CONTENT-02 a CONTENT-04 |
 | Ola 2 (interfaz) | UI-03 a UI-07: landing, shell responsive, onboarding, ajustes y carpeta, con sus specs de Playwright; UI-08 y UI-09: logo del proyecto en landing, icono recortado y icono de la app | el resto de pantallas de los módulos |
-| Escritorio (Windows) | DESK-01 build de dos salidas, DESK-02 ventana con `app://`, DESK-02c arranque en Hoy, DESK-03 instalador NSIS, DESK-03c icono de la marca | DESK-02d puerta del service worker, DESK-03b actualizador sobre GitHub Releases (canal decidido, D-12), DESK-04 macOS y Linux |
+| Escritorio (Windows) | DESK-01 build de dos salidas, DESK-02 ventana con `app://`, DESK-02c arranque en Hoy, DESK-03 instalador NSIS, DESK-03c icono de la marca, DESK-03b actualizador sobre GitHub Releases (canal decidido, D-12; falta el ensayo v0.0.1 contra v0.0.2, que espera al primer tag) | DESK-02d puerta del service worker, DESK-04 macOS y Linux |
 | Proceso y entrega | OPS-05, OPS-05c (el gate no da falsos rojos), OPS-05d (el informe se acepta con el id o el id base), OPS-05e (checkout del commit de la rama), H-10 (ramas protegidas) | ninguno |
 
 ## Detalle de las olas

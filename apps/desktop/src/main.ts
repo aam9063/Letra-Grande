@@ -8,6 +8,8 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { BrowserWindow, app, dialog, protocol, session, shell } from "electron";
+import electronUpdater from "electron-updater";
+import type { UpdateInfo } from "electron-updater";
 import { resolveAppUrl, type AppUrlResolution } from "./app-url.js";
 import { buildCsp } from "./csp.js";
 import { proxyOriginFromEnv, rendererDistOverride } from "./config.js";
@@ -16,6 +18,114 @@ import { APP_ORIGIN, isExternalWebUrl, isNavigationAllowed, startUrl } from "./n
 import { NO_PERMISSIONS_ALLOWED, isPermissionAllowed } from "./permissions.js";
 import { rendererRootError, resolveRendererRoot } from "./renderer-root.js";
 import { absolutePathInsideRoot } from "./root-guard.js";
+import { createVersionAnnouncer } from "./update-announce.js";
+import { shouldCheckForUpdates, updateCheckResult } from "./update-check.js";
+import { updateAvailableText, updateReadyText } from "./update-messages.js";
+
+// El actualizador solo habla con GitHub Releases (decision D-12): sin
+// telemetria y sin servidores de actualizacion de terceros. Nada se descarga
+// ni se instala sin que la persona lo acepte en un dialogo (seccion 4 de
+// docs/desktop.md).
+const { autoUpdater } = electronUpdater;
+
+/** Indicador del modo diagnostico: una comprobacion, una linea y fuera. */
+const CHECK_UPDATES_FLAG = "--check-updates";
+
+/** Memoria de versiones anunciadas de esta sesion: sin bucles de avisos. */
+const announcer = createVersionAnnouncer();
+
+function wantsDiagnosticUpdateCheck(): boolean {
+  return process.argv.includes(CHECK_UPDATES_FLAG);
+}
+
+/**
+ * Desactiva todo comportamiento automatico del actualizador. La descarga y la
+ * instalacion siempre pasan por un dialogo con respuesta afirmativa.
+ */
+function forbidAutomaticUpdaterBehavior(): void {
+  autoUpdater.autoDownload = false;
+  autoUpdater.autoInstallOnAppQuit = false;
+  // Sin registro del actualizador en consola: el modo diagnostico imprime una
+  // sola linea y los fallos normales quedan en silencio.
+  autoUpdater.logger = null;
+}
+
+/**
+ * Comprobacion unica del modo diagnostico. Devuelve la linea a imprimir y el
+ * codigo de salida. Ante cualquier fallo se imprime el motivo y se sale con
+ * error; nunca se abre ventana ni se muestra dialogo.
+ */
+async function diagnosticUpdateCheck(): Promise<{ line: string; exitCode: number }> {
+  try {
+    forbidAutomaticUpdaterBehavior();
+    const resultado = await autoUpdater.checkForUpdates();
+    const ultima = resultado?.updateInfo.version;
+    const actual = app.getVersion();
+    if (ultima !== undefined && ultima !== actual) {
+      return updateCheckResult({ kind: "available", version: ultima });
+    }
+    return updateCheckResult({ kind: "none" });
+  } catch (error) {
+    const mensaje = error instanceof Error ? error.message : String(error);
+    return updateCheckResult({ kind: "error", message: mensaje });
+  }
+}
+
+/** Dialogo de version nueva: descarga solo si la respuesta es afirmativa. */
+async function offerUpdateDownload(info: UpdateInfo): Promise<void> {
+  if (!announcer.shouldAnnounce(info.version)) return;
+  const texto = updateAvailableText(app.getVersion(), info.version);
+  const { response } = await dialog.showMessageBox({
+    type: "info",
+    title: texto.title,
+    message: texto.message,
+    buttons: ["Descargar ahora", "Ahora no"],
+    defaultId: 0,
+    cancelId: 1,
+    noLink: true,
+  });
+  if (response !== 0) return;
+  try {
+    await autoUpdater.downloadUpdate();
+  } catch {
+    // Fallo silencioso: el evento error ya lo deja en la consola.
+  }
+}
+
+/** Dialogo de version descargada: instala solo si la respuesta es afirmativa. */
+async function offerUpdateInstall(info: UpdateInfo): Promise<void> {
+  const texto = updateReadyText(info.version);
+  const { response } = await dialog.showMessageBox({
+    type: "info",
+    title: texto.title,
+    message: texto.message,
+    buttons: ["Reiniciar e instalar", "Mas tarde"],
+    defaultId: 0,
+    cancelId: 1,
+    noLink: true,
+  });
+  if (response === 0) autoUpdater.quitAndInstall();
+}
+
+/**
+ * Arranca el canal de actualizaciones en la app empaquetada. Comprueba al
+ * arrancar; la descarga y la instalacion requieren un dialogo aceptado. Los
+ * fallos son silenciosos para la persona: solo quedan en la consola.
+ */
+function setupUpdater(): void {
+  if (!shouldCheckForUpdates({ isPackaged: app.isPackaged, env: process.env })) return;
+  forbidAutomaticUpdaterBehavior();
+  autoUpdater.on("error", (error) => {
+    console.error("[actualizaciones]", error.message);
+  });
+  autoUpdater.on("update-available", (info) => {
+    void offerUpdateDownload(info);
+  });
+  autoUpdater.on("update-downloaded", (info) => {
+    void offerUpdateInstall(info);
+  });
+  void autoUpdater.checkForUpdates().catch(() => undefined);
+}
 
 const APP_URL = startUrl();
 
@@ -181,6 +291,15 @@ registerAppProtocol();
 const gotSingleInstanceLock = app.requestSingleInstanceLock();
 if (!gotSingleInstanceLock) {
   app.quit();
+} else if (wantsDiagnosticUpdateCheck()) {
+  // Modo diagnostico (DESK-03b): una comprobacion del canal, una linea con el
+  // resultado y salida con codigo claro. Sin ventana y sin dialogos. Sirve
+  // tanto al binario instalado como a win-unpacked.
+  void app.whenReady().then(async () => {
+    const resultado = await diagnosticUpdateCheck();
+    console.log(resultado.line);
+    app.exit(resultado.exitCode);
+  });
 } else {
   app.on("second-instance", focusMainWindow);
 
@@ -196,6 +315,7 @@ if (!gotSingleInstanceLock) {
     }
     configureSession(root);
     createMainWindow();
+    setupUpdater();
   });
 
   // Alcance inicial solo Windows: al cerrar la ventana se acaba el proceso.
