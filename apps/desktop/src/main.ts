@@ -8,6 +8,13 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { BrowserWindow, app, dialog, protocol, session, shell } from "electron";
+import electronUpdater from "electron-updater";
+import {
+  forbidAutomaticUpdaterBehavior,
+  setupUpdater as setupUpdaterFlow,
+  type UpdateFlowDeps,
+} from "./update-flow.js";
+import { downloadErrorText, type DialogText } from "./update-messages.js";
 import { resolveAppUrl, type AppUrlResolution } from "./app-url.js";
 import { buildCsp } from "./csp.js";
 import { proxyOriginFromEnv, rendererDistOverride } from "./config.js";
@@ -16,6 +23,91 @@ import { APP_ORIGIN, isExternalWebUrl, isNavigationAllowed, startUrl } from "./n
 import { NO_PERMISSIONS_ALLOWED, isPermissionAllowed } from "./permissions.js";
 import { rendererRootError, resolveRendererRoot } from "./renderer-root.js";
 import { absolutePathInsideRoot } from "./root-guard.js";
+import { createVersionAnnouncer } from "./update-announce.js";
+import { shouldCheckForUpdates, updateCheckResult } from "./update-check.js";
+
+// El actualizador solo habla con GitHub Releases (decision D-12): sin
+// telemetria y sin servidores de actualizacion de terceros. Nada se descarga
+// ni se instala sin que la persona lo acepte en un dialogo (seccion 4 de
+// docs/desktop.md). El comportamiento del canal vive en update-flow.ts, con
+// dependencias inyectables para poder probarlo.
+const { autoUpdater } = electronUpdater;
+
+/** Indicador del modo diagnostico: una comprobacion, una linea y fuera. */
+const CHECK_UPDATES_FLAG = "--check-updates";
+
+function wantsDiagnosticUpdateCheck(): boolean {
+  return process.argv.includes(CHECK_UPDATES_FLAG);
+}
+
+/**
+ * Comprobación única del modo diagnostico. Devuelve la linea a imprimir y el
+ * codigo de salida. Ante cualquier fallo se imprime el motivo y se sale con
+ * error; nunca se abre ventana ni se muestra dialogo.
+ */
+async function diagnosticUpdateCheck(): Promise<{ line: string; exitCode: number }> {
+  try {
+    forbidAutomaticUpdaterBehavior(autoUpdater);
+    const resultado = await autoUpdater.checkForUpdates();
+    const ultima = resultado?.updateInfo.version;
+    const actual = app.getVersion();
+    if (ultima !== undefined && ultima !== actual) {
+      return updateCheckResult({ kind: "available", version: ultima });
+    }
+    return updateCheckResult({ kind: "none" });
+  } catch (error) {
+    const mensaje = error instanceof Error ? error.message : String(error);
+    return updateCheckResult({ kind: "error", message: mensaje });
+  }
+}
+
+/** Dialogo nativo con dos botones: true solo con el primero (el afirmativo). */
+async function askDialog(texto: DialogText, affirmativeButton: string, dismissButton: string): Promise<boolean> {
+  const { response } = await dialog.showMessageBox({
+    type: "info",
+    title: texto.title,
+    message: texto.message,
+    buttons: [affirmativeButton, dismissButton],
+    defaultId: 0,
+    cancelId: 1,
+    noLink: true,
+  });
+  return response === 0;
+}
+
+/** Aviso corto con un solo boton Aceptar. Sin reintentos. */
+async function showErrorNotice(texto: DialogText): Promise<void> {
+  await dialog.showMessageBox({
+    type: "warning",
+    title: texto.title,
+    message: texto.message,
+    buttons: ["Aceptar"],
+    noLink: true,
+  });
+}
+
+/** Dependencias reales del flujo: dialogos nativos y version instalada. */
+function realUpdateFlowDeps(): UpdateFlowDeps {
+  const announcer = createVersionAnnouncer();
+  return {
+    updater: autoUpdater,
+    shouldAnnounce: announcer.shouldAnnounce,
+    currentVersion: () => app.getVersion(),
+    askDownload: (texto) => askDialog(texto, "Descargar ahora", "Ahora no"),
+    askInstall: (texto) => askDialog(texto, "Reiniciar e instalar", "Más tarde"),
+    notifyDownloadError: () => showErrorNotice(downloadErrorText()),
+  };
+}
+
+/**
+ * Arranca el canal de actualizaciones en la app empaquetada. Comprueba al
+ * arrancar; la descarga y la instalacion requieren un dialogo aceptado. Los
+ * fallos son silenciosos para la persona: solo quedan en la consola.
+ */
+function setupUpdater(): void {
+  if (!shouldCheckForUpdates({ isPackaged: app.isPackaged, env: process.env })) return;
+  setupUpdaterFlow(realUpdateFlowDeps());
+}
 
 const APP_URL = startUrl();
 
@@ -181,6 +273,15 @@ registerAppProtocol();
 const gotSingleInstanceLock = app.requestSingleInstanceLock();
 if (!gotSingleInstanceLock) {
   app.quit();
+} else if (wantsDiagnosticUpdateCheck()) {
+  // Modo diagnostico (DESK-03b): una comprobacion del canal, una linea con el
+  // resultado y salida con codigo claro. Sin ventana y sin dialogos. Sirve
+  // tanto al binario instalado como a win-unpacked.
+  void app.whenReady().then(async () => {
+    const resultado = await diagnosticUpdateCheck();
+    console.log(resultado.line);
+    app.exit(resultado.exitCode);
+  });
 } else {
   app.on("second-instance", focusMainWindow);
 
@@ -196,6 +297,7 @@ if (!gotSingleInstanceLock) {
     }
     configureSession(root);
     createMainWindow();
+    setupUpdater();
   });
 
   // Alcance inicial solo Windows: al cerrar la ventana se acaba el proceso.

@@ -24,6 +24,16 @@ win:
       arch:
         - x64
   artifactName: ${productName}-${version}-${arch}.${ext}
+# Canal de actualizaciones (DESK-03b, decision D-12): GitHub Releases. Es el
+# unico proveedor: sin telemetria y sin servidores de actualizacion de
+# terceros. La publicacion genera un borrador que una persona revisa antes de
+# publicarlo. Con esta configuracion electron-builder genera app-update.yml en
+# resources/, que es lo que lee electron-updater en la app instalada.
+publish:
+  provider: github
+  owner: aam9063
+  repo: Letra-Grande
+  releaseType: draft
 nsis:
   oneClick: false
   allowToChangeInstallationDirectory: true
