@@ -45,6 +45,29 @@ jobs:
           test -f apps/web/dist-desktop/index.html
           test -f apps/web/dist-desktop/hoy/index.html
 
+  perf:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      # El presupuesto se mide sobre el build de producción de la web, no sobre
+      # el servidor de desarrollo: en desarrollo Next sirve chunks sin hash y sin
+      # minificar, y las cifras no se parecen. QA-05.
+      - run: pnpm build
+      - name: Presupuesto de primera carga y camino crítico
+        run: pnpm perf:bundle
+      # Lighthouse mide el mismo build servido por `next start`. El runner de
+      # ubuntu-latest trae Chrome; el script usa el Lighthouse del lockfile, nunca
+      # npx. Arranca y para el servidor él mismo, también cuando algo falla.
+      - name: Lighthouse contra el build de producción
+        run: pnpm perf:lighthouse
+
   e2e:
     runs-on: ubuntu-latest
     timeout-minutes: 15
