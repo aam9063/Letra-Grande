@@ -106,6 +106,12 @@ Cuatro recomendados y tres notas, todos aplicados en la única ronda que permite
 
 Queda como nota sin acción el pendiente humano de añadir `perf` a los checks requeridos de la rama protegida (H-10), documentado en `docs/rendimiento.md`.
 
+### La CI encontró un fallo real del diseño (mientras se entregaba)
+
+El primer run del job `perf` se puso en rojo: `/` con Total Blocking Time de 329 ms frente al umbral de 300, con el mismo build que en local daba 10 ms y 28 ms. No era una regresión de la app, era el ruido de medir una vez en un runner compartido. La corrección no fue subir el umbral (eso escondería la regresión real de mañana) sino medir tres veces por ruta y presupuestar la mediana (`mediana` y `combinarInformes` en `check-lighthouse-budget.mjs`, siete tests nuevos; `LG_PERF_REPS` para cambiar el número de corridas). La CI imprime las medidas de cada ruta que pasa, así que el log sirve de evidencia.
+
+Medianas del primer run en verde: `/` con rendimiento 0.98, TBT 57 ms, LCP 2 419 ms; `/hoy` con rendimiento 0.99, TBT 102 ms, LCP 2 110 ms. Registradas en `docs/rendimiento.md`.
+
 ### Comprobado a mano
 
 - `pnpm perf:bundle` sobre la build real: presupuesto cumplido y camino crítico limpio.

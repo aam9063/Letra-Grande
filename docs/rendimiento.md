@@ -52,7 +52,25 @@ Lighthouse 12.8.2 con el mismo build servido por `next start`, dos corridas en m
 | Speed Index | 1 218 ms | 1 508 ms | 4 000 ms |
 | Peso de la página | 253 KiB | 185 KiB | no se presupuesta |
 
-Los umbrales de rendimiento y de tiempos están muy por debajo de la línea base porque el runner de la CI es más lento y más ruidoso que un equipo local, y el objetivo es cazar regresiones, no medir al milímetro. Accesibilidad va a 1 sin margen: es un requisito del proyecto (AA), no una aspiración. El peso de la página no se presupuesta porque las métricas de Lighthouse ya lo cubren de forma indirecta y un límite de bytes totales penalizaría imágenes de contenido que no están en el camino crítico.
+### Calibración con la CI
+
+Una sola corrida de Lighthouse en un runner compartido no es una medida estable. En la primera ejecución del job `perf`, `/` sacó un Total Blocking Time de 329 ms con el mismo build que en local daba 10 ms, y el job se puso en rojo por azar. Por eso cada ruta se mide tres veces (`LG_PERF_REPS` para cambiarlo) y se presupuesta la mediana de cada categoría y métrica. El log de la CI imprime las medidas en cada corrida que pasa, así que sirven de evidencia y de histórico.
+
+Medianas de la primera ejecución en verde del job, en el runner de GitHub (ubuntu-latest, móvil emulado):
+
+| Métrica | `/` | `/hoy` | Umbral |
+|---|---|---|---|
+| Rendimiento | 0.98 | 0.99 | 0.85 |
+| Accesibilidad | 1 | 1 | 1 |
+| Buenas prácticas | 0.96 | 0.96 | 0.9 |
+| SEO | 1 | 1 | 0.9 |
+| First Contentful Paint | 1 064 ms | 761 ms | 2 500 ms |
+| Largest Contentful Paint | 2 419 ms | 2 110 ms | 4 000 ms |
+| Total Blocking Time | 57 ms | 102 ms | 300 ms |
+| Cumulative Layout Shift | 0 | 0 | 0.1 |
+| Speed Index | 1 064 ms | 767 ms | 4 000 ms |
+
+Los umbrales de tiempos quedan entre dos y cinco veces por encima de estas medianas a propósito: el objetivo es cazar regresiones de verdad, no medir al milímetro en una máquina que no controlamos. Con la mediana, un pico aislado ya no decide el veredicto, así que no hace falta aflojar los números para que la CI deje de fallar por azar. Accesibilidad va a 1 sin margen: es un requisito del proyecto (AA), no una aspiración. El peso de la página no se presupuesta porque las métricas de Lighthouse ya lo cubren de forma indirecta y un límite de bytes totales penalizaría imágenes de contenido que no están en el camino crítico.
 
 Estas cifras se miden en local. Las de la CI pueden salir algo peores por el runner compartido, y por eso los umbrales no son la línea base exacta.
 
