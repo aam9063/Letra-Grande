@@ -2,6 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   PREFIJO_RAMA,
+  esAutoMergeNoDisponible,
   cuerpoDePr,
   decidirSincronizacion,
   nombreDeRama,
@@ -103,4 +104,20 @@ test("abortar gana a sincronizar si llegan las dos señales raras a la vez", () 
   });
 
   assert.equal(decision.accion, "abortar");
+});
+
+test("solo se cae al merge directo cuando el auto-merge no está disponible", () => {
+  assert.equal(
+    esAutoMergeNoDisponible("GraphQL: Auto-merge is not enabled for this repository (mergePullRequest)"),
+    true,
+  );
+  assert.equal(
+    esAutoMergeNoDisponible("GraphQL: Pull request is in unstable status (mergePullRequest)"),
+    false,
+  );
+});
+
+test("un fallo de comprobaciones o de red no se confunde con falta de auto-merge", () => {
+  assert.equal(esAutoMergeNoDisponible("HTTP 403: Resource not accessible by personal access token"), false);
+  assert.equal(esAutoMergeNoDisponible("HTTP 429 rate limit exceeded"), false);
 });
