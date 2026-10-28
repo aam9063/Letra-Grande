@@ -1,0 +1,29 @@
+id: cnmc-energia
+name: Comisión Nacional de los Mercados y la Competencia (consumidores de energía)
+scope: estatal
+sectors: [energia]
+url: https://www.cnmc.es/facil-para-ti/que-hace-la-cnmc-para-consumidores/comercializacion-y-suministro-electrico
+howToFile: >-
+  La reclamación se dirige primero a la empresa: a la comercializadora para cambios o dudas
+  sobre la tarifa, altas y bajas de compañía o gestión del contrato, y a la distribuidora para
+  lo que afecta a la red. Las reclamaciones ante la distribuidora se pueden presentar también
+  a través de la comercializadora. La CNMC publica una guía de cómo presentar una reclamación
+  y, si el conflicto no se resuelve, la persona consumidora puede acudir al organismo de
+  consumo que le corresponda.
+sources:
+  - id: cnmc-electrico
+    title: Comercialización y suministro eléctrico | CNMC
+    url: https://www.cnmc.es/facil-para-ti/que-hace-la-cnmc-para-consumidores/comercializacion-y-suministro-electrico
+    kind: oficial
+    retrievedOn: "2026-10-28"
+  - id: miteco-reclamaciones
+    title: Reclamaciones de energía eléctrica | MITECO
+    url: https://www.miteco.gob.es/es/energia/energia-electrica/electricidad/contratacion-suministro/reclamaciones.html
+    kind: oficial
+    retrievedOn: "2026-10-28"
+verification:
+  verified: false
+  note: >-
+    Borrador preparado por el agente con las fuentes oficiales consultadas el 2026-10-28.
+    Pendiente de verificación humana (H-07): la ficha no afirma a qué órgano concreto de
+    consumo se eleva la reclamación, porque depende de la comunidad.

@@ -1,0 +1,26 @@
+id: consumo-estatal
+name: Ministerio de Derechos Sociales, Consumo y Agenda 2030 (información y vía de reclamación en consumo)
+scope: estatal
+sectors: [energia, telefonia, banca, seguros, transporte, suscripciones, vivienda, otros]
+url: https://www.dsca.gob.es/es/consumo/como-reclamar-conflicto-consumo
+howToFile: >-
+  La ficha indica esta ruta, en orden: recopila toda la información disponible (facturas,
+  recibos y comunicaciones con el vendedor), contacta con el vendedor, y si no hay acuerdo,
+  redacta una reclamación formal. Después puedes contactar con una organización de personas
+  consumidoras y presentar una queja ante las autoridades de protección: oficinas municipales
+  de información a la persona consumidora en el ámbito local, organismos autonómicos de
+  consumo en el autonómico, y el Centro Europeo del Consumidor en España si la empresa es de
+  fuera de España. También se puede acudir a las juntas arbitrales, a la mediación o a la vía
+  judicial.
+sources:
+  - id: dsca-como-reclamar
+    title: Reclamaciones | Ministerio de Derechos Sociales, Consumo y Agenda 2030
+    url: https://www.dsca.gob.es/es/consumo/como-reclamar-conflicto-consumo
+    kind: oficial
+    retrievedOn: "2026-10-28"
+verification:
+  verified: false
+  note: >-
+    Borrador preparado por el agente con la fuente oficial consultada el 2026-10-28. Pendiente
+    de verificación humana (H-07): confirmar que el ministerio mantiene esta página y que la
+    ruta de reclamación sigue siendo la que describe.

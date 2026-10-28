@@ -1,0 +1,28 @@
+id: oficina-atencion-usuario-telecomunicaciones
+name: Oficina de Atención al Usuario de Telecomunicaciones
+scope: estatal
+sectors: [telefonia]
+url: https://usuariosteleco.digital.gob.es/reclamaciones/telefonia-e-internet
+howToFile: >-
+  Primero hay que reclamar al operador, que debe aceptar la presentación por teléfono, además
+  de por internet, correo postal o en sus oficinas comerciales. Si no se resuelve, se presenta
+  la reclamación ante la Oficina: por vía telemática con firma electrónica desde su web, o en
+  papel por correo postal o en los registros habilitados. La Oficina no da información sobre
+  reclamaciones en las dependencias de la Secretaría de Estado.
+sources:
+  - id: usuariosteleco-reclamaciones
+    title: Telefonía e Internet | Usuarios Teleco
+    url: https://usuariosteleco.digital.gob.es/reclamaciones/telefonia-e-internet
+    kind: oficial
+    retrievedOn: "2026-10-28"
+  - id: usuariosteleco-papel
+    title: Tramitación de reclamaciones en papel | Usuarios Teleco
+    url: https://usuariosteleco.digital.gob.es/reclamaciones/telefonia-e-internet/tramitacion-papel
+    kind: oficial
+    retrievedOn: "2026-10-28"
+verification:
+  verified: false
+  note: >-
+    Borrador preparado por el agente con las fuentes oficiales consultadas el 2026-10-28.
+    Pendiente de verificación humana (H-07), en especial el plazo de resolución de la Oficina,
+    que esta ficha no afirma.
