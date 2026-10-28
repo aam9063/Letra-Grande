@@ -1,0 +1,31 @@
+id: consumo-comunitat-valenciana
+name: Dirección General de Comercio, Artesanía y Consumo (Comunitat Valenciana)
+scope: autonomico
+region: Comunitat Valenciana
+sectors: [energia, telefonia, banca, seguros, transporte, suscripciones, vivienda, otros]
+url: https://cindi.gva.es/es/web/consumo/presentacion-de-reclamaciones-y-quejas
+howToFile: >-
+  Primero hay que dirigirse al servicio de atención al cliente de la empresa o profesional. Si
+  no hay acuerdo, la reclamación o queja se puede presentar en los servicios territoriales de
+  Comercio y Consumo de la conselleria, en la oficina municipal de información al consumidor
+  del municipio (OMIC), en las asociaciones de personas consumidoras, o de forma telemática
+  con certificado digital. La empresa debe disponer de hojas de reclamaciones oficiales; si no
+  las tiene, se puede presentar un escrito con los datos y la descripción de los hechos.
+sources:
+  - id: gva-consumo-reclamaciones
+    title: Presentación de reclamaciones y quejas | Consumo, Generalitat Valenciana
+    url: https://cindi.gva.es/es/web/consumo/presentacion-de-reclamaciones-y-quejas
+    kind: oficial
+    retrievedOn: "2026-10-28"
+  - id: dsca-servicios-autonomicos
+    title: Servicios autonómicos de Consumo en la Comunidad Valenciana | Ministerio de Derechos Sociales, Consumo y Agenda 2030
+    url: https://www.dsca.gob.es/es/consumo/organismos-autonomicos-consumo/servicios-autonomicos-consumo-comunidad-valenciana
+    kind: oficial
+    retrievedOn: "2026-10-28"
+verification:
+  verified: false
+  note: >-
+    Borrador preparado por el agente con las fuentes oficiales consultadas el 2026-10-28. El
+    nombre de la dirección general y su dirección postal salen del directorio del ministerio;
+    la ruta de reclamación, de la web de consumo de la Generalitat. Pendiente de verificación
+    humana (H-07).

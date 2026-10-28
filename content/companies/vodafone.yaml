@@ -1,0 +1,25 @@
+id: vodafone
+name: Vodafone
+sector: telefonia
+channels:
+  atencionCliente: []
+  reclamacion:
+    - kind: web
+      value: https://ayudacliente.vodafone.es/particulares/detalles-de-tu-contrato/tus-contratos/como-poner-una-reclamacion-en-vodafone/
+      notes: La página es la de reclamaciones de la compañía.
+      sourceId: vodafone-web
+  baja: []
+escalation:
+  - oficina-atencion-usuario-telecomunicaciones
+  - consumo-estatal
+  - consumo-comunitat-valenciana
+sources:
+  - id: vodafone-web
+    title: Cómo poner una reclamación en Vodafone | Ayuda Vodafone Particulares
+    url: https://ayudacliente.vodafone.es/particulares/detalles-de-tu-contrato/tus-contratos/como-poner-una-reclamacion-en-vodafone/
+    kind: empresa
+    retrievedOn: "2026-10-28"
+verification:
+  verified: false
+  note: >-
+    Borrador preparado por el agente con la página oficial consultada el 2026-10-28. Pendiente de verificación humana (H-07).

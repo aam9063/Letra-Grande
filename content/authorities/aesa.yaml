@@ -1,0 +1,22 @@
+id: aesa
+name: Agencia Estatal de Seguridad Aérea (derechos de los pasajeros)
+scope: estatal
+sectors: [transporte]
+url: https://www.seguridadaerea.gob.es/es/ambitos/derechos-de-los-pasajeros
+howToFile: >-
+  La página de derechos de los pasajeros de AESA recoge cómo reclamar por cancelación, retraso
+  o denegación de embarque, y desde ella se inicia la reclamación con la Agencia. La ficha no
+  detalla plazos ni documentación: eso queda para la verificación humana y para la ficha de
+  trámite correspondiente.
+sources:
+  - id: aesa-derechos-pasajeros
+    title: Derechos de los pasajeros | AESA
+    url: https://www.seguridadaerea.gob.es/es/ambitos/derechos-de-los-pasajeros
+    kind: oficial
+    retrievedOn: "2026-10-28"
+verification:
+  verified: false
+  note: >-
+    Borrador preparado por el agente con la fuente oficial consultada el 2026-10-28. Pendiente
+    de verificación humana (H-07): añadir el plazo de reclamación y la documentación exigida,
+    que esta ficha no afirma para no inventar.
