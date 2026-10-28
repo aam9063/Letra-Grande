@@ -68,7 +68,7 @@ Si el validador falla, corrige lo que señala y vuelve a ejecutarlo. No desactiv
 7. Antes de abrir el PR: `pnpm check` y `pnpm e2e` en verde.
 8. Pasa el review gate (sección 22 de `docs/ARRANQUE.md`): un revisor de contexto limpio, solo lectura, con como máximo una ronda de correcciones. Los refactores opcionales se registran como `REF-<id>` en el backlog, no se ejecutan.
 9. Actualiza `docs/backlog.md` y la documentación afectada en el mismo PR.
-10. Haz commit en tu rama y abre el PR. **No hagas merge a `main`**: la entrega la decide una persona.
+10. Haz commit en tu rama y abre el PR. **No hagas merge a `main`**: la entrega la decide una persona, y de `dev` a `main` se fusiona con commit de fusión, nunca con squash (el job `check` lo comprueba, ver `docs/review-gate.md`).
 
 ## 3. Lo que nunca se hace
 
