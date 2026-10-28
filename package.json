@@ -5,9 +5,7 @@
   "description": "Herramienta abierta para entender facturas, reclamar y darse de baja, con los datos personales siempre en tu dispositivo.",
   "license": "MIT",
   "packageManager": "pnpm@10.28.0",
-  "engines": {
-    "node": ">=22"
-  },
+  "engines": { "node": ">=22" },
   "scripts": {
     "dev": "pnpm --filter @letra-grande/web dev",
     "build": "pnpm --filter @letra-grande/web build",
@@ -15,14 +13,18 @@
     "package:win": "pnpm --filter @letra-grande/desktop package:win",
     "typecheck": "pnpm -r typecheck",
     "test": "pnpm -r test",
+    "test:scripts": "node --test scripts/check-bundle-budget.test.mjs scripts/check-decisions.test.mjs scripts/check-lighthouse-budget.test.mjs scripts/check-main-history.test.mjs scripts/check-review-report.test.mjs scripts/sync-dev.test.mjs",
     "content:validate": "pnpm --filter @letra-grande/schema validate-content",
     "style": "node scripts/check-style.mjs",
-    "check": "pnpm style && pnpm decisions:check && pnpm typecheck && pnpm test && pnpm content:validate",
+    "check": "pnpm style && pnpm decisions:check && pnpm test:scripts && pnpm typecheck && pnpm test && pnpm content:validate",
     "e2e": "pnpm --filter @letra-grande/web e2e",
     "check:full": "pnpm check && pnpm e2e",
+    "perf:bundle": "node scripts/check-bundle-budget.mjs apps/web/.next",
+    "perf:lighthouse": "node scripts/run-lighthouse.mjs",
     "decisions:check": "node scripts/check-decisions.mjs"
   },
   "devDependencies": {
+    "lighthouse": "^12.8.2",
     "typescript": "^7.0.2"
   }
 }

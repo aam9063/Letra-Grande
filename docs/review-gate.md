@@ -155,6 +155,8 @@ Dos trampas aparecidas al cerrar tareas contra el gate, para no volver a pisarla
 
 La plantilla de PR lleva una línea de riesgo con una convención fija y legible por máquina: el literal es exactamente `Risk: item N` o `Risk: none`, en inglés. No se traduce: así lo espera la plantilla de `.github/PULL_REQUEST_TEMPLATE.md`.
 
+`pnpm check` ejecuta también los tests de los scripts de CI (`scripts/*.test.mjs`) con `test:scripts`, así que una regresión en el gate, la guardia de historia o la sincronización se ve en local antes de subir nada. En el workflow solo quedan las comprobaciones de verdad, no los tests duplicados.
+
 ## Entrega a main: fusión, nunca squash
 
 Regla fija desde que costó una tarde: **de `dev` a `main` se fusiona con commit de fusión, jamás con squash**, y antes de abrir esa entrega la rama tiene que llevar toda la historia de `main`.
@@ -174,7 +176,7 @@ Qué hacer en cada entrega, en orden:
 
 Después de cada entrega, `main` tendrá el commit de fusión que `dev` no tiene. Se vuelve a la normalidad fusionando `main` en `dev` (el paso 1 del siguiente ciclo), que no cambia ni una línea: solo une la historia. Como `dev` exige PR, esa sincronización también va por PR, con el mismo contenido de `dev` y fusionada con commit de fusión.
 
-La sincronización no se hace a mano: el workflow `sync-dev` (`OPS-11`) se dispara con cada push a `main`, crea una rama desde `dev`, fusiona `main`, comprueba que el árbol es idéntico al de `dev`, abre el PR y lo fusiona con commit de fusión cuando las tres comprobaciones están en verde. Si el árbol cambiara, no abre nada y falla para que alguien lo mire. Necesita el secreto `SYNC_TOKEN`: los PRs abiertos con el `GITHUB_TOKEN` por defecto no disparan workflows, así que sin token propio el PR de sincronización no tendría comprobaciones. Sin el secreto, el workflow avisa y termina sin fallar.
+La sincronización no se hace a mano: el workflow `sync-dev` (`OPS-11`) se dispara con cada push a `main`, crea una rama desde `dev`, fusiona `main`, comprueba que el árbol es idéntico al de `dev`, abre el PR y lo fusiona con commit de fusión cuando las tres comprobaciones están en verde. Si el árbol cambiara, no abre nada y falla para que alguien lo mire. Necesita el secreto `SYNC_TOKEN`: los PRs abiertos con el `GITHUB_TOKEN` por defecto no disparan workflows, así que sin token propio el PR de sincronización no tendría comprobaciones. El repositorio necesita el ajuste **Allow auto-merge** activado en Settings, General: el workflow no espera las comprobaciones, las espera GitHub. El token es fine-grained y solo necesita **Contents** y **Pull requests** de lectura y escritura: no pide permisos sobre la API de comprobaciones, porque el workflow no las espera, las espera GitHub con el auto-merge del repositorio. Sin el secreto, el workflow avisa y termina sin fallar.
 
 El tercer paso no depende de la memoria de nadie: el repositorio tiene una regla de rama sobre `main` ("main: solo commit de fusión") que deja el botón de squash fuera. La regla no se puede saltar ni con permisos de administración, y las tres comprobaciones (`check`, `e2e`, `review-report`) siguen exigidas por la protección de rama de siempre. Si algún día hay que cambiarla, se hace en Settings, Rules, y se anota aquí.
 

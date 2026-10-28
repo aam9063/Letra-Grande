@@ -1,0 +1,37 @@
+{
+  "$comment": "Presupuesto de rendimiento de la web (QA-05). Los tamaños son el JavaScript de primera carga en gzip, medido sobre el HTML prerenderizado de `pnpm build` por scripts/check-bundle-budget.mjs. Línea base medida en la rama lg/qa-05-rendimiento: entre 169.5 KiB (/) y 181.1 KiB (/carpeta), con 1952.8 KiB de suma entre rutas porque cada una paga su propia primera carga; el totalGzip presupuesta esa suma por debajo de la suma de los maximos por ruta: asi un crecimiento repartido entre varias rutas, que ninguna supera por si sola, si hace fallar la comprobacion de total. Lighthouse dio 0.99 de rendimiento y 0.96 de buenas prácticas en /hoy con el build de producción. Los límites quedan dos cifras por encima de la línea base a propósito: subirlos es una decisión que se revisa en el diff del PR.",
+  "porRuta": {
+    "/": 200000,
+    "/ajustes": 210000,
+    "/asistente": 205000,
+    "/ayudas": 205000,
+    "/carpeta": 212000,
+    "/datos": 205000,
+    "/familia": 205000,
+    "/hoy": 205000,
+    "/onboarding": 200000,
+    "/reclamar": 205000,
+    "/vida": 205000
+  },
+  "totalGzip": 2030000,
+  "caminoCritico": {
+    "prohibidos": ["tesseract", "pdfjs", "traineddata"]
+  },
+  "lighthouse": {
+    "$comment": "Umbrales del job de CI que corre Lighthouse contra el build de producción. Las categorías son 0..1; los tiempos en milisegundos.",
+    "rutas": ["/", "/hoy"],
+    "categorias": {
+      "performance": 0.85,
+      "accessibility": 1,
+      "best-practices": 0.9,
+      "seo": 0.9
+    },
+    "metricas": {
+      "first-contentful-paint": 2500,
+      "largest-contentful-paint": 4000,
+      "total-blocking-time": 300,
+      "cumulative-layout-shift": 0.1,
+      "speed-index": 4000
+    }
+  }
+}

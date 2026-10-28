@@ -28,6 +28,21 @@ export function necesitaSincronizacion({ mainEsAncestroDeDev }) {
 }
 
 /**
+ * ¿El fallo de `gh pr merge --auto` es porque el auto-merge no está disponible?
+ *
+ * Solo en ese caso se intenta el merge directo. Cualquier otro error (una
+ * comprobación roja, un límite de peticiones, un fallo de red) tiene que verse
+ * tal cual: tragárselo dejaría el PR abierto y sin auto-merge sin que nadie lo
+ * supiera.
+ *
+ * @param {string} mensaje Salida del comando fallido.
+ * @returns {boolean} Verdadero si el motivo es la falta de auto-merge.
+ */
+export function esAutoMergeNoDisponible(mensaje) {
+  return /auto-?merge/i.test(mensaje) && /(disabled|not enabled|no está habilitado|protected branch)/i.test(mensaje);
+}
+
+/**
  * Decide qué hacer con la sincronización.
  *
  * La regla de oro vive aquí: solo se abre un PR si el árbol resultante es
@@ -104,7 +119,7 @@ export function cuerpoDePr({ commits, mainSha, devSha }) {
     "## Cómo se verificó",
     "",
     "- [x] Fusión sin conflictos y árbol idéntico al de `dev`, comprobado antes de abrir el PR",
-    "- [ ] `pnpm check` y `pnpm e2e` en verde (CI de este PR)",
+    "- Auto-merge: el workflow lo arma al terminar, y GitHub fusiona cuando `check`, `e2e` y `review-report` están en verde",
     "",
     "## Riesgo",
     "",
@@ -162,9 +177,10 @@ export function main() {
         "",
         "Hace falta un token propio porque los PRs abiertos con el GITHUB_TOKEN por",
         "defecto no disparan workflows, así que su PR de sincronización nunca tendría",
-        "comprobaciones. Crear un token de acceso personal con permiso de lectura y",
-        "escritura sobre Contents y Pull requests de este repositorio, y guardarlo como",
-        "secreto SYNC_TOKEN en Settings, Secrets and variables, Actions.",
+        "comprobaciones. Crear un token de acceso personal (fine-grained) con permiso de",
+        "lectura y escritura sobre Contents y Pull requests de este repositorio, sin más:",
+        "el workflow no espera las comprobaciones, las espera GitHub con el auto-merge.",
+        "Guardarlo como secreto SYNC_TOKEN en Settings, Secrets and variables, Actions.",
       ].join("\n"),
     );
     return 0;
@@ -246,9 +262,27 @@ export function main() {
     console.log(`PR abierto: ${prUrl}`);
   }
 
-  gh(["pr", "checks", prUrl, "--watch", "--interval", "20", "--exit-status"]);
-  gh(["pr", "merge", prUrl, "--merge", "--delete-branch"]);
-  console.log("Sincronización fusionada.");
+  // No se espera a las comprobaciones: se arma el auto-merge y GitHub fusiona
+  // cuando check, e2e y review-report están en verde. Así el token no necesita
+  // permisos sobre la API de comprobaciones, que los tokens fine-grained no
+  // ofrecen, y el workflow no se queda media hora colgado esperando.
+  try {
+    gh(["pr", "merge", prUrl, "--merge", "--auto", "--delete-branch"]);
+    console.log("Auto-merge armado: GitHub fusionará la sincronización cuando esté en verde.");
+  } catch (error) {
+    const mensaje = error instanceof Error ? error.message : String(error);
+    if (!esAutoMergeNoDisponible(mensaje)) {
+      // Cualquier otro motivo se ve tal cual: no se inventa una salida.
+      console.error(`No se pudo armar el auto-merge:\n${mensaje}`);
+      return 1;
+    }
+    // El repositorio no tiene el auto-merge activado: se intenta el merge
+    // directo, que solo funciona si el PR ya está limpio y en verde. La
+    // protección de `dev` es la que impide fusionar con comprobaciones rojas.
+    console.log("El auto-merge no está disponible; se intenta fusionar directamente.");
+    gh(["pr", "merge", prUrl, "--merge", "--delete-branch"]);
+    console.log("Sincronización fusionada.");
+  }
   return 0;
 }
 
