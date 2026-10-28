@@ -76,7 +76,7 @@ Esto es un resultado incómodo de escribir y conviene decirlo claro: un spec de 
 
 ### Seguimiento anotado por el review
 
-Las 60 comprobaciones nuevas engordan el job de `e2e`, que tiene 15 minutos y 2 workers en la CI. No afectan al job `perf` de QA-05, que es otro. Si al fusionar la duración del job se acerca al límite, se parte cada bucle de zoom y de movimiento reducido en un test por ruta en vez de recorrer las once dentro de uno solo. No se hace ahora: es una decisión que necesita la medida real de la CI.
+Las 60 comprobaciones nuevas engordan el job de `e2e`, que tiene 15 minutos y 2 workers. Medido en la CI del PR #75, ya con las 174 comprobaciones: **3m23s**, menos de un cuarto del límite (el mismo job tardaba 1m45s con 114). No hace falta partir los bucles de zoom y de movimiento reducido en un test por ruta; si el e2e se acercara al límite con las tareas siguientes, ese es el primer sitio donde mirar. El job `perf` de QA-05 es otro y no se ve afectado.
 
 ### Lo que no se puede automatizar
 
