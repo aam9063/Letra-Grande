@@ -45,7 +45,7 @@ Aviso de carril: `apps/web/e2e` es superficie compartida con los specs de interf
 - [x] Documento de funcionalidad antes del primer código.
 - [x] Spec de axe AA sobre las rutas principales.
 - [x] Autocomprobación del propio spec: axe detecta un HTML roto conocido.
-- [x] Zoom al 200 % (640 px de escritorio) y 375 px sin scroll horizontal ni título cortado.
+- [x] Zoom al 200 % (640 px de escritorio) y 375 px: sin scroll horizontal y con el título dentro del ancho. El contenido cortado por debajo queda para el recorrido manual.
 - [x] Movimiento reducido sin animaciones perceptibles.
 - [x] Recorrido manual con lector de pantalla documentado en `docs/accesibilidad.md` y registrado como pendiente humano en el backlog.
 - [x] Documentación (`docs/accesibilidad.md`, README) y backlog actualizados.
@@ -66,13 +66,17 @@ Esto es un resultado incómodo de escribir y conviene decirlo claro: un spec de 
 
 - **11 de axe**, una por ruta: portada, hoy, carpeta, asistente, ayudas, datos, familia, reclamar, vida, ajustes y onboarding. El fallo lista la violación, su impacto y el selector de cada nodo.
 - **1 de autocomprobación**: inyecta un HTML con una imagen sin `alt` y un botón sin nombre y exige que axe lo detecte (`image-alt`, `button-name`). Si el motor o el nivel se configuran mal, este test cae y el verde de los otros once deja de valer.
-- **2 de zoom**: escritorio al 200 % (640 px de ancho en CSS, que es lo que calcula el navegador con zoom al doble sobre 1280) y móvil a 375 px. En cada ruta: sin scroll horizontal y el título visible y dentro del ancho.
-- **1 de movimiento reducido**: con `prefers-reduced-motion: reduce`, recorre todo el DOM y no admite ninguna animación ni transición de más de 0.01 s, que es lo que deja la regla global de `globals.css`.
+- **2 de zoom**: escritorio al 200 % (640 px de ancho en CSS, que es lo que calcula el navegador con zoom al doble sobre 1280) y móvil a 375 px. En cada ruta: sin scroll horizontal y el título visible y dentro del ancho. Un texto recortado no lo detecta: eso va en el recorrido manual.
+- **1 de movimiento reducido**: con `prefers-reduced-motion: reduce`, recorre el DOM y no admite ninguna animación ni transición de más de 0.01 s. La regla global deja 0.01 ms; el margen de 10 ms es para el redondeo de los motores. Solo mira CSS: no ve `element.animate()` ni el shadow DOM, que hoy la app no usa.
 
 ### Verificación
 
 - `pnpm e2e`: 174 pasan, 2 saltados (los `@live`), en los cuatro proyectos. Antes de esta tarea eran 114: 60 comprobaciones nuevas.
 - `pnpm check`: verde.
+
+### Seguimiento anotado por el review
+
+Las 60 comprobaciones nuevas engordan el job de `e2e`, que tiene 15 minutos y 2 workers en la CI. No afectan al job `perf` de QA-05, que es otro. Si al fusionar la duración del job se acerca al límite, se parte cada bucle de zoom y de movimiento reducido en un test por ruta en vez de recorrer las once dentro de uno solo. No se hace ahora: es una decisión que necesita la medida real de la CI.
 
 ### Lo que no se puede automatizar
 

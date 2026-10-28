@@ -31,12 +31,21 @@ const RUTAS = [
   { ruta: "/onboarding", nombre: "onboarding" },
 ];
 
-/** Abre una ruta y espera a que la pantalla esté pintada del todo. */
+/**
+ * Abre una ruta y espera a que la pantalla esté pintada del todo.
+ *
+ * No basta con navegar y esperar a la red: una respuesta de error de Next pinta
+ * una página mínima que pasaría axe con cero violaciones, y `networkidle` mide
+ * la red, no la hidratación. Por eso se exige un 2xx y el título ya visible,
+ * que es el marcador de que la pantalla ha montado.
+ */
 async function abrir(page: Page, ruta: string): Promise<void> {
-  await page.goto(ruta);
-  // Varias pantallas pintan después de un efecto (onboarding, carpeta): sin
-  // esta espera, axe analiza el HTML a medio montar y el resultado es azar.
+  const respuesta = await page.goto(ruta);
+  expect(respuesta?.ok(), `${ruta} no respondió bien (${respuesta?.status() ?? "sin respuesta"})`).toBe(
+    true,
+  );
   await page.waitForLoadState("networkidle");
+  await expect(page.getByRole("heading", { level: 1 }).first(), `${ruta} no muestra su título`).toBeVisible();
 }
 
 /** Deja el análisis en una lista legible cuando falla. */
@@ -95,7 +104,7 @@ const ANCHOS_DE_ZOOM = [
 ];
 
 for (const { ancho, alto, nombre } of ANCHOS_DE_ZOOM) {
-  test(`sin zoom horizontal ni contenido cortado en ${nombre}`, async ({ page }) => {
+  test(`sin scroll horizontal y con el titulo dentro del ancho en ${nombre}`, async ({ page }) => {
     await page.setViewportSize({ width: ancho, height: alto });
 
     for (const { ruta } of RUTAS) {
@@ -154,8 +163,9 @@ test("con movimiento reducido no queda ninguna animación perceptible", async ({
           ...aSegundos(estilo.animationDuration),
           ...aSegundos(estilo.transitionDuration),
         ];
-        // 0.01 s es el valor que deja la regla global de movimiento reducido:
-        // existe la transición, pero no se percibe.
+        // La regla global de globals.css deja 0.01 ms. Aquí el umbral es 0.01 s
+        // (10 ms) para no dar falso rojo si un motor redondea: sigue siendo
+        // imperceptible, y cualquier animación de verdad lo supera de largo.
         if (duraciones.some((segundos) => segundos > 0.01)) {
           const nombre = elemento.tagName.toLowerCase();
           const clase = elemento.className && typeof elemento.className === "string"
