@@ -1,0 +1,51 @@
+id: portabilidad-telefonia
+title: Cambiarse de operadora conservando el número
+audience: consumidor
+sector: telefonia
+summary: >-
+  El cambio lo gestiona la operadora nueva. Si la portabilidad no se hace o se retrasa sin
+  explicación, la reclamación va primero al operador y después a la Oficina de Atención al Usuario
+  de Telecomunicaciones.
+steps:
+  - n: 1
+    text: >-
+      Contrata con la operadora nueva y da tu consentimiento para la portabilidad: es ella la que
+      hace los trámites con la compañía de la que te vas.
+    sourceId: usuariosteleco-reclamaciones
+  - n: 2
+    text: >-
+      Si la portabilidad no se ejecuta, reclama a tu operador por sus canales: teléfono, web,
+      correo postal u oficinas.
+    sourceId: usuariosteleco-reclamaciones
+  - n: 3
+    text: >-
+      Si en un mes no hay respuesta o no te satisface, acude a la Oficina de Atención al Usuario de
+      Telecomunicaciones.
+    sourceId: usuariosteleco-reclamaciones
+documents: []
+deadlines:
+  - id: respuesta-operador
+    label: Plazo para que el operador conteste antes de acudir a la Oficina
+    kind: plazo_legal
+    amount: 1
+    unit: meses
+    from: la presentación de la reclamación al operador
+    sourceId: usuariosteleco-reclamaciones
+warnings:
+  - text: >-
+      El plazo concreto de ejecución de la portabilidad no se afirma aquí: la página consultada no
+      lo detalla y queda para la verificación humana.
+    sourceId: usuariosteleco-reclamaciones
+legalBasis: []
+sources:
+  - id: usuariosteleco-reclamaciones
+    title: Telefonía e Internet | Usuarios Teleco
+    url: https://usuariosteleco.digital.gob.es/reclamaciones/telefonia-e-internet
+    kind: oficial
+    retrievedOn: "2026-10-28"
+verification:
+  verified: false
+  note: >-
+    Borrador preparado por el agente con la fuente oficial consultada el 2026-10-28. Pendiente de
+    verificación humana (H-07), sobre todo el plazo de ejecución de la portabilidad, que esta ficha
+    no afirma.

@@ -1,0 +1,51 @@
+id: baja-linea-telefono
+title: Darse de baja de una línea de teléfono y reclamar si no se atiende
+audience: consumidor
+sector: telefonia
+summary: >-
+  La baja se pide al operador por sus canales. Si no responde en un mes o la respuesta no
+  satisface, la persona usuaria puede acudir a la Oficina de Atención al Usuario de
+  Telecomunicaciones.
+steps:
+  - n: 1
+    text: >-
+      Pide la baja a tu operador por cualquiera de sus canales: teléfono, su web, correo postal o
+      sus oficinas comerciales. El operador debe aceptar la presentación telefónica.
+    sourceId: usuariosteleco-reclamaciones
+  - n: 2
+    text: >-
+      Guarda la referencia de la solicitud: es lo que permite seguir el trámite y reclamar después.
+    sourceId: usuariosteleco-reclamaciones
+  - n: 3
+    text: >-
+      Si en un mes no has recibido respuesta o la respuesta no te satisface, presenta la
+      reclamación ante la Oficina de Atención al Usuario de Telecomunicaciones, por vía telemática
+      con firma electrónica o en papel por correo postal o registro.
+    sourceId: usuariosteleco-reclamaciones
+documents: []
+deadlines:
+  - id: respuesta-operador
+    label: Plazo para que el operador conteste antes de acudir a la Oficina
+    kind: plazo_legal
+    amount: 1
+    unit: meses
+    from: la presentación de la reclamación al operador
+    sourceId: usuariosteleco-reclamaciones
+warnings:
+  - text: >-
+      Las condiciones de la baja, como el preaviso o una permanencia, las fija el contrato con tu
+      compañía: esta ficha no las afirma porque no se han consultado.
+    sourceId: usuariosteleco-reclamaciones
+legalBasis: []
+sources:
+  - id: usuariosteleco-reclamaciones
+    title: Telefonía e Internet | Usuarios Teleco
+    url: https://usuariosteleco.digital.gob.es/reclamaciones/telefonia-e-internet
+    kind: oficial
+    retrievedOn: "2026-10-28"
+verification:
+  verified: false
+  note: >-
+    Borrador preparado por el agente con la fuente oficial consultada el 2026-10-28. Pendiente de
+    verificación humana (H-07): el plazo de un mes es el que la fuente da para volver a reclamar;
+    conviene confirmar si el contrato añade un preaviso distinto.

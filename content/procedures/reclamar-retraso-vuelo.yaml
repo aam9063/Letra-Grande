@@ -1,0 +1,39 @@
+id: reclamar-retraso-vuelo
+title: Reclamar por un vuelo retrasado, cancelado o por denegación de embarque
+audience: consumidor
+sector: transporte
+summary: >-
+  AESA recoge los derechos de las personas pasajeras y desde su sede electrónica se presenta la
+  reclamación por cancelación, retraso o denegación de embarque.
+steps:
+  - n: 1
+    text: >-
+      Reúne la documentación del vuelo, la tarjeta de embarque y los justificantes de los gastos
+      que te haya causado el retraso o la cancelación.
+    sourceId: aesa-derechos-pasajeros
+  - n: 2
+    text: >-
+      Presenta la reclamación en la sede electrónica de la Agencia Estatal de Seguridad Aérea.
+    sourceId: aesa-derechos-pasajeros
+documents:
+  - text: La documentación del vuelo y los justificantes de los gastos.
+    sourceId: aesa-derechos-pasajeros
+deadlines: []
+warnings:
+  - text: >-
+      Esta ficha no afirma importes de compensación ni plazos: el reglamento europeo que los fija
+      no se ha podido consultar hoy, y una cifra equivocada aquí es peor que un hueco.
+    sourceId: aesa-derechos-pasajeros
+legalBasis: []
+sources:
+  - id: aesa-derechos-pasajeros
+    title: Derechos de los pasajeros | AESA
+    url: https://www.seguridadaerea.gob.es/es/ambitos/derechos-de-los-pasajeros
+    kind: oficial
+    retrievedOn: "2026-10-28"
+verification:
+  verified: false
+  note: >-
+    Borrador preparado por el agente con la fuente oficial consultada el 2026-10-28. Pendiente de
+    verificación humana (H-07): añadir el reglamento aplicable con su enlace consolidado, los
+    importes de compensación y el plazo para reclamar, que esta ficha no afirma.
