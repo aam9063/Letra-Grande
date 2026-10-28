@@ -13,7 +13,7 @@
     "package:win": "pnpm --filter @letra-grande/desktop package:win",
     "typecheck": "pnpm -r typecheck",
     "test": "pnpm -r test",
-    "test:scripts": "node --test scripts/*.test.mjs",
+    "test:scripts": "node --test scripts/check-decisions.test.mjs scripts/check-main-history.test.mjs scripts/check-review-report.test.mjs scripts/sync-dev.test.mjs",
     "content:validate": "pnpm --filter @letra-grande/schema validate-content",
     "style": "node scripts/check-style.mjs",
     "check": "pnpm style && pnpm decisions:check && pnpm test:scripts && pnpm typecheck && pnpm test && pnpm content:validate",

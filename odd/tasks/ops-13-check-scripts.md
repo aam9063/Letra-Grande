@@ -34,7 +34,7 @@ Los tests de los scripts de CI (`check-decisions`, `check-review-report`, `check
 ## Evidencia y progreso
 
 - `node --test scripts/*.test.mjs`: 48 tests en verde.
-- El patrón `scripts/*.test.mjs` lo expande el shell; si no encontrara ficheros, `node --test` falla en vez de pasar, que es el lado seguro.
+- Los ficheros van **listados uno a uno**, no con un globo: se comprobó que `node --test` con un globo sin coincidencias sale con 0 tests y código 0, así que un renombrado dejaría el check en verde sin probar nada. Con la lista, un fichero que falte hace fallar la ejecución.
 
 ## Siguiente paso
 
