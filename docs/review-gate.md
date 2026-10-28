@@ -172,7 +172,9 @@ Qué hacer en cada entrega, en orden:
 2. Abrir el PR a `main` y esperar `check`, `e2e` y `review-report` en verde.
 3. Fusionar con **Create a merge commit** en GitHub. El squash está bien para las ramas de tarea hacia `dev`, donde el historial por tarea no aporta nada; no para unir dos ramas de larga vida.
 
-Después de cada entrega, `main` tendrá el commit de fusión que `dev` no tiene. Se vuelve a la normalidad fusionando `main` en `dev` (el paso 1 del siguiente ciclo), que no cambia ni una línea: solo une la historia.
+Después de cada entrega, `main` tendrá el commit de fusión que `dev` no tiene. Se vuelve a la normalidad fusionando `main` en `dev` (el paso 1 del siguiente ciclo), que no cambia ni una línea: solo une la historia. Como `dev` exige PR, esa sincronización también va por PR, con el mismo contenido de `dev` y fusionada con commit de fusión.
+
+El tercer paso no depende de la memoria de nadie: el repositorio tiene una regla de rama sobre `main` ("main: solo commit de fusión") que deja el botón de squash fuera. La regla no se puede saltar ni con permisos de administración, y las tres comprobaciones (`check`, `e2e`, `review-report`) siguen exigidas por la protección de rama de siempre. Si algún día hay que cambiarla, se hace en Settings, Rules, y se anota aquí.
 
 ## Pase de arquitectura por ola (QA-08)
 
