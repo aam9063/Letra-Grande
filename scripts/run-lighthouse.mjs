@@ -18,6 +18,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { setTimeout as esperar } from "node:timers/promises";
 import { combinarInformes, comprobarLighthouse, leerPresupuestoLighthouse } from "./check-lighthouse-budget.mjs";
+import { medirConReintentos, mensajeSinMedida } from "./lighthouse-reintentos.mjs";
 
 const PUERTO = Number(process.env.LG_PERF_PORT ?? 3210);
 const PRESUPUESTO = process.env.LG_BUDGET_PATH ?? "apps/web/perf/budget.json";
@@ -26,6 +27,15 @@ const ESPERA_MAXIMA_MS = 120_000;
 // Corridas por ruta. Lighthouse recomienda mediana de varias medidas en CI; con
 // tres basta para que una corrida atipica no decida el veredicto y el job sigue
 // entrando de sobra en su timeout.
+// Intentos por corrida. Lighthouse puede fallar al lanzar Chrome ("waiting for
+// dynamic debugging port") sin que haya nada mal en la app: en el PR #76 pasó en
+// `/` y no en `/hoy`, en el mismo job. Un reintento lo salva; lo que no se hace
+// nunca es aprobar una ruta que no se midió.
+const INTENTOS = (() => {
+  const pedidos = Number(process.env.LG_PERF_INTENTOS ?? 2);
+  return Number.isInteger(pedidos) && pedidos > 0 ? pedidos : 2;
+})();
+
 // Un valor inválido en la variable no debe dejar el job sin medir: se cae al 3.
 const REPETICIONES = (() => {
   const pedidas = Number(process.env.LG_PERF_REPS ?? 3);
@@ -185,7 +195,12 @@ async function main() {
       for (let corrida = 0; corrida < REPETICIONES; corrida += 1) {
         const ficheroSalida = join(salida, `informe-${indiceRuta}-${corrida}.json`);
         try {
-          await medirRuta({ entrada, ruta, ficheroSalida });
+          await medirConReintentos({
+            medir: () => medirRuta({ entrada, ruta, ficheroSalida }),
+            intentos: INTENTOS,
+            avisar: (intento) =>
+              console.log(`  ${ruta}: el intento ${intento} de ${INTENTOS} no arrancó Lighthouse, se reintenta`),
+          });
           corridas.push(JSON.parse(readFileSync(ficheroSalida, "utf8")));
         } catch (error) {
           errorDeMedida = error;
@@ -194,7 +209,7 @@ async function main() {
       }
 
       if (errorDeMedida) {
-        console.error(errorDeMedida.message);
+        console.error(mensajeSinMedida({ ruta, intentos: INTENTOS, error: errorDeMedida }));
         fallos += 1;
         continue;
       }
