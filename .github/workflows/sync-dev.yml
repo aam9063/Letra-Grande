@@ -1,0 +1,56 @@
+name: sync-dev
+
+# OPS-11: cada entrega a main deja un commit de fusión que dev no tiene, y la
+# entrega siguiente falla en la guardia de historia y en la protección de rama
+# ("out of date"). Este workflow hace el paso de sincronización que antes se
+# hacía a mano: rama desde dev, fusión de main, PR y fusión con commit de fusión.
+#
+# Va con un token propio (SYNC_TOKEN) porque los PRs abiertos con el
+# GITHUB_TOKEN por defecto no disparan workflows: su PR de sincronización nunca
+# tendría comprobaciones y no podría fusionarse. Sin el secreto, el workflow
+# avisa y termina sin fallar.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  # Si llegan dos entregas seguidas, la segunda espera en vez de pisar la rama.
+  group: sync-dev
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Historia completa y sobre dev: lo que se sincroniza es la de main.
+          fetch-depth: 0
+          ref: dev
+          # El push y el PR los hace el script con SYNC_TOKEN.
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Probar la sincronización
+        run: node --test scripts/sync-dev.test.mjs
+      - name: Sincronizar dev con main
+        run: node scripts/sync-dev.mjs
+        env:
+          SYNC_TOKEN: ${{ secrets.SYNC_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+      - name: Resumen
+        if: always()
+        run: |
+          {
+            echo "### Sincronización de dev con main"
+            echo ""
+            echo "- Commit de main: \`${{ github.sha }}\`"
+            echo "- Resultado: ver los pasos anteriores"
+          } >> "$GITHUB_STEP_SUMMARY"
