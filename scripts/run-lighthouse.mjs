@@ -27,19 +27,24 @@ const ESPERA_MAXIMA_MS = 120_000;
 // Corridas por ruta. Lighthouse recomienda mediana de varias medidas en CI; con
 // tres basta para que una corrida atipica no decida el veredicto y el job sigue
 // entrando de sobra en su timeout.
-// Intentos por corrida. Lighthouse puede fallar al lanzar Chrome ("waiting for
-// dynamic debugging port") sin que haya nada mal en la app: en el PR #76 pasó en
-// `/` y no en `/hoy`, en el mismo job. Un reintento lo salva; lo que no se hace
-// nunca es aprobar una ruta que no se midió.
-const INTENTOS = (() => {
-  const pedidos = Number(process.env.LG_PERF_INTENTOS ?? 2);
-  return Number.isInteger(pedidos) && pedidos > 0 ? pedidos : 2;
-})();
-
-// Un valor inválido en la variable no debe dejar el job sin medir: se cae al 3.
+// Corridas por ruta. Lighthouse recomienda mediana de varias medidas en CI; con
+// tres basta para que una corrida atípica no decida el veredicto y el job sigue
+// entrando de sobra en su timeout. Un valor inválido en la variable no debe
+// dejar el job sin medir: se cae al 3.
 const REPETICIONES = (() => {
   const pedidas = Number(process.env.LG_PERF_REPS ?? 3);
   return Number.isInteger(pedidas) && pedidas > 0 ? pedidas : 3;
+})();
+
+// Intentos por corrida. Una corrida de Lighthouse puede fallar entera sin que
+// haya nada mal en la app: en el PR #76 el lanzador de Chrome falló en `/` y no
+// en `/hoy`, en el mismo job. Se reintenta la corrida, sea cual sea el fallo de
+// Lighthouse, porque clasificar el error por su texto sería frágil. Lo que no se
+// hace nunca es aprobar una ruta que no se midió: si se agotan los intentos, la
+// ruta falla.
+const INTENTOS = (() => {
+  const pedidos = Number(process.env.LG_PERF_INTENTOS ?? 2);
+  return Number.isInteger(pedidos) && pedidos > 0 ? pedidos : 2;
 })();
 
 /** Resumen legible de la mediana, para que el log de la CI sirva como evidencia. */
@@ -194,12 +199,15 @@ async function main() {
       let errorDeMedida = null;
       for (let corrida = 0; corrida < REPETICIONES; corrida += 1) {
         const ficheroSalida = join(salida, `informe-${indiceRuta}-${corrida}.json`);
+        // Un intento anterior puede haber dejado un informe a medias: se borra
+        // para que nunca se lea el de una corrida que no terminó.
+        rmSync(ficheroSalida, { force: true });
         try {
           await medirConReintentos({
             medir: () => medirRuta({ entrada, ruta, ficheroSalida }),
             intentos: INTENTOS,
             avisar: (intento) =>
-              console.log(`  ${ruta}: el intento ${intento} de ${INTENTOS} no arrancó Lighthouse, se reintenta`),
+              console.log(`  ${ruta}: el intento ${intento} de ${INTENTOS} falló, se reintenta`),
           });
           corridas.push(JSON.parse(readFileSync(ficheroSalida, "utf8")));
         } catch (error) {
