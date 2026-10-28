@@ -50,6 +50,7 @@ Las instrucciones para personas y para agentes están en [`AGENTS.md`](AGENTS.md
 - [`docs/review-gate.md`](docs/review-gate.md) y [`docs/e2e.md`](docs/e2e.md): cómo se revisa y cómo se prueba.
 - [`docs/desktop.md`](docs/desktop.md): la aplicación de escritorio, su alcance inicial y lo que exige cada sistema.
 - [`docs/rendimiento.md`](docs/rendimiento.md): el presupuesto de rendimiento, cómo se mide y cómo se cambia.
+- [`docs/accesibilidad.md`](docs/accesibilidad.md): qué comprueba la CI en accesibilidad AA y qué queda para el recorrido manual.
 
 Si vas a tocar código por primera vez, el orden de lectura es `AGENTS.md`, `docs/ARCHITECTURE.md` y el documento de tu tarea en `odd/tasks/`.
 
