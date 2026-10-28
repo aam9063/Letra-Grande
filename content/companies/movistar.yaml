@@ -1,0 +1,25 @@
+id: movistar
+name: Movistar
+sector: telefonia
+channels:
+  atencionCliente: []
+  reclamacion:
+    - kind: web
+      value: https://www.movistar.es/atencion-cliente/reclamaciones/
+      notes: La página es la de reclamaciones de la compañía.
+      sourceId: movistar-web
+  baja: []
+escalation:
+  - oficina-atencion-usuario-telecomunicaciones
+  - consumo-estatal
+  - consumo-comunitat-valenciana
+sources:
+  - id: movistar-web
+    title: Reclamaciones Factura, Pedido | Movistar
+    url: https://www.movistar.es/atencion-cliente/reclamaciones/
+    kind: empresa
+    retrievedOn: "2026-10-28"
+verification:
+  verified: false
+  note: >-
+    Borrador preparado por el agente con la página oficial consultada el 2026-10-28. Pendiente de verificación humana (H-07).

@@ -1,0 +1,23 @@
+id: naturgy
+name: Naturgy
+sector: energia
+channels:
+  atencionCliente:
+    - kind: web
+      value: https://www.naturgy.es/hogar/ayuda/contacto
+      sourceId: naturgy-web
+  reclamacion: []
+  baja: []
+escalation:
+  - consumo-estatal
+  - consumo-comunitat-valenciana
+sources:
+  - id: naturgy-web
+    title: Teléfono de Atención al Cliente Naturgy
+    url: https://www.naturgy.es/hogar/ayuda/contacto
+    kind: empresa
+    retrievedOn: "2026-10-28"
+verification:
+  verified: false
+  note: >-
+    Borrador preparado por el agente con la página oficial consultada el 2026-10-28. Pendiente de verificación humana (H-07).

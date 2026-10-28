@@ -1,0 +1,25 @@
+id: yoigo
+name: Yoigo
+sector: telefonia
+channels:
+  atencionCliente: []
+  reclamacion:
+    - kind: web
+      value: https://www.yoigo.com/ayuda/vias-de-reclamacion
+      notes: La página es la de reclamaciones de la compañía.
+      sourceId: yoigo-web
+  baja: []
+escalation:
+  - oficina-atencion-usuario-telecomunicaciones
+  - consumo-estatal
+  - consumo-comunitat-valenciana
+sources:
+  - id: yoigo-web
+    title: Vías de reclamación | Yoigo
+    url: https://www.yoigo.com/ayuda/vias-de-reclamacion
+    kind: empresa
+    retrievedOn: "2026-10-28"
+verification:
+  verified: false
+  note: >-
+    Borrador preparado por el agente con la página oficial consultada el 2026-10-28. Pendiente de verificación humana (H-07).
