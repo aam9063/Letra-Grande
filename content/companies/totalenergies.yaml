@@ -6,10 +6,7 @@ channels:
     - kind: web
       value: https://www.totalenergies.es/es/hogares/atencion-al-cliente/contacto
       sourceId: totalenergies-web
-  reclamacion:
-    - kind: web
-      value: https://www.totalenergies.es/es/hogares/atencion-al-cliente/contacto
-      sourceId: totalenergies-web
+  reclamacion: []
   baja: []
 escalation:
   - consumo-estatal

@@ -6,17 +6,14 @@ channels:
     - kind: web
       value: https://www.endesa.com/es/te-ayudamos
       sourceId: endesa-web
-  reclamacion:
-    - kind: web
-      value: https://www.endesa.com/es/te-ayudamos
-      sourceId: endesa-web
+  reclamacion: []
   baja: []
 escalation:
   - consumo-estatal
   - consumo-comunitat-valenciana
 sources:
   - id: endesa-web
-    title: Te ayudamos | Endesa
+    title: "Atención al cliente Endesa | Endesa"
     url: https://www.endesa.com/es/te-ayudamos
     kind: empresa
     retrievedOn: "2026-10-28"

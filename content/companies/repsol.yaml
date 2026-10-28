@@ -6,10 +6,7 @@ channels:
     - kind: web
       value: https://www.repsol.es/particulares/contacto/
       sourceId: repsol-web
-  reclamacion:
-    - kind: web
-      value: https://www.repsol.es/particulares/contacto/
-      sourceId: repsol-web
+  reclamacion: []
   baja: []
 escalation:
   - consumo-estatal

@@ -6,10 +6,7 @@ channels:
     - kind: web
       value: https://www.digimobil.es/atencion-cliente
       sourceId: digi-web
-  reclamacion:
-    - kind: web
-      value: https://www.digimobil.es/atencion-cliente
-      sourceId: digi-web
+  reclamacion: []
   baja: []
 escalation:
   - oficina-atencion-usuario-telecomunicaciones

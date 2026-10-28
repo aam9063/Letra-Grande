@@ -6,10 +6,7 @@ channels:
     - kind: web
       value: https://www.iberdrola.es/atencion-cliente
       sourceId: iberdrola-web
-  reclamacion:
-    - kind: web
-      value: https://www.iberdrola.es/atencion-cliente
-      sourceId: iberdrola-web
+  reclamacion: []
   baja: []
 escalation:
   - consumo-estatal

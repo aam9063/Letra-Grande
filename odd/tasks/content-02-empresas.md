@@ -35,7 +35,7 @@ Con los organismos ya escritos (CONTENT-03), faltan las empresas contra las que 
 - [x] Comprobar que cada URL responde y es del dominio de la empresa.
 - [x] Escribir las diez fichas con su escalado a los organismos de CONTENT-03.
 - [x] `pnpm content:validate` en verde.
-- [ ] Backlog actualizado y lista de pendientes para H-07.
+- [x] Backlog actualizado y lista de pendientes para H-07.
 
 ## Evidencia y progreso
 
@@ -44,6 +44,17 @@ Rama `lg/content-02-empresas`.
 - Diez fichas: cinco de energía y cinco de telefonía, cada una con el canal web de atención o de reclamaciones, su `sourceId` y el escalado a los organismos (`consumo-estatal` y `consumo-comunitat-valenciana` para energía; además la Oficina de Atención al Usuario de Telecomunicaciones para telefonía).
 - URL comprobadas el 2026-10-28: nueve de diez responden y son la página oficial de la compañía. **Iberdrola bloquea el acceso automatizado** (403 en todo el dominio, también en la portada), así que su URL está citada pero marcada como no comprobada en la nota de la ficha: es un punto explícito de H-07.
 - Sin teléfonos: las páginas los tienen, pero un número que caduca es peor que un hueco, y esa comprobación es humana.
+
+- El canal `reclamacion` solo se rellena donde la fuente citada es una página de reclamaciones de la compañía (Movistar, Vodafone, Orange y Yoigo). En las otras seis queda vacío: la página de contacto no acredita una vía de reclamación concreta, y rellenarlo con la misma URL sería afirmar más de lo que dice la fuente.
+- El escalado autonómico apunta a `consumo-comunitat-valenciana` porque es la única ficha autonómica que existe (D-08). Para el resto de comunidades hace falta ficha propia, y eso está en DATA-05: la ficha no debe leerse como que Valencia sea el organismo de toda España.
+- «Las cinco mayores» es el criterio de alcance que fija el backlog, no un dato de las fichas: no se ha medido con una fuente de cuotas de mercado y la ficha no lo afirma.
+
+## Pendientes para H-07 (lista única)
+
+1. Iberdrola: abrir la URL en un navegador (el sitio bloquea el acceso automatizado con 403) y confirmar que es la página de atención al cliente.
+2. Las diez: confirmar que el canal sigue existiendo y, si se quiere añadir teléfono, comprobar que el número es el de la compañía.
+3. Las cuatro con canal de reclamación: confirmar que la página sigue siendo la vía de reclamación.
+4. Decidir si se añaden horarios o permanencias, que hoy no están porque no se han consultado.
 
 ## Siguiente paso
 

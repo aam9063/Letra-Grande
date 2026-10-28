@@ -6,10 +6,7 @@ channels:
     - kind: web
       value: https://www.naturgy.es/hogar/ayuda/contacto
       sourceId: naturgy-web
-  reclamacion:
-    - kind: web
-      value: https://www.naturgy.es/hogar/ayuda/contacto
-      sourceId: naturgy-web
+  reclamacion: []
   baja: []
 escalation:
   - consumo-estatal
