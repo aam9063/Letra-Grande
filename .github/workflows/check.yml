@@ -20,11 +20,8 @@ jobs:
           node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: node --test scripts/check-decisions.test.mjs
-      - name: Probar la comprobación de entrega a main
-        run: node --test scripts/check-main-history.test.mjs
-      - name: Probar la sincronización automática
-        run: node --test scripts/sync-dev.test.mjs
+      # Los tests de los scripts van dentro de `pnpm check` (test:scripts), así
+      # que corren igual en local y en CI. Aquí solo queda la comprobación real.
       # Solo aplica a PRs que van a main. Sin esto, un squash de dev a main
       # deja conflictos fantasma en la entrega siguiente.
       - name: Comprobar la historia de la entrega a main
