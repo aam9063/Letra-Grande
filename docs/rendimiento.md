@@ -84,7 +84,7 @@ El job `perf` de `.github/workflows/check.yml`:
 
 El job tiene `timeout-minutes: 20`: si Lighthouse se cuelga, el PR se pone en rojo en vez de quedarse esperando.
 
-**Pendiente humano:** el job `perf` no está todavía entre los checks requeridos de las ramas protegidas (H-10). Mientras no se añada en GitHub, el job corre y se ve en el PR, pero un merge no queda bloqueado por él. Añadirlo es un cambio de ajustes del repositorio, no de código.
+El job `perf` es un check requerido en `dev` y en `main` desde el 2026-10-28, junto con `check`, `e2e` y `review-report` (H-10): un PR no se puede fusionar si el presupuesto de rendimiento falla. Al ser el check más lento y el más sensible al ruido del runner, se añadió después de que diera verde en dos ejecuciones seguidas y con la mediana de tres corridas ya en su sitio. Si alguna vez bloquea por azar y no por una regresión, la discusión es sobre el umbral o el número de corridas (`LG_PERF_REPS`), no sobre quitarlo de la lista.
 
 ## La dependencia de Lighthouse
 
