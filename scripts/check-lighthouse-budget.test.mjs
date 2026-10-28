@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { comprobarLighthouse, normalizarRuta } from "./check-lighthouse-budget.mjs";
+import { combinarInformes, comprobarLighthouse, mediana, normalizarRuta } from "./check-lighthouse-budget.mjs";
 
 // Un informe de Lighthouse reducido a lo que se comprueba: categorías (0..1) y
 // métricas de los audits, con valor numérico. Un informe real trae mucho más y
@@ -118,4 +118,62 @@ test("cumulative-layout-shift no se anuncia en milisegundos", () => {
   assert.equal(resultado.status, "fail");
   assert.match(resultado.message, /0\.090/);
   assert.doesNotMatch(resultado.message, /0 ms/);
+});
+
+test("la mediana de un numero impar de valores es el del medio", () => {
+  assert.equal(mediana([329, 12, 40]), 40);
+  assert.equal(mediana([7]), 7);
+});
+
+test("la mediana de un numero par de valores promedia los dos del medio", () => {
+  assert.equal(mediana([10, 20, 30, 40]), 25);
+  assert.equal(mediana([1, 2]), 1.5);
+});
+
+test("la mediana ignora una corrida atipica en vez de dejar que decida", () => {
+  // Caso real de la CI: TBT de 329 ms en una corrida y decenas en las otras.
+  assert.equal(mediana([329, 28, 35]), 35);
+});
+
+test("combinar informes toma la mediana de categorias y metricas de todas las corridas", () => {
+  const corridas = [
+    informe({ categorias: { performance: 0.9 }, metricas: { "total-blocking-time": 300 } }),
+    informe({ categorias: { performance: 0.98 }, metricas: { "total-blocking-time": 20 } }),
+    informe({ categorias: { performance: 0.99 }, metricas: { "total-blocking-time": 30 } }),
+  ];
+
+  const combinado = combinarInformes(corridas);
+
+  assert.equal(combinado.categories.performance.score, 0.98);
+  assert.equal(combinado.audits["total-blocking-time"].numericValue, 30);
+});
+
+test("si una metrica falta en una corrida, se combinan las que si la midieron", () => {
+  const corridas = [
+    informe({ categorias: { performance: 0.9 }, metricas: { "total-blocking-time": 300 } }),
+    informe({ categorias: { performance: 0.98 }, metricas: {} }),
+    informe({ categorias: { performance: 0.99 }, metricas: { "total-blocking-time": 30 } }),
+  ];
+
+  const combinado = combinarInformes(corridas);
+
+  // Dos medidas: 300 y 30. Mediana de dos: 165. La que falta no cuenta como 0.
+  assert.equal(combinado.audits["total-blocking-time"].numericValue, 165);
+});
+
+test("si ninguna corrida mide una metrica, el combinado no la inventa", () => {
+  const corridas = [
+    informe({ categorias: { performance: 0.9 }, metricas: {} }),
+    informe({ categorias: { performance: 0.98 }, metricas: {} }),
+  ];
+
+  const combinado = combinarInformes(corridas);
+
+  assert.equal(combinado.audits["total-blocking-time"], undefined);
+  const resultado = comprobarLighthouse({
+    ruta: "/hoy",
+    informe: combinado,
+    presupuesto: { categorias: {}, metricas: { "total-blocking-time": 300 } },
+  });
+  assert.equal(resultado.status, "fail");
 });

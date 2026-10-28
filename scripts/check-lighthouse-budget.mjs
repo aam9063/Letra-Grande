@@ -39,6 +39,54 @@ function nombreCategoria(categoria) {
 }
 
 /**
+ * Mediana de una lista de numeros. Con un numero par de valores promedia los dos
+ * del medio. Se usa para agregar varias corridas: en un runner compartido una
+ * sola corrida de Lighthouse es ruidosa (TBT de 329 ms en una y de 28 en la
+ * siguiente, el mismo build), y presupuestar contra el pico hace que la CI falle
+ * por azar en vez de por una regresion.
+ */
+export function mediana(valores) {
+  const ordenados = [...valores].sort((a, b) => a - b);
+  const medio = Math.floor(ordenados.length / 2);
+  return ordenados.length % 2 === 1
+    ? ordenados[medio]
+    : (ordenados[medio - 1] + ordenados[medio]) / 2;
+}
+
+/**
+ * Combina varias corridas de la misma ruta en un informe con la mediana de cada
+ * categoria y de cada metrica. Una metrica que solo midieron algunas corridas se
+ * agrega con las que la midieron; si no la midio ninguna, no aparece (y la
+ * comprobacion falla por "sin medir" en vez de inventar un cero).
+ */
+export function combinarInformes(informes) {
+  const categorias = new Set();
+  const metricas = new Set();
+  for (const informe of informes) {
+    for (const nombre of Object.keys(informe?.categories ?? {})) categorias.add(nombre);
+    for (const id of Object.keys(informe?.audits ?? {})) metricas.add(id);
+  }
+
+  const categories = {};
+  for (const nombre of categorias) {
+    const valores = informes
+      .map((informe) => informe?.categories?.[nombre]?.score)
+      .filter((valor) => typeof valor === "number");
+    categories[nombre] = { score: valores.length > 0 ? mediana(valores) : null };
+  }
+
+  const audits = {};
+  for (const id of metricas) {
+    const valores = informes
+      .map((informe) => informe?.audits?.[id]?.numericValue)
+      .filter((valor) => typeof valor === "number" && !Number.isNaN(valor));
+    if (valores.length > 0) audits[id] = { numericValue: mediana(valores) };
+  }
+
+  return { categories, audits };
+}
+
+/**
  * Comprueba el informe de una ruta contra el presupuesto de Lighthouse.
  *
  * @param {object} datos

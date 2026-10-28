@@ -17,12 +17,34 @@ import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { setTimeout as esperar } from "node:timers/promises";
-import { comprobarLighthouse, leerPresupuestoLighthouse } from "./check-lighthouse-budget.mjs";
+import { combinarInformes, comprobarLighthouse, leerPresupuestoLighthouse } from "./check-lighthouse-budget.mjs";
 
 const PUERTO = Number(process.env.LG_PERF_PORT ?? 3210);
 const PRESUPUESTO = process.env.LG_BUDGET_PATH ?? "apps/web/perf/budget.json";
 const WEB_DIR = "apps/web";
 const ESPERA_MAXIMA_MS = 120_000;
+// Corridas por ruta. Lighthouse recomienda mediana de varias medidas en CI; con
+// tres basta para que una corrida atipica no decida el veredicto y el job sigue
+// entrando de sobra en su timeout.
+// Un valor inválido en la variable no debe dejar el job sin medir: se cae al 3.
+const REPETICIONES = (() => {
+  const pedidas = Number(process.env.LG_PERF_REPS ?? 3);
+  return Number.isInteger(pedidas) && pedidas > 0 ? pedidas : 3;
+})();
+
+/** Resumen legible de la mediana, para que el log de la CI sirva como evidencia. */
+function resumenMediana(informe, presupuesto) {
+  const partes = [];
+  for (const categoria of Object.keys(presupuesto.categorias ?? {})) {
+    const score = informe.categories?.[categoria]?.score;
+    partes.push(`${categoria} ${typeof score === "number" ? Math.round(score * 100) : "sin medir"}`);
+  }
+  for (const metrica of Object.keys(presupuesto.metricas ?? {})) {
+    const valor = informe.audits?.[metrica]?.numericValue;
+    if (typeof valor === "number") partes.push(`${metrica} ${Math.round(valor)}`);
+  }
+  return partes.join(", ");
+}
 
 /**
  * Arranca `next start` con el servidor ya construido. Se lanza el CLI de Next con
@@ -157,20 +179,34 @@ async function main() {
     }
 
     let fallos = 0;
-    for (const [indice, ruta] of rutas.entries()) {
-      const ficheroSalida = join(salida, `informe-${indice}.json`);
-      try {
-        await medirRuta({ entrada, ruta, ficheroSalida });
-      } catch (error) {
-        console.error(error.message);
+    for (const [indiceRuta, ruta] of rutas.entries()) {
+      const corridas = [];
+      let errorDeMedida = null;
+      for (let corrida = 0; corrida < REPETICIONES; corrida += 1) {
+        const ficheroSalida = join(salida, `informe-${indiceRuta}-${corrida}.json`);
+        try {
+          await medirRuta({ entrada, ruta, ficheroSalida });
+          corridas.push(JSON.parse(readFileSync(ficheroSalida, "utf8")));
+        } catch (error) {
+          errorDeMedida = error;
+          break;
+        }
+      }
+
+      if (errorDeMedida) {
+        console.error(errorDeMedida.message);
         fallos += 1;
         continue;
       }
 
-      const informe = JSON.parse(readFileSync(ficheroSalida, "utf8"));
+      // Se presupuesta la mediana, no el pico de una corrida: el runner es
+      // compartido y una sola medida de Lighthouse oscila demasiado (TBT de 329
+      // ms en una corrida y de 28 en la siguiente, con el mismo build).
+      const informe = combinarInformes(corridas);
       const resultado = comprobarLighthouse({ ruta, informe, presupuesto });
       const print = resultado.status === "fail" ? console.error : console.log;
       print(resultado.message);
+      print(`  Mediana de ${corridas.length} corridas en ${ruta}: ${resumenMediana(informe, presupuesto)}`);
       if (resultado.status === "fail") fallos += 1;
     }
 
