@@ -118,6 +118,19 @@ Medianas del primer run en verde: `/` con rendimiento 0.98, TBT 57 ms, LCP 2 419
 - `pnpm perf:lighthouse` sobre la build real: `/` y `/hoy` dentro del presupuesto, salida 0.
 - El camino de fallo también: con un presupuesto de prueba exigente, el script sale con código 1 y nombra la categoría y la métrica que se pasan. Un presupuesto que solo sabe aprobar no protege de nada.
 
+## Arreglo posterior: fallo del navegador en el job `perf`
+
+Al preparar la entrega de `dev` a `main` (PR #76), `perf` se puso en rojo en `/` con `waiting for dynamic debugging port in chrome-err.log`, mientras `/hoy` medía bien en el mismo job y el run del push a `dev`, sobre el mismo commit, había pasado. Era el lanzador de Chrome fallando, y con `perf` como check requerido ese fallo bloqueaba la entrega.
+
+Inmediato: re-ejecutar el job, que pasó. De fondo, rama `lg/qa-05-reintento-chrome`:
+
+- `scripts/lighthouse-reintentos.mjs`: `medirConReintentos` y `mensajeSinMedida`, con cinco tests.
+- Una corrida que falla entera se reintenta hasta `LG_PERF_INTENTOS` intentos en total, 2 por defecto.
+- El presupuesto se comprueba fuera del reintento, así que el reintento no puede aprobar un presupuesto incumplido; si se agotan los intentos, la ruta falla y el mensaje dice que es infraestructura.
+- Se reinicia a propósito cualquier fallo de Lighthouse: clasificar el error por su texto sería frágil, y el log dice qué intento falló, no por qué.
+
+Review del arreglo: `jd-judge-a`, aprobado con cambios, con los dos recomendados aplicados (el aviso y la documentación prometían distinguir el fallo del navegador) y la nota del fichero de salida borrado antes de cada intento. Detalle en `odd/reviews/qa-05.md`.
+
 ## Siguiente paso
 
 `pnpm check` y `pnpm e2e`, review gate y PR.
