@@ -1,0 +1,29 @@
+id: banco-de-espana
+name: Banco de España (Servicio de Reclamaciones)
+scope: estatal
+sectors: [banca]
+url: https://www.bde.es/wbe/es/punto-informacion/contenidos/gestiones/reclamaciones/
+howToFile: >-
+  El primer paso es obligatorio y va a la entidad: un escrito ante el servicio de atención al
+  cliente o el defensor del cliente de la entidad. La ficha indica que la entidad tiene 15
+  días hábiles para contestar si la reclamación está relacionada con un servicio de pago, un
+  mes para otras reclamaciones si eres consumidor y dos meses si no lo eres. Si no contestan
+  en plazo o no estás de acuerdo con la respuesta, se puede acudir al servicio de reclamaciones
+  del Banco de España, también por su sede electrónica.
+sources:
+  - id: bde-reclamaciones
+    title: Cómo realizar una reclamación | Banco de España
+    url: https://www.bde.es/wbe/es/punto-informacion/contenidos/gestiones/reclamaciones/
+    kind: oficial
+    retrievedOn: "2026-10-28"
+  - id: bde-cliente-bancario
+    title: Cómo realizar una reclamación | Cliente Bancario, Banco de España
+    url: https://clientebancario.bde.es/pcb/es/menu-horizontal/podemosayudarte/consultasreclama/comorealizarrecl/
+    kind: oficial
+    retrievedOn: "2026-10-28"
+verification:
+  verified: false
+  note: >-
+    Borrador preparado por el agente con las fuentes oficiales consultadas el 2026-10-28.
+    Pendiente de verificación humana (H-07): los plazos de respuesta de la entidad conviene
+    confirmarlos en la página vigente.
