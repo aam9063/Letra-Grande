@@ -3,7 +3,7 @@ tarea: OPS-13
 base: 7c64a14
 revisado: a889c965bc2bcc9ed73d08b54a3919315c713b3c
 revisor: jd-judge-b
-veredicto: aprobada con matices
+veredicto: aprobado con cambios
 ---
 
 # Review OPS-13: `pnpm check` ejecuta los tests de los scripts
