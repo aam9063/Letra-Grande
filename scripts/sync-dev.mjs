@@ -28,6 +28,21 @@ export function necesitaSincronizacion({ mainEsAncestroDeDev }) {
 }
 
 /**
+ * ¿El fallo de `gh pr merge --auto` es porque el auto-merge no está disponible?
+ *
+ * Solo en ese caso se intenta el merge directo. Cualquier otro error (una
+ * comprobación roja, un límite de peticiones, un fallo de red) tiene que verse
+ * tal cual: tragárselo dejaría el PR abierto y sin auto-merge sin que nadie lo
+ * supiera.
+ *
+ * @param {string} mensaje Salida del comando fallido.
+ * @returns {boolean} Verdadero si el motivo es la falta de auto-merge.
+ */
+export function esAutoMergeNoDisponible(mensaje) {
+  return /auto-?merge/i.test(mensaje) && /(disabled|not enabled|no está habilitado|protected branch)/i.test(mensaje);
+}
+
+/**
  * Decide qué hacer con la sincronización.
  *
  * La regla de oro vive aquí: solo se abre un PR si el árbol resultante es
@@ -104,7 +119,7 @@ export function cuerpoDePr({ commits, mainSha, devSha }) {
     "## Cómo se verificó",
     "",
     "- [x] Fusión sin conflictos y árbol idéntico al de `dev`, comprobado antes de abrir el PR",
-    "- [x] Auto-merge armado: GitHub fusiona cuando `check`, `e2e` y `review-report` están en verde",
+    "- Auto-merge: el workflow lo arma al terminar, y GitHub fusiona cuando `check`, `e2e` y `review-report` están en verde",
     "",
     "## Riesgo",
     "",
@@ -254,10 +269,17 @@ export function main() {
   try {
     gh(["pr", "merge", prUrl, "--merge", "--auto", "--delete-branch"]);
     console.log("Auto-merge armado: GitHub fusionará la sincronización cuando esté en verde.");
-  } catch {
-    // Si el repositorio no tiene el auto-merge activado, se intenta el merge
-    // directo, que funciona cuando el PR ya está limpio y en verde.
-    console.log("No se pudo armar el auto-merge; se intenta fusionar directamente.");
+  } catch (error) {
+    const mensaje = error instanceof Error ? error.message : String(error);
+    if (!esAutoMergeNoDisponible(mensaje)) {
+      // Cualquier otro motivo se ve tal cual: no se inventa una salida.
+      console.error(`No se pudo armar el auto-merge:\n${mensaje}`);
+      return 1;
+    }
+    // El repositorio no tiene el auto-merge activado: se intenta el merge
+    // directo, que solo funciona si el PR ya está limpio y en verde. La
+    // protección de `dev` es la que impide fusionar con comprobaciones rojas.
+    console.log("El auto-merge no está disponible; se intenta fusionar directamente.");
     gh(["pr", "merge", prUrl, "--merge", "--delete-branch"]);
     console.log("Sincronización fusionada.");
   }
