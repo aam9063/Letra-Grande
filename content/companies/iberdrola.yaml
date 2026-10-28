@@ -1,0 +1,26 @@
+id: iberdrola
+name: Iberdrola
+sector: energia
+channels:
+  atencionCliente:
+    - kind: web
+      value: https://www.iberdrola.es/atencion-cliente
+      sourceId: iberdrola-web
+  reclamacion:
+    - kind: web
+      value: https://www.iberdrola.es/atencion-cliente
+      sourceId: iberdrola-web
+  baja: []
+escalation:
+  - consumo-estatal
+  - consumo-comunitat-valenciana
+sources:
+  - id: iberdrola-web
+    title: "Atención al cliente: teléfono, consultas y contacto"
+    url: https://www.iberdrola.es/atencion-cliente
+    kind: empresa
+    retrievedOn: "2026-10-28"
+verification:
+  verified: false
+  note: >-
+    Borrador preparado por el agente con la página oficial consultada el 2026-10-28. Pendiente de verificación humana (H-07). La URL de atención al cliente no se ha podido abrir de forma automatizada: el sitio responde 403 a las peticiones del agente. Confirmar en un navegador antes de publicar.

@@ -1,0 +1,27 @@
+id: digi
+name: Digi
+sector: telefonia
+channels:
+  atencionCliente:
+    - kind: web
+      value: https://www.digimobil.es/atencion-cliente
+      sourceId: digi-web
+  reclamacion:
+    - kind: web
+      value: https://www.digimobil.es/atencion-cliente
+      sourceId: digi-web
+  baja: []
+escalation:
+  - oficina-atencion-usuario-telecomunicaciones
+  - consumo-estatal
+  - consumo-comunitat-valenciana
+sources:
+  - id: digi-web
+    title: Atención al cliente | DIGI
+    url: https://www.digimobil.es/atencion-cliente
+    kind: empresa
+    retrievedOn: "2026-10-28"
+verification:
+  verified: false
+  note: >-
+    Borrador preparado por el agente con la página oficial consultada el 2026-10-28. Pendiente de verificación humana (H-07).

@@ -1,0 +1,26 @@
+id: repsol
+name: Repsol
+sector: energia
+channels:
+  atencionCliente:
+    - kind: web
+      value: https://www.repsol.es/particulares/contacto/
+      sourceId: repsol-web
+  reclamacion:
+    - kind: web
+      value: https://www.repsol.es/particulares/contacto/
+      sourceId: repsol-web
+  baja: []
+escalation:
+  - consumo-estatal
+  - consumo-comunitat-valenciana
+sources:
+  - id: repsol-web
+    title: Atención al cliente Repsol
+    url: https://www.repsol.es/particulares/contacto/
+    kind: empresa
+    retrievedOn: "2026-10-28"
+verification:
+  verified: false
+  note: >-
+    Borrador preparado por el agente con la página oficial consultada el 2026-10-28. Pendiente de verificación humana (H-07).

@@ -1,0 +1,26 @@
+id: totalenergies
+name: TotalEnergies
+sector: energia
+channels:
+  atencionCliente:
+    - kind: web
+      value: https://www.totalenergies.es/es/hogares/atencion-al-cliente/contacto
+      sourceId: totalenergies-web
+  reclamacion:
+    - kind: web
+      value: https://www.totalenergies.es/es/hogares/atencion-al-cliente/contacto
+      sourceId: totalenergies-web
+  baja: []
+escalation:
+  - consumo-estatal
+  - consumo-comunitat-valenciana
+sources:
+  - id: totalenergies-web
+    title: Contacto | TotalEnergies
+    url: https://www.totalenergies.es/es/hogares/atencion-al-cliente/contacto
+    kind: empresa
+    retrievedOn: "2026-10-28"
+verification:
+  verified: false
+  note: >-
+    Borrador preparado por el agente con la página oficial consultada el 2026-10-28. Pendiente de verificación humana (H-07).

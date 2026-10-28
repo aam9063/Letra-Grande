@@ -1,0 +1,26 @@
+id: endesa
+name: Endesa
+sector: energia
+channels:
+  atencionCliente:
+    - kind: web
+      value: https://www.endesa.com/es/te-ayudamos
+      sourceId: endesa-web
+  reclamacion:
+    - kind: web
+      value: https://www.endesa.com/es/te-ayudamos
+      sourceId: endesa-web
+  baja: []
+escalation:
+  - consumo-estatal
+  - consumo-comunitat-valenciana
+sources:
+  - id: endesa-web
+    title: Te ayudamos | Endesa
+    url: https://www.endesa.com/es/te-ayudamos
+    kind: empresa
+    retrievedOn: "2026-10-28"
+verification:
+  verified: false
+  note: >-
+    Borrador preparado por el agente con la página oficial consultada el 2026-10-28. Pendiente de verificación humana (H-07).

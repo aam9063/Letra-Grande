@@ -1,0 +1,25 @@
+id: orange
+name: Orange
+sector: telefonia
+channels:
+  atencionCliente: []
+  reclamacion:
+    - kind: web
+      value: https://ayuda.orange.es/particulares/gestiones-y-tramitaciones/26-como-hacer-una-reclamacion-en-orange
+      notes: La página es la de reclamaciones de la compañía.
+      sourceId: orange-web
+  baja: []
+escalation:
+  - oficina-atencion-usuario-telecomunicaciones
+  - consumo-estatal
+  - consumo-comunitat-valenciana
+sources:
+  - id: orange-web
+    title: Hacer una reclamación en Orange | Atención al cliente
+    url: https://ayuda.orange.es/particulares/gestiones-y-tramitaciones/26-como-hacer-una-reclamacion-en-orange
+    kind: empresa
+    retrievedOn: "2026-10-28"
+verification:
+  verified: false
+  note: >-
+    Borrador preparado por el agente con la página oficial consultada el 2026-10-28. Pendiente de verificación humana (H-07).
