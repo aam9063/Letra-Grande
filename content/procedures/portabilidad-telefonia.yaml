@@ -1,26 +1,22 @@
 id: portabilidad-telefonia
-title: Cambiarse de operadora conservando el número
+title: Reclamar cuando la portabilidad no se hace o se retrasa
 audience: consumidor
 sector: telefonia
 summary: >-
-  El cambio lo gestiona la operadora nueva. Si la portabilidad no se hace o se retrasa sin
-  explicación, la reclamación va primero al operador y después a la Oficina de Atención al Usuario
-  de Telecomunicaciones.
+  Si la portabilidad del número no se ejecuta o se retrasa sin explicación, la reclamación va
+  primero al operador y, si no contesta en un mes, a la Oficina de Atención al Usuario de
+  Telecomunicaciones.
 steps:
   - n: 1
     text: >-
-      Contrata con la operadora nueva y da tu consentimiento para la portabilidad: es ella la que
-      hace los trámites con la compañía de la que te vas.
+      Reclama a tu operador por sus canales: teléfono, su web, correo postal o sus oficinas
+      comerciales. El operador debe aceptar la presentación telefónica de la reclamación.
     sourceId: usuariosteleco-reclamaciones
   - n: 2
     text: >-
-      Si la portabilidad no se ejecuta, reclama a tu operador por sus canales: teléfono, web,
-      correo postal u oficinas.
-    sourceId: usuariosteleco-reclamaciones
-  - n: 3
-    text: >-
-      Si en un mes no hay respuesta o no te satisface, acude a la Oficina de Atención al Usuario de
-      Telecomunicaciones.
+      Si en un mes no has recibido respuesta o la respuesta no te satisface, presenta la
+      reclamación ante la Oficina de Atención al Usuario de Telecomunicaciones, por vía telemática
+      con firma electrónica o en papel por correo postal o registro.
     sourceId: usuariosteleco-reclamaciones
 documents: []
 deadlines:
@@ -33,8 +29,9 @@ deadlines:
     sourceId: usuariosteleco-reclamaciones
 warnings:
   - text: >-
-      El plazo concreto de ejecución de la portabilidad no se afirma aquí: la página consultada no
-      lo detalla y queda para la verificación humana.
+      Esta ficha describe el cauce de reclamación, que es lo que dice la fuente. El plazo de
+      ejecución de la portabilidad y quién hace los trámites no se afirman aquí: quedan para la
+      verificación humana.
     sourceId: usuariosteleco-reclamaciones
 legalBasis: []
 sources:
@@ -47,5 +44,5 @@ verification:
   verified: false
   note: >-
     Borrador preparado por el agente con la fuente oficial consultada el 2026-10-28. Pendiente de
-    verificación humana (H-07), sobre todo el plazo de ejecución de la portabilidad, que esta ficha
-    no afirma.
+    verificación humana (H-07): añadir el plazo de ejecución de la portabilidad con fuente del
+    regulador y el proceso de contratación con la operadora nueva.

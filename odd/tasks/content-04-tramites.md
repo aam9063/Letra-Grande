@@ -43,7 +43,8 @@ Rama `lg/content-04-tramites`.
 - Cuatro fichas: `reclamar-suministro-electrico`, `baja-linea-telefono`, `portabilidad-telefonia` y `reclamar-retraso-vuelo`.
 - Lo que sí está citado: los pasos y plazos del suministro eléctrico salen de la página de la CNMC (reclamar a comercializadora o distribuidora, acuse de recibo, 15 días hábiles y 5 en el caso concreto de menos de 15 kW, resolución alternativa u órgano autonómico, y que la CNMC no resuelve). Los de telefonía salen de la Oficina de Atención al Usuario: canales del operador y el plazo de un mes antes de acudir a la Oficina.
 - Lo que **no** afirman, a propósito: el plazo de ejecución de la portabilidad (la página consultada no lo da y el dato de un día hábil que aparece en otras fuentes es autonómico, no del regulador), el preaviso de una baja (lo fija el contrato), y los importes de compensación y el plazo de la reclamación aérea (el reglamento europeo no se pudo consultar hoy). Todo eso queda como puntos de H-07, escrito en la nota de cada ficha y en un aviso dentro de la ficha de vuelo.
-- Documentos: solo la ficha de vuelo los lista, porque es la única fuente que los menciona.
+- Review gate (`odd/reviews/content-04.md`, aprobado con cambios) y una ronda aplicada: las fichas de portabilidad y de baja ya no atribuyen a la fuente un proceso que no describe (se reescribieron como lo que la fuente sostiene: el cauce de reclamación), el `cost` del suministro deja solo el litigio gratuito y la ficha de vuelo se queda sin afirmar documentación, con el hueco señalado.
+- Documentos: ninguna ficha los lista. La fuente que los menciona no se pudo consultar, así que no se escriben.
 
 ## Pendientes para H-07 (lista única)
 

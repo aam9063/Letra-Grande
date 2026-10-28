@@ -32,7 +32,7 @@ steps:
     sourceId: cnmc-electrico
 documents: []
 cost:
-  text: La reclamación ante la empresa y el sistema de resolución alternativa de litigios son gratuitos.
+  text: El sistema de resolución alternativa de litigios es gratuito.
   sourceId: cnmc-electrico
 deadlines:
   - id: respuesta-comercializadora
