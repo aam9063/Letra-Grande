@@ -56,6 +56,8 @@ Rama `lg/content-02-empresas`.
 3. Las cuatro con canal de reclamación: confirmar que la página sigue siendo la vía de reclamación.
 4. Decidir si se añaden horarios o permanencias, que hoy no están porque no se han consultado.
 
+- Al ejecutar `pnpm e2e` apareció un fallo intermitente que no tiene que ver con estas fichas: en Firefox, `carpeta.spec.ts` esperó cinco segundos a "Tu carpeta está abierta" y no llegó. Al repetir el spec pasó 5 de 5. Se registra como `REF-UI-07b` para el carril de interfaz, que es de quien es ese spec.
+
 ## Siguiente paso
 
 H-07: verificar las diez fichas (abrir la URL en un navegador, comprobar el canal y decidir si se añaden teléfonos) y las siete de organismos.
