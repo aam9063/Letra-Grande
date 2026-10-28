@@ -1,0 +1,73 @@
+id: reclamar-suministro-electrico
+title: Reclamar por el suministro de electricidad
+audience: consumidor
+sector: energia
+summary: >-
+  La reclamación va primero a la empresa, que debe acusar recibo y contestar en un plazo. Si no
+  contesta o no hay acuerdo, se puede acudir al sistema de resolución alternativa de litigios o
+  al organismo de consumo de la comunidad autónoma.
+steps:
+  - n: 1
+    text: >-
+      Presenta la reclamación a tu comercializadora si es sobre la tarifa, altas y bajas de
+      compañía, la factura o los datos del contrato, y a la distribuidora si es sobre cortes o
+      averías, el contador, las lecturas o un fraude.
+    sourceId: cnmc-electrico
+  - n: 2
+    text: >-
+      La empresa debe emitir un acuse de recibo automático con la fecha, la hora y el número de
+      solicitud.
+    sourceId: cnmc-electrico
+  - n: 3
+    text: >-
+      La empresa tiene que contestar en un máximo de quince días hábiles, o de cinco si la
+      reclamación va al distribuidor y la presenta un usuario con menos de 15 kW sobre la medida,
+      la facturación o un corte indebido.
+    sourceId: cnmc-electrico
+  - n: 4
+    text: >-
+      Si no contesta en plazo o no estás de acuerdo, puedes acudir al sistema de resolución
+      alternativa de litigios, gratuito y más rápido, o al órgano competente de tu comunidad
+      autónoma.
+    sourceId: cnmc-electrico
+documents: []
+cost:
+  text: El sistema de resolución alternativa de litigios es gratuito.
+  sourceId: cnmc-electrico
+deadlines:
+  - id: respuesta-comercializadora
+    label: Plazo máximo para que la empresa conteste
+    kind: plazo_legal
+    amount: 15
+    unit: dias_habiles
+    from: la presentación de la reclamación ante la empresa
+    sourceId: cnmc-electrico
+  - id: respuesta-distribuidora-15kw
+    label: Plazo máximo si la reclamación va al distribuidor y tienes menos de 15 kW
+    kind: plazo_legal
+    amount: 5
+    unit: dias_habiles
+    from: la presentación de la reclamación ante el distribuidor
+    sourceId: cnmc-electrico
+warnings:
+  - text: >-
+      La CNMC no resuelve reclamaciones: supervisa que se cumplan las medidas de protección. El
+      cauce es la empresa y, después, el organismo de consumo o la resolución alternativa.
+    sourceId: cnmc-electrico
+  - text: >-
+      El sistema de resolución alternativa de litigios solo está abierto a personas consumidoras:
+      la propia fuente lo limita a quien no es empresa.
+    sourceId: cnmc-electrico
+legalBasis: []
+sources:
+  - id: cnmc-electrico
+    title: Comercialización y suministro eléctrico | CNMC
+    url: https://www.cnmc.es/facil-para-ti/que-hace-la-cnmc-para-consumidores/comercializacion-y-suministro-electrico
+    kind: oficial
+    retrievedOn: "2026-10-28"
+verification:
+  verified: false
+  note: >-
+    Borrador preparado por el agente con la fuente oficial consultada el 2026-10-28. Pendiente de
+    verificación humana (H-07): confirmar los plazos y añadir la lista de documentos que la fuente
+    no detalla.

@@ -1,0 +1,48 @@
+id: portabilidad-telefonia
+title: Reclamar cuando la portabilidad no se hace o se retrasa
+audience: consumidor
+sector: telefonia
+summary: >-
+  Si la portabilidad del número no se ejecuta o se retrasa sin explicación, la reclamación va
+  primero al operador y, si no contesta en un mes, a la Oficina de Atención al Usuario de
+  Telecomunicaciones.
+steps:
+  - n: 1
+    text: >-
+      Reclama a tu operador por sus canales: teléfono, su web, correo postal o sus oficinas
+      comerciales. El operador debe aceptar la presentación telefónica de la reclamación.
+    sourceId: usuariosteleco-reclamaciones
+  - n: 2
+    text: >-
+      Si en un mes no has recibido respuesta o la respuesta no te satisface, presenta la
+      reclamación ante la Oficina de Atención al Usuario de Telecomunicaciones, por vía telemática
+      con firma electrónica o en papel por correo postal o registro.
+    sourceId: usuariosteleco-reclamaciones
+documents: []
+deadlines:
+  - id: respuesta-operador
+    label: Plazo para que el operador conteste antes de acudir a la Oficina
+    kind: plazo_legal
+    amount: 1
+    unit: meses
+    from: la presentación de la reclamación al operador
+    sourceId: usuariosteleco-reclamaciones
+warnings:
+  - text: >-
+      Esta ficha describe el cauce de reclamación, que es lo que dice la fuente. El plazo de
+      ejecución de la portabilidad y quién hace los trámites no se afirman aquí: quedan para la
+      verificación humana.
+    sourceId: usuariosteleco-reclamaciones
+legalBasis: []
+sources:
+  - id: usuariosteleco-reclamaciones
+    title: Telefonía e Internet | Usuarios Teleco
+    url: https://usuariosteleco.digital.gob.es/reclamaciones/telefonia-e-internet
+    kind: oficial
+    retrievedOn: "2026-10-28"
+verification:
+  verified: false
+  note: >-
+    Borrador preparado por el agente con la fuente oficial consultada el 2026-10-28. Pendiente de
+    verificación humana (H-07): añadir el plazo de ejecución de la portabilidad con fuente del
+    regulador y el proceso de contratación con la operadora nueva.
