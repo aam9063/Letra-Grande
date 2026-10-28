@@ -19,6 +19,14 @@ const NOMBRES = {
   seo: "SEO",
 };
 
+// cumulative-layout-shift no se mide en milisegundos y su valor util tiene tres
+// decimales: decir "0 ms" con un CLS de 0.09 despista a quien lee el fallo.
+const METRICAS_ADIMENSIONALES = new Set(["cumulative-layout-shift"]);
+
+function formatearMetrica(metrica, valor) {
+  return METRICAS_ADIMENSIONALES.has(metrica) ? valor.toFixed(3) : `${Math.round(valor)} ms`;
+}
+
 function porcentaje(valor) {
   return `${Math.round(valor * 100)}`;
 }
@@ -71,7 +79,7 @@ export function comprobarLighthouse({ ruta, informe, presupuesto }) {
     if (valor > maximo) {
       violaciones.push({
         tipo: "metrica-alta",
-        detalle: `${ruta}: ${metrica} vale ${Math.round(valor)} ms y el máximo es ${maximo} ms.`,
+        detalle: `${ruta}: ${metrica} vale ${formatearMetrica(metrica, valor)} y el máximo es ${formatearMetrica(metrica, maximo)}.`,
       });
     }
   }

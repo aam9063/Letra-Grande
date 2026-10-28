@@ -10,6 +10,7 @@ Se comprueban tres cosas, en la CI y en cada PR:
 
 1. **Primera carga por ruta.** El JavaScript que referencia el HTML prerenderizado de cada ruta, medido en gzip. Es lo que alguien descarga antes de ver la pantalla.
 2. **Camino crítico.** `tesseract`, `pdfjs` y `traineddata` no pueden aparecer en ese JavaScript. Si aparecen, una dependencia pesada se ha colado en un import de nivel superior o en un layout.
+   Una ruta que no referencia ningún script de la build también es un fallo, no un aprobado: si Next cambia la forma de las etiquetas del HTML, el medidor no encuentra nada y una ruta de 0 KiB pasaría como si el build fuese perfecto.
 3. **Lighthouse** contra el build de producción, en móvil emulado, sobre la portada y `/hoy`: categorías y métricas con umbral.
 
 ## Dónde vive el presupuesto
@@ -17,7 +18,7 @@ Se comprueban tres cosas, en la CI y en cada PR:
 `apps/web/perf/budget.json`, versionado. Tres bloques:
 
 - `porRuta`: gzip máximo de primera carga por ruta, en bytes.
-- `totalGzip`: la suma de todas las rutas. Se presupuesta la suma, no el máximo, porque cada ruta paga su propia primera carga aunque comparta chunks.
+- `totalGzip`: la suma de todas las rutas. Se presupuesta la suma, no el máximo, porque cada ruta paga su propia primera carga aunque comparta chunks. Está a propósito por debajo de la suma de los máximos por ruta: así un crecimiento repartido entre varias rutas, que ninguna supera por sí sola, también hace fallar la comprobación. Un total por encima de esa suma sería un chequeo que no puede fallar nunca.
 - `caminoCritico.prohibidos`: cadenas que no pueden aparecer en la primera carga.
 - `lighthouse`: rutas que se miden, nota mínima por categoría (0 a 1) y máximo por métrica (en milisegundos).
 
@@ -34,9 +35,24 @@ Medido sobre `pnpm build` en la rama `lg/qa-05-rendimiento` (febrero de 2026), g
 | `/hoy`, `/asistente`, `/ayudas`, `/datos`, `/familia`, `/reclamar`, `/vida` | 178.5 KiB | 200.2 KiB |
 | `/ajustes` | 180.4 KiB | 205.1 KiB |
 | `/carpeta` | 181.1 KiB | 207.0 KiB |
-| Suma de las once rutas | 1952.8 KiB | 2050.8 KiB |
+| Suma de las once rutas | 1952.8 KiB | 1982.4 KiB |
 
-Lighthouse con el mismo build servido por `next start`, móvil emulado: `/` con 0.98 de rendimiento y `/hoy` con 0.99, accesibilidad 1 en las dos, buenas prácticas 0.96 y SEO 1. Los umbrales del fichero están por debajo de esas cifras para no ponerse en rojo por el ruido del runner, salvo accesibilidad, que va a 1 porque es un requisito del proyecto (AA) y no una aspiración.
+Lighthouse 12.8.2 con el mismo build servido por `next start`, dos corridas en móvil emulado (la segunda entre paréntesis cuando cambia, que es el ruido normal de la herramienta):
+
+| Métrica | `/` | `/hoy` | Umbral |
+|---|---|---|---|
+| Rendimiento | 0.98 | 0.98 (0.99 en otra corrida) | 0.85 |
+| Accesibilidad | 1 | 1 | 1 |
+| Buenas prácticas | 0.96 | 0.96 | 0.9 |
+| SEO | 1 | 1 | 0.9 |
+| First Contentful Paint | 1 218 ms | 1 508 ms | 2 500 ms |
+| Largest Contentful Paint | 2 352 ms | 2 260 ms | 4 000 ms |
+| Total Blocking Time | 10 ms | 28 ms | 300 ms |
+| Cumulative Layout Shift | 0.003 | 0 | 0.1 |
+| Speed Index | 1 218 ms | 1 508 ms | 4 000 ms |
+| Peso de la página | 253 KiB | 185 KiB | no se presupuesta |
+
+Los umbrales de rendimiento y de tiempos están muy por debajo de la línea base porque el runner de la CI es más lento y más ruidoso que un equipo local, y el objetivo es cazar regresiones, no medir al milímetro. Accesibilidad va a 1 sin margen: es un requisito del proyecto (AA), no una aspiración. El peso de la página no se presupuesta porque las métricas de Lighthouse ya lo cubren de forma indirecta y un límite de bytes totales penalizaría imágenes de contenido que no están en el camino crítico.
 
 Estas cifras se miden en local. Las de la CI pueden salir algo peores por el runner compartido, y por eso los umbrales no son la línea base exacta.
 
@@ -46,7 +62,7 @@ El job `perf` de `.github/workflows/check.yml`:
 
 1. `pnpm build` (la web de servidor, no la exportación de escritorio).
 2. `pnpm perf:bundle`: `scripts/check-bundle-budget.mjs` mide la primera carga de cada ruta prerenderizada y comprueba el tamaño y el camino crítico. Falla si una ruta se pasa, si aparece una ruta nueva sin presupuesto (crecimiento silencioso) y si una ruta presupuestada no se midió (build incompleto o ruta borrada).
-3. `pnpm perf:lighthouse`: `scripts/run-lighthouse.mjs` arranca `next start` en loopback, mide cada ruta del presupuesto y compara con `scripts/check-lighthouse-budget.mjs`. Para el servidor siempre, también cuando falla. Usa el Lighthouse del lockfile, nunca `npx`.
+3. `pnpm perf:lighthouse`: `scripts/run-lighthouse.mjs` arranca `next start` en loopback, mide cada ruta del presupuesto y compara con `scripts/check-lighthouse-budget.mjs`. Para el servidor siempre, también cuando falla. Usa el Lighthouse del lockfile, nunca `npx`. Antes de medir comprueba dos cosas: que el proceso sigue vivo y que el servidor conoce el `BUILD_ID` de la build en disco. Sin eso, un puerto ya ocupado (el caso real: otro `next dev` en la misma máquina) haría medir el servidor equivocado y saldrían cifras que no son de nadie.
 
 El job tiene `timeout-minutes: 20`: si Lighthouse se cuelga, el PR se pone en rojo en vez de quedarse esperando.
 
@@ -54,7 +70,7 @@ El job tiene `timeout-minutes: 20`: si Lighthouse se cuelga, el PR se pone en ro
 
 ## La dependencia de Lighthouse
 
-`lighthouse` (Apache-2.0, mantenida por Google, solo en `devDependencies`) es la única dependencia que añade esta tarea. Añade 155 paquetes al árbol de desarrollo y ninguno al bundle que descarga quien usa la app: `apps/web/package.json` no la menciona y Next no la empaqueta. Las alternativas se descartaron por tamaño o por dependencia de un servicio: `@lhci/cli` añade más árbol para hacer lo mismo, y un servicio externo mandaría la URL de la app a un tercero, que es justo lo que el proyecto evita.
+`lighthouse` (Apache-2.0, mantenida por Google, solo en `devDependencies`) es la única dependencia que añade esta tarea. Suma 147 entradas nuevas al `pnpm-lock.yaml` (`pnpm` informa de 155 paquetes instalados en el árbol) y ninguna al bundle que descarga quien usa la app: `apps/web/package.json` no la menciona y Next no la empaqueta. Las alternativas se descartaron por tamaño o por dependencia de un servicio: `@lhci/cli` añade más árbol para hacer lo mismo, y un servicio externo mandaría la URL de la app a un tercero, que es justo lo que el proyecto evita.
 
 ## Cómo medir en local
 

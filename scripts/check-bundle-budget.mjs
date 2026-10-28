@@ -136,10 +136,22 @@ export function comprobarPresupuesto({ medidas, presupuesto }) {
       });
       continue;
     }
+    // Un chunk referenciado que no está en la build es un build incompleto y se
+    // dice con su nombre; antes que "sin scripts", que es otra cosa.
     if (medida.ausentes.length > 0) {
       violaciones.push({
         tipo: "chunk-ausente",
         detalle: `${ruta} referencia ${medida.ausentes.join(", ")}, que no está en la build.`,
+      });
+      continue;
+    }
+    if (medida.ficheros.length === 0) {
+      // Si Next cambia la forma del HTML (otra etiqueta, otro atributo), el
+      // extractor no encuentra nada y la ruta mediría 0 KiB: un aprobado que no
+      // ha mirado nada. Se trata como violación, no como build perfecto.
+      violaciones.push({
+        tipo: "sin-scripts",
+        detalle: `${ruta} no referencia ningún JavaScript de la build: el medidor no ha podido medir nada.`,
       });
       continue;
     }

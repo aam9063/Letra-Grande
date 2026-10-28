@@ -256,3 +256,37 @@ test("el camino crítico cumple cuando ningún marcador aparece en la primera ca
     },
   );
 });
+
+test("falla cuando el HTML de una ruta no referencia ningun script", () => {
+  // Si Next cambia la forma del HTML, el medidor no encuentra nada: una ruta de
+  // 0 KiB no es un build perfecto, es una medida que no se hizo.
+  conBuild({ ".next/server/app/hoy.html": "<!doctype html><html><body>sin scripts</body></html>" }, (dir) => {
+    const medidas = medirPrimeraCarga({ buildDir: join(dir, ".next") });
+
+    const resultado = comprobarPresupuesto({
+      medidas,
+      presupuesto: { ...PRESUPUESTO, porRuta: { "/hoy": 2000 } },
+    });
+
+    assert.equal(resultado.status, "fail");
+    assert.match(resultado.message, /\/hoy/);
+    assert.match(resultado.message, /no ha podido medir nada/);
+  });
+});
+
+test("falla cuando una ruta referencia un chunk que no esta en la build", () => {
+  conBuild(
+    { ".next/server/app/hoy.html": htmlConScripts("/_next/static/chunks/falta.js") },
+    (dir) => {
+      const medidas = medirPrimeraCarga({ buildDir: join(dir, ".next") });
+
+      const resultado = comprobarPresupuesto({
+        medidas,
+        presupuesto: { ...PRESUPUESTO, porRuta: { "/hoy": 2000 } },
+      });
+
+      assert.equal(resultado.status, "fail");
+      assert.match(resultado.message, /falta\.js/);
+    },
+  );
+});

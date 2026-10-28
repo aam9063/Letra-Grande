@@ -50,18 +50,36 @@ function arrancarServidor() {
   return { proceso, salida: () => salida };
 }
 
-async function esperarServidor() {
+/**
+ * Espera a que responda el servidor y comprueba que es el nuestro.
+ *
+ * Comprobar solo un 200 no basta: si el puerto ya está ocupado por otro
+ * servidor (un `next dev` de otra sesión es el caso real), `next start` muere
+ * por EADDRINUSE y Lighthouse mediría el build equivocado, con cifras que no
+ * corresponden a nada. Por eso se exige que el proceso siga vivo y que el
+ * servidor presente el manifiesto de este build: `/_next/static/<BUILD_ID>/...`
+ * lleva el identificador que hay en disco.
+ */
+async function esperarServidor(buildId, proceso) {
   const limite = Date.now() + ESPERA_MAXIMA_MS;
   while (Date.now() < limite) {
+    if (proceso.exitCode !== null) return { ok: false, motivo: "el servidor terminó antes de responder" };
     try {
       const respuesta = await fetch(`http://127.0.0.1:${PUERTO}/hoy`);
-      if (respuesta.ok) return true;
+      if (respuesta.ok) {
+        const manifiesto = await fetch(`http://127.0.0.1:${PUERTO}/_next/static/${buildId}/_buildManifest.js`);
+        if (manifiesto.ok) return { ok: true };
+        return {
+          ok: false,
+          motivo: `en el puerto ${PUERTO} responde otro servidor: no conoce el build ${buildId}`,
+        };
+      }
     } catch {
       // El servidor aún no escucha: se reintenta hasta el límite.
     }
     await esperar(500);
   }
-  return false;
+  return { ok: false, motivo: `no respondió en ${ESPERA_MAXIMA_MS / 1000} s` };
 }
 
 /**
@@ -119,18 +137,21 @@ async function main() {
     return 1;
   }
 
-  if (!existsSync(join(WEB_DIR, ".next", "BUILD_ID"))) {
+  const ficheroBuildId = join(WEB_DIR, ".next", "BUILD_ID");
+  if (!existsSync(ficheroBuildId)) {
     console.error("Falta la build de producción. Ejecuta `pnpm build` antes de medir con Lighthouse.");
     return 1;
   }
+  const buildId = readFileSync(ficheroBuildId, "utf8").trim();
 
   const salida = mkdtempSync(join(tmpdir(), "lg-lighthouse-"));
   const servidor = arrancarServidor();
 
   try {
-    if (!(await esperarServidor())) {
+    const listo = await esperarServidor(buildId, servidor.proceso);
+    if (!listo.ok) {
       console.error(
-        `El servidor de producción no respondió en ${ESPERA_MAXIMA_MS / 1000} s.\n${servidor.salida()}`,
+        `No se puede medir: ${listo.motivo}.\nUn servidor en el puerto ${PUERTO} que no sea este build daría cifras falsas; elige otro con LG_PERF_PORT.\n${servidor.salida()}`,
       );
       return 1;
     }

@@ -106,3 +106,16 @@ test("normaliza la ruta que Git Bash convierte en ruta de Windows", () => {
   assert.equal(normalizarRuta("C:/Program Files/Git/hoy"), "/hoy");
   assert.equal(normalizarRuta("C:/Program Files/Git/"), "/");
 });
+
+test("cumulative-layout-shift no se anuncia en milisegundos", () => {
+  // "0 ms" con un CLS de 0.09 confunde: la métrica no tiene unidad.
+  const resultado = comprobarLighthouse({
+    ruta: "/hoy",
+    informe: informe({ categorias: { performance: 0.97 }, metricas: { "cumulative-layout-shift": 0.09 } }),
+    presupuesto: { categorias: { performance: 0.85 }, metricas: { "cumulative-layout-shift": 0.05 } },
+  });
+
+  assert.equal(resultado.status, "fail");
+  assert.match(resultado.message, /0\.090/);
+  assert.doesNotMatch(resultado.message, /0 ms/);
+});

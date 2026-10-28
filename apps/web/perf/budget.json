@@ -1,5 +1,5 @@
 {
-  "$comment": "Presupuesto de rendimiento de la web (QA-05). Los tamaños son el JavaScript de primera carga en gzip, medido sobre el HTML prerenderizado de `pnpm build` por scripts/check-bundle-budget.mjs. Línea base medida en la rama lg/qa-05-rendimiento: entre 169.5 KiB (/) y 181.1 KiB (/carpeta), con 1952.8 KiB de suma entre rutas porque cada una paga su propia primera carga; el totalGzip presupuesta esa suma. Lighthouse dio 0.99 de rendimiento y 0.96 de buenas prácticas en /hoy con el build de producción. Los límites quedan dos cifras por encima de la línea base a propósito: subirlos es una decisión que se revisa en el diff del PR.",
+  "$comment": "Presupuesto de rendimiento de la web (QA-05). Los tamaños son el JavaScript de primera carga en gzip, medido sobre el HTML prerenderizado de `pnpm build` por scripts/check-bundle-budget.mjs. Línea base medida en la rama lg/qa-05-rendimiento: entre 169.5 KiB (/) y 181.1 KiB (/carpeta), con 1952.8 KiB de suma entre rutas porque cada una paga su propia primera carga; el totalGzip presupuesta esa suma por debajo de la suma de los maximos por ruta: asi un crecimiento repartido entre varias rutas, que ninguna supera por si sola, si hace fallar la comprobacion de total. Lighthouse dio 0.99 de rendimiento y 0.96 de buenas prácticas en /hoy con el build de producción. Los límites quedan dos cifras por encima de la línea base a propósito: subirlos es una decisión que se revisa en el diff del PR.",
   "porRuta": {
     "/": 200000,
     "/ajustes": 210000,
@@ -13,7 +13,7 @@
     "/reclamar": 205000,
     "/vida": 205000
   },
-  "totalGzip": 2100000,
+  "totalGzip": 2030000,
   "caminoCritico": {
     "prohibidos": ["tesseract", "pdfjs", "traineddata"]
   },

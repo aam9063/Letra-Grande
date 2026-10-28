@@ -47,7 +47,7 @@ Aviso de carril: no se tocan `packages/**` ni los componentes de `apps/web/src`.
 - [x] Guarda del camino crítico: sin tesseract ni pdfjs en primera carga. El precache del service worker ya estaba cubierto por `apps/web/src/test/pwa.test.ts`, que fija la lista exacta; no se duplica.
 - [x] Documentación del presupuesto y backlog actualizado.
 - [ ] `pnpm check` y `pnpm e2e` en verde.
-- [ ] Review gate con informe en `odd/reviews/qa-05.md` y una ronda de correcciones.
+- [x] Review gate con informe en `odd/reviews/qa-05.md` y una ronda de correcciones.
 
 ## Evidencia y progreso
 
@@ -66,9 +66,20 @@ Primera carga en gzip, medida con `medirPrimeraCarga` sobre el HTML prerenderiza
 | `/carpeta` | 181.1 KiB | 207.0 KiB |
 | Suma de las 11 rutas | 1952.8 KiB | 2050.8 KiB |
 
-Lighthouse 12.8.2 con el mismo build servido por `next start`, móvil emulado:
-`/` rendimiento 0.98, accesibilidad 1, buenas prácticas 0.96, SEO 1, LCP 2.4 s, TBT 10 ms, 248 KiB.
-`/hoy` rendimiento 0.99, accesibilidad 1, buenas prácticas 0.96, SEO 1, LCP 2.1 s, TBT 30 ms, 181 KiB.
+Lighthouse 12.8.2 con el mismo build servido por `next start`, móvil emulado (dos corridas; entre paréntesis lo que cambió por el ruido de la herramienta):
+
+| Métrica | `/` | `/hoy` |
+|---|---|---|
+| Rendimiento | 0.98 | 0.98 (0.99 en otra corrida) |
+| Accesibilidad | 1 | 1 |
+| Buenas prácticas | 0.96 | 0.96 |
+| SEO | 1 | 1 |
+| FCP | 1 218 ms | 1 508 ms |
+| LCP | 2 352 ms | 2 260 ms |
+| TBT | 10 ms | 28 ms |
+| CLS | 0.003 | 0 |
+| Speed Index | 1 218 ms | 1 508 ms |
+| Peso | 253 KiB | 185 KiB |
 
 Nota de método: un `next dev` de otra sesión ocupaba el puerto 3000 del equipo. Las medidas se hicieron contra `next start` en el 3111 y el 3210, nunca contra el servidor de desarrollo, que sirve chunks sin hash y sin minificar (medido por error al principio: 3 MiB en `main-app.js` y 0.70 de rendimiento).
 
@@ -80,6 +91,20 @@ Nota de método: un `next dev` de otra sesión ocupaba el puerto 3000 del equipo
 - `scripts/run-lighthouse.mjs`: arranca `next start` en loopback, mide las rutas del presupuesto, comprueba cada informe y para el servidor siempre. Usa el Lighthouse del lockfile y el binario de Node, porque en Windows `spawn` de un `.cmd` falla con EINVAL.
 - `.github/workflows/check.yml`: job `perf` con `timeout-minutes: 20` (`pnpm build`, `pnpm perf:bundle`, `pnpm perf:lighthouse`).
 - 18 tests nuevos que corren en `pnpm check` vía `test:scripts`.
+
+### Ronda de correcciones (review gate, aprobado con cambios)
+
+Cuatro recomendados y tres notas, todos aplicados en la única ronda que permite el proyecto:
+
+1. `totalGzip` estaba en 2 100 000 y la suma de los máximos por ruta es 2 257 000, así que el total quedaba por encima de lo que puede llegar a sumar el peor caso de las comprobaciones por ruta y no podía fallar cuando importa. Se baja a 2 030 000, por debajo de esa suma y un 1,5 % por encima de la línea base (1 999 669 bytes): ahora un crecimiento repartido entre rutas, que ninguna supera por sí sola, también falla. La tabla del documento se corrige a 1982.4 KiB de presupuesto total.
+2. Una ruta cuyo HTML no referencia ningún script medía 0 KiB y aprobaba. Ahora es una violación propia (`sin-scripts`) y el chunk referenciado que falta se reporta antes como `chunk-ausente`, con su test.
+3. `run-lighthouse.mjs` esperaba un 200 en el puerto y podía medir un servidor ajeno. Ahora falla si el proceso murió y exige que el servidor conozca el `BUILD_ID` de la build en disco. Probado con un intruso real en el 3210: sale con código 1 y lo explica.
+4. Faltaban las líneas base de FCP, CLS y Speed Index que respaldan sus umbrales: medidas y añadidas a las tablas.
+5. El mensaje de una métrica excedida decía "0 ms" para CLS; ahora CLS se formatea sin unidad y con tres decimales.
+6. Dos sentencias en una línea, corregidas.
+7. El número de paquetes de la dependencia ("155") no se reproducía contando el lockfile: son 147 entradas nuevas y pnpm informa de 155 instalados. Corregido con las dos cifras.
+
+Queda como nota sin acción el pendiente humano de añadir `perf` a los checks requeridos de la rama protegida (H-10), documentado en `docs/rendimiento.md`.
 
 ### Comprobado a mano
 
