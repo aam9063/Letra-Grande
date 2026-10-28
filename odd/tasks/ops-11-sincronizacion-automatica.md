@@ -11,7 +11,7 @@ Cada entrega a `main` deja un commit de fusión que `dev` no tiene. La protecci�
   - `.github/workflows/sync-dev.yml`: se dispara con cada push a `main`, y también a mano con `workflow_dispatch`.
   - Tests de las decisiones puras (¿hace falta?, nombre de rama, cuerpo del PR) con `node --test`, ejecutados en el job `check`.
   - Documentación en `docs/review-gate.md`.
-- Fuera: cambiar la protección de `dev` o de `main`, tocar la guardia de OPS-10, y cualquier automatización que resuelva conflictos de contenido: si el árbol no queda idéntico a `dev`, el script falla en vez de inventar una resolución.
+- Fuera: cambiar la protección de `dev` o de `main`, tocar la guardia de OPS-10, y cualquier automatización que resuelva conflictos: si la fusión choca, o si el árbol no queda idéntico a `dev`, el script aborta con un mensaje claro en vez de forzar una resolución.
 - Invariantes:
   - La sincronización **no cambia contenido**: si cambia algo, no se fusiona.
   - Sin secretos en el código: el token vive en `secrets.SYNC_TOKEN`.

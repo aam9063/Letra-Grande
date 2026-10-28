@@ -14,9 +14,9 @@ on:
     branches: [main]
   workflow_dispatch:
 
+# El push y el PR los hace SYNC_TOKEN; el GITHUB_TOKEN del workflow solo lee.
 permissions:
-  contents: write
-  pull-requests: write
+  contents: read
 
 concurrency:
   # Si llegan dos entregas seguidas, la segunda espera en vez de pisar la rama.

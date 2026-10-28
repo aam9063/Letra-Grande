@@ -1,6 +1,12 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { PREFIJO_RAMA, cuerpoDePr, nombreDeRama, necesitaSincronizacion } from "./sync-dev.mjs";
+import {
+  PREFIJO_RAMA,
+  cuerpoDePr,
+  decidirSincronizacion,
+  nombreDeRama,
+  necesitaSincronizacion,
+} from "./sync-dev.mjs";
 
 test("no hay nada que sincronizar cuando main ya es ancestro de dev", () => {
   assert.equal(necesitaSincronizacion({ mainEsAncestroDeDev: true }), false);
@@ -46,4 +52,55 @@ test("el cuerpo del PR sin commits no deja una lista vacía rara", () => {
 
   assert.match(cuerpo, /Commits que se traen:/);
   assert.doesNotMatch(cuerpo, /- \n/);
+});
+
+test("sin commits de main que traer, la decisión es no hacer nada", () => {
+  const decision = decidirSincronizacion({ mainEsAncestroDeDev: true });
+
+  assert.equal(decision.accion, "nada");
+  assert.match(decision.mensaje, /nada que sincronizar/);
+});
+
+test("con conflictos se aborta y no se fuerza el árbol de dev", () => {
+  const decision = decidirSincronizacion({
+    mainEsAncestroDeDev: false,
+    huboConflictos: true,
+    arbolIdentico: false,
+  });
+
+  assert.equal(decision.accion, "abortar");
+  assert.match(decision.mensaje, /conflictos/);
+  assert.match(decision.mensaje, /alguien tiene que mirar/);
+});
+
+test("si el árbol no es idéntico al de dev, se aborta aunque no haya conflictos", () => {
+  const decision = decidirSincronizacion({
+    mainEsAncestroDeDev: false,
+    huboConflictos: false,
+    arbolIdentico: false,
+  });
+
+  assert.equal(decision.accion, "abortar");
+  assert.match(decision.mensaje, /no es idéntico/);
+  assert.match(decision.mensaje, /No se abre ningún PR/);
+});
+
+test("solo se sincroniza con el árbol idéntico y sin conflictos", () => {
+  const decision = decidirSincronizacion({
+    mainEsAncestroDeDev: false,
+    huboConflictos: false,
+    arbolIdentico: true,
+  });
+
+  assert.equal(decision.accion, "sincronizar");
+});
+
+test("abortar gana a sincronizar si llegan las dos señales raras a la vez", () => {
+  const decision = decidirSincronizacion({
+    mainEsAncestroDeDev: false,
+    huboConflictos: true,
+    arbolIdentico: true,
+  });
+
+  assert.equal(decision.accion, "abortar");
 });

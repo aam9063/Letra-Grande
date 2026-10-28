@@ -28,6 +28,45 @@ export function necesitaSincronizacion({ mainEsAncestroDeDev }) {
 }
 
 /**
+ * Decide qué hacer con la sincronización.
+ *
+ * La regla de oro vive aquí: solo se abre un PR si el árbol resultante es
+ * exactamente el de `dev`. Con conflictos no se fuerza nada y con un árbol
+ * distinto se aborta, porque eso significaría que `main` trae contenido que
+ * `dev` no tiene y alguien tiene que mirarlo.
+ *
+ * @param {object} datos
+ * @param {boolean} datos.mainEsAncestroDeDev Si `dev` ya lleva la historia de `main`.
+ * @param {boolean} [datos.huboConflictos] Si la fusión de `main` en `dev` chocó.
+ * @param {boolean} [datos.arbolIdentico] Si el árbol resultante es el de `dev`.
+ * @returns {{ accion: "nada" | "sincronizar" | "abortar", mensaje: string }}
+ */
+export function decidirSincronizacion({
+  mainEsAncestroDeDev,
+  huboConflictos = false,
+  arbolIdentico = false,
+}) {
+  if (mainEsAncestroDeDev) {
+    return { accion: "nada", mensaje: "dev ya lleva la historia de main: nada que sincronizar." };
+  }
+  if (huboConflictos) {
+    return {
+      accion: "abortar",
+      mensaje:
+        "La fusión de main en dev tiene conflictos. No se resuelve sola: alguien tiene que mirar qué cambia main antes de sincronizar.",
+    };
+  }
+  if (!arbolIdentico) {
+    return {
+      accion: "abortar",
+      mensaje:
+        "El árbol de la sincronización no es idéntico al de dev: main trae contenido que dev no tiene. No se abre ningún PR.",
+    };
+  }
+  return { accion: "sincronizar", mensaje: "El árbol es idéntico al de dev: se abre el PR." };
+}
+
+/**
  * Nombre de la rama de sincronización, estable y reconocible.
  *
  * @param {object} datos
@@ -64,7 +103,7 @@ export function cuerpoDePr({ commits, mainSha, devSha }) {
     "",
     "## Cómo se verificó",
     "",
-    "- [x] Fusión sin conflictos y árbol idéntico al de `dev`",
+    "- [x] Fusión sin conflictos y árbol idéntico al de `dev`, comprobado antes de abrir el PR",
     "- [ ] `pnpm check` y `pnpm e2e` en verde (CI de este PR)",
     "",
     "## Riesgo",
@@ -74,6 +113,24 @@ export function cuerpoDePr({ commits, mainSha, devSha }) {
     "Solo historia: ni una línea de código ni de contenido cambia.",
     "",
   ].join("\n");
+}
+
+/**
+ * Entorno de git con el token fuera de la línea de comandos.
+ *
+ * El token va en la configuración por variables de entorno (`GIT_CONFIG_*`), no
+ * en la URL del remoto: si un comando falla, el mensaje de error imprime la
+ * línea de comandos, y un token ahí acabaría en el log de Actions.
+ */
+function entornoConToken(token, repositorio) {
+  return {
+    ...process.env,
+    GIT_CONFIG_COUNT: "1",
+    GIT_CONFIG_KEY_0: `url.https://x-access-token:${token}@github.com/.insteadOf`,
+    GIT_CONFIG_VALUE_0: "https://github.com/",
+    GIT_TERMINAL_PROMPT: "0",
+    REPOSITORIO: repositorio,
+  };
 }
 
 /** Ejecuta y devuelve la salida; falla con un mensaje con el comando y el error. */
@@ -113,70 +170,82 @@ export function main() {
     return 0;
   }
 
-  correr("git", ["fetch", "--no-tags", "origin", "main", "dev"]);
-  const mainSha = correr("git", ["rev-parse", "origin/main"]);
-  const devSha = correr("git", ["rev-parse", "origin/dev"]);
+  const repositorio = process.env.GITHUB_REPOSITORY ?? "";
+  const entorno = entornoConToken(token, repositorio);
+  const git = (argumentos) => correr("git", argumentos, { env: entorno });
+  const gh = (argumentos) =>
+    correr("gh", argumentos, { env: { ...process.env, GH_TOKEN: token } });
 
-  if (!necesitaSincronizacion({ mainEsAncestroDeDev: esAncestro(mainSha, devSha) })) {
+  git(["fetch", "--no-tags", "origin", "main", "dev"]);
+  const mainSha = git(["rev-parse", "origin/main"]);
+  const devSha = git(["rev-parse", "origin/dev"]);
+
+  if (decidirSincronizacion({ mainEsAncestroDeDev: esAncestro(mainSha, devSha) }).accion === "nada") {
     console.log("dev ya lleva la historia de main: nada que sincronizar.");
     return 0;
   }
 
-  const commits = correr("git", ["log", "--oneline", "origin/main", "^origin/dev"])
-    .split("\n")
-    .filter(Boolean);
+  const commits = git(["log", "--oneline", "origin/main", "^origin/dev"]).split("\n").filter(Boolean);
   const rama = nombreDeRama({ mainSha, devSha });
   console.log(`Sincronizando ${commits.length} commit(s) de main en ${rama}.`);
 
-  correr("git", ["checkout", "-B", rama, devSha]);
-  correr("git", ["config", "user.name", "letra-grande-sync"]);
-  correr("git", ["config", "user.email", "sync@letra-grande.invalid"]);
+  git(["checkout", "-B", rama, devSha]);
+  git(["config", "user.name", "letra-grande-sync"]);
+  git(["config", "user.email", "sync@letra-grande.invalid"]);
 
+  let huboConflictos = false;
   try {
-    correr("git", ["merge", "--no-edit", mainSha]);
+    git(["merge", "--no-edit", mainSha]);
   } catch {
-    // Con conflicto, el contenido bueno es el de dev: se fija el árbol y se sigue.
-    console.log("La fusión trae conflictos: se fija el árbol de dev.");
-    correr("git", ["checkout", devSha, "--", "."]);
-    correr("git", ["add", "-A"]);
-    correr("git", ["commit", "--no-edit"]);
+    huboConflictos = true;
+    git(["merge", "--abort"]);
   }
 
-  // Regla de oro: si el árbol cambió, no se fusiona nada.
-  try {
-    correr("git", ["diff", "--quiet", devSha, "HEAD"]);
-  } catch {
-    console.error(
-      [
-        "El árbol de la sincronización NO es idéntico al de dev.",
-        "No se abre ningún PR: alguien tiene que mirar esto a mano.",
-        "",
-        correr("git", ["diff", "--stat", devSha, "HEAD"]),
-      ].join("\n"),
-    );
+  // La decisión central, la misma que se prueba en los tests.
+  let arbolIdentico = false;
+  if (!huboConflictos) {
+    try {
+      git(["diff", "--quiet", devSha, "HEAD"]);
+      arbolIdentico = true;
+    } catch {
+      arbolIdentico = false;
+    }
+  }
+  const decision = decidirSincronizacion({
+    mainEsAncestroDeDev: false,
+    huboConflictos,
+    arbolIdentico,
+  });
+  if (decision.accion !== "sincronizar") {
+    console.error(decision.mensaje);
     return 1;
   }
-  console.log("El árbol es idéntico al de dev: se abre el PR.");
 
-  const url = `https://x-access-token:${token}@github.com/${process.env.GITHUB_REPOSITORY}.git`;
-  correr("git", ["push", "--force", url, `HEAD:refs/heads/${rama}`]);
+  // Si una ejecución anterior dejó un PR de esta misma rama, se reutiliza.
+  const abiertos = gh(["pr", "list", "--head", rama, "--state", "open", "--json", "number,url"])
+    .trim();
+  let prUrl = "";
+  const previos = abiertos === "" ? [] : JSON.parse(abiertos);
+  if (previos.length > 0) {
+    prUrl = previos[0].url;
+    console.log(`Ya había un PR abierto para ${rama}: ${prUrl}`);
+  } else {
+    git(["push", "--force", `https://github.com/${repositorio}.git`, `HEAD:refs/heads/${rama}`]);
+    prUrl = gh([
+      "pr",
+      "create",
+      "--base",
+      "dev",
+      "--head",
+      rama,
+      "--title",
+      "OPS-11: sincronizar dev con main",
+      "--body",
+      cuerpoDePr({ commits, mainSha, devSha }),
+    ]);
+    console.log(`PR abierto: ${prUrl}`);
+  }
 
-  const gh = (argumentos) => correr("gh", argumentos, { env: { ...process.env, GH_TOKEN: token } });
-  const prUrl = gh([
-    "pr",
-    "create",
-    "--base",
-    "dev",
-    "--head",
-    rama,
-    "--title",
-    "OPS-11: sincronizar dev con main",
-    "--body",
-    cuerpoDePr({ commits, mainSha, devSha }),
-  ]);
-  console.log(`PR abierto: ${prUrl}`);
-
-  // Se espera a las tres comprobaciones y se fusiona con commit de fusión.
   gh(["pr", "checks", prUrl, "--watch", "--interval", "20", "--exit-status"]);
   gh(["pr", "merge", prUrl, "--merge", "--delete-branch"]);
   console.log("Sincronización fusionada.");
