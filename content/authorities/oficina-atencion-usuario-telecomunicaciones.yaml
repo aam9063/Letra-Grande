@@ -15,6 +15,11 @@ sources:
     url: https://usuariosteleco.digital.gob.es/reclamaciones/telefonia-e-internet
     kind: oficial
     retrievedOn: "2026-10-28"
+  - id: usuariosteleco-contacto
+    title: Contacto | Usuarios Teleco
+    url: https://usuariosteleco.digital.gob.es/contacto
+    kind: oficial
+    retrievedOn: "2026-10-28"
   - id: usuariosteleco-papel
     title: Tramitación de reclamaciones en papel | Usuarios Teleco
     url: https://usuariosteleco.digital.gob.es/reclamaciones/telefonia-e-internet/tramitacion-papel

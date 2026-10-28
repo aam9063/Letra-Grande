@@ -44,6 +44,7 @@ Rama `lg/content-03-organismos`.
 
 - Siete fichas en `content/authorities/`: `consumo-estatal`, `oficina-atencion-usuario-telecomunicaciones`, `banco-de-espana`, `dgsfp`, `cnmc-energia`, `aesa` y `consumo-comunitat-valenciana`. Todas con `verified: false`, su nota de borrador y entre una y dos fuentes oficiales con fecha de consulta.
 - Las doce URL de las fichas (sin contar la de la plantilla) se comprobaron con `curl`: las doce responden 200.
+- Review gate (`odd/reviews/content-03.md`, aprobado con cambios) y una ronda aplicada: fuera una frase sobre la distribuidora que no estaba en la fuente, GASPAR reatribuido a contratación y vigencia, la página de contacto de la Oficina añadida como fuente, la CNMC descrita como supervisora y no como cauce de reclamación (con sus plazos de quince y cinco días hábiles), remisión explícita a las fichas sectoriales y alcance autonómico anotado en el backlog.
 - Lo que las fichas **no** afirman, a propósito, para no inventar: el plazo de resolución de la Oficina de Telecomunicaciones, el plazo y la documentación de la reclamación ante AESA, y el órgano autonómico concreto al que se eleva una reclamación de energía. Quedan como puntos concretos de H-07.
 
 ## Siguiente paso

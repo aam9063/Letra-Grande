@@ -84,7 +84,7 @@ Cada tarea la ejecuta un agente en su carril. `Dep.` indica dependencias. Los cr
 | AI-04 | Conjunto de 40 evaluaciones (sección 13.2) y ejecución nocturna en CI | AI-03 | Informe con las cuatro métricas; el CI falla si caen por debajo de los umbrales fijados |
 | AI-05 | Guardarraíles: prompt de sistema, rechazo de asesoramiento individual, derivación | AI-03 | Casos de la tabla 13.2 pasan |
 | CONTENT-02 | Fichas borrador de las 5 mayores comercializadoras de electricidad y 5 operadoras (**borrador, para verificación humana**) | CONTENT-01 | Fichas con fuentes y `verified: false`; lista de pendientes de verificar |
-| CONTENT-03 | Fichas de organismos: consumo estatal, telecomunicaciones, banca, seguros, energía, aviación, y consumo autonómico por comunidad | CONTENT-01 | Una ficha por organismo con `howToFile` y fuente |
+| CONTENT-03 | Fichas de organismos: consumo estatal, telecomunicaciones, banca, seguros, energía, aviación, y consumo autonómico por comunidad | CONTENT-01 | Una ficha por organismo con `howToFile` y fuente. Alcance acordado: de momento solo la Comunitat Valenciana en lo autonómico (D-08); el resto de comunidades entra en DATA-05 |
 | CONTENT-04 | Trámites: reclamar suministro, baja de línea, portabilidad, reclamar retraso de vuelo | CONTENT-01 | Trámites con pasos, plazos y fuentes |
 | H-07 | **Verificar a mano** las fichas de CONTENT-02 a 04 (10 a 15 min por ficha) | CONTENT-02..04 | Fichas con `verified: true`, quién y cuándo |
 | MOD-01 | Reclamar: triaje, ruta de escalado desde `escalation`, carta con marcadores, PDF, lista de pruebas | AI-03, CONTENT-03 | Carta generada sin datos personales en el servidor; datos rellenados en local |

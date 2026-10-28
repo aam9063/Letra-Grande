@@ -7,8 +7,8 @@ howToFile: >-
   El Servicio de Reclamaciones atiende consultas, quejas y reclamaciones de la ciudadanía por
   el procedimiento que regula la Orden ECC/2502/2012, la misma norma que ordena los servicios
   de reclamaciones del Banco de España y de la Comisión Nacional del Mercado de Valores. Su
-  web publica la información del procedimiento y la guía GASPAR para la persona asegurada y
-  partícipe, con el proceso de reclamación explicado paso a paso.
+  web publica la información de ese procedimiento y, aparte, la guía GASPAR para la persona
+  asegurada y partícipe, que explica la contratación y la vigencia del producto contratado.
 sources:
   - id: dgsfp-procedimiento
     title: Información sobre el procedimiento | DGSFP
@@ -24,5 +24,5 @@ verification:
   verified: false
   note: >-
     Borrador preparado por el agente con las fuentes oficiales consultadas el 2026-10-28.
-    Pendiente de verificación humana (H-07): confirmar el detalle del procedimiento en la guía
-    GASPAR antes de publicar la ficha como verificada.
+    Pendiente de verificación humana (H-07): confirmar en el documento del procedimiento los
+    pasos y el plazo, que esta ficha no detalla.

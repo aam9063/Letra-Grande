@@ -1,19 +1,27 @@
 id: cnmc-energia
-name: Comisión Nacional de los Mercados y la Competencia (consumidores de energía)
+name: Comisión Nacional de los Mercados y la Competencia (información para consumidores de energía)
 scope: estatal
 sectors: [energia]
 url: https://www.cnmc.es/facil-para-ti/que-hace-la-cnmc-para-consumidores/comercializacion-y-suministro-electrico
 howToFile: >-
-  La reclamación se dirige primero a la empresa: a la comercializadora para cambios o dudas
-  sobre la tarifa, altas y bajas de compañía o gestión del contrato, y a la distribuidora para
-  lo que afecta a la red. Las reclamaciones ante la distribuidora se pueden presentar también
-  a través de la comercializadora. La CNMC publica una guía de cómo presentar una reclamación
-  y, si el conflicto no se resuelve, la persona consumidora puede acudir al organismo de
-  consumo que le corresponda.
+  La reclamación va primero a la empresa: a la comercializadora si es sobre la tarifa, altas y
+  bajas de compañía, la factura o los datos del contrato, y a la distribuidora si es sobre
+  cortes o averías, el contador, las lecturas o un fraude. La empresa debe emitir un acuse de
+  recibo con fecha, hora y número de solicitud y contestar en un máximo de quince días hábiles
+  (cinco para reclamaciones al distribuidor de usuarios con menos de 15 kW sobre medida,
+  facturación o cortes indebidos). Si no contesta o no hay acuerdo, la persona consumidora
+  puede acudir al sistema de resolución alternativa de litigios o al órgano competente de su
+  comunidad autónoma. La CNMC no resuelve reclamaciones: supervisa que se cumplan las medidas
+  de protección.
 sources:
   - id: cnmc-electrico
     title: Comercialización y suministro eléctrico | CNMC
     url: https://www.cnmc.es/facil-para-ti/que-hace-la-cnmc-para-consumidores/comercializacion-y-suministro-electrico
+    kind: oficial
+    retrievedOn: "2026-10-28"
+  - id: cnmc-como-reclamar
+    title: ¿Cómo presentar una reclamación? | CNMC (PDF)
+    url: https://www.cnmc.es/sites/default/files/editor_contenidos/Energia/Consumidores/12.%20C%C3%B3mo%20presentar%20una%20reclamaci%C3%B3n_marzo2026.pdf
     kind: oficial
     retrievedOn: "2026-10-28"
   - id: miteco-reclamaciones
@@ -24,6 +32,6 @@ sources:
 verification:
   verified: false
   note: >-
-    Borrador preparado por el agente con las fuentes oficiales consultadas el 2026-10-28.
-    Pendiente de verificación humana (H-07): la ficha no afirma a qué órgano concreto de
-    consumo se eleva la reclamación, porque depende de la comunidad.
+    Borrador preparado por el agente con las fuentes oficiales consultadas el 2026-10-28. La
+    CNMC se incluye como fuente de información y de supervisión, no como cauce donde se
+    resuelve la reclamación: la propia página lo dice. Pendiente de verificación humana (H-07).
