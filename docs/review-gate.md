@@ -155,6 +155,8 @@ Dos trampas aparecidas al cerrar tareas contra el gate, para no volver a pisarla
 
 La plantilla de PR lleva una línea de riesgo con una convención fija y legible por máquina: el literal es exactamente `Risk: item N` o `Risk: none`, en inglés. No se traduce: así lo espera la plantilla de `.github/PULL_REQUEST_TEMPLATE.md`.
 
+`pnpm check` ejecuta también los tests de los scripts de CI (`scripts/*.test.mjs`) con `test:scripts`, así que una regresión en el gate, la guardia de historia o la sincronización se ve en local antes de subir nada. En el workflow solo quedan las comprobaciones de verdad, no los tests duplicados.
+
 ## Entrega a main: fusión, nunca squash
 
 Regla fija desde que costó una tarde: **de `dev` a `main` se fusiona con commit de fusión, jamás con squash**, y antes de abrir esa entrega la rama tiene que llevar toda la historia de `main`.
