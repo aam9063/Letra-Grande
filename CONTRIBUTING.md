@@ -33,6 +33,17 @@ Cómo abrir el pull request del paso 6 se explica paso a paso en la sección 2, 
 5. Pasa `pnpm check`.
 6. En el PR, enlaza la fuente y, si puedes, una captura con fecha.
 
+### 1.2.1 Qué cuenta como verificada
+
+Una ficha pasa a `verified: true` cuando **una persona** ha mirado la fuente oficial o de la propia empresa y ha comprobado cada dato que la ficha afirma: canales, teléfonos, plazos, importes y requisitos. Eso es lo que significa el campo, y no hay otra forma de conseguirlo.
+
+- **Quién firma.** `verifiedBy` lleva el nombre o el identificador de la persona que verificó, no el de un agente ni el de una herramienta. Un borrador preparado por un agente puede ser correcto y aun así no está verificado.
+- **Con qué evidencia.** El PR que marca `verified: true` enlaza la fuente exacta que se consultó, no la portada del organismo, y lleva la fecha de consulta en `verifiedOn`. Una captura con fecha ayuda y se agradece, pero lo que cuenta es el enlace.
+- **Hasta cuándo vale.** Pasados 180 días desde `verifiedOn`, el validador avisa y la ficha conviene revisarse. El aviso no cambia `verified` solo: alguien tiene que volver a comprobarlo.
+- **Qué se rechaza sin discusión.** Marcar `verified: true` con una fuente de tipo `tercero`; verificar contra un foro, un comparador o una nota de prensa; rellenar un dato que no aparece en la fuente, aunque parezca obvio; y firmar con el nombre de otra persona.
+
+El validador de la sección siguiente comprueba que la estructura acompaña a la verificación: que hay fuente oficial, que las fechas están y que los identificadores resuelven. **No comprueba que el dato sea cierto**: eso solo lo hace la persona que firma.
+
 ### 1.3 Lo que comprueba el validador de contenido
 
 Antes de abrir el PR, ejecuta `pnpm check` en la raíz. Dentro corre `pnpm content:validate`, que revisa todo `content/`. Estas son las reglas que aplica:
@@ -56,6 +67,16 @@ Si el validador falla, corrige lo que señala y vuelve a ejecutarlo. No desactiv
 - Toda ficha lleva fuentes con URL y fecha de consulta.
 - Sin datos personales reales en fichas, issues, tests, fixtures ni documentación.
 - El Observatorio solo publica datos oficiales con fuente, fecha y método. Sin opiniones ni valoraciones sobre empresas.
+
+### 1.5 Quién aprueba
+
+`.github/CODEOWNERS` dice qué persona responde de cada parte del repositorio: las fichas por sector (empresas, organismos, trámites), cada paquete, cada aplicación y la infraestructura. Cuando llega un PR que toca una de esas rutas, GitHub avisa a su propietario.
+
+Hoy hay una sola persona propietaria, y esa persona es también quien abre los PRs. Por eso la revisión obligatoria de code owners **no está activada** en las ramas: GitHub no permite aprobar tu propio PR, así que con un único propietario el requisito no se puede cumplir de la forma prevista. La única salida sería el bypass de administrador, si la regla de rama lo permite, y saltarse el requisito no es cumplirlo. Mientras tanto el fichero sirve de aviso y de mapa de responsabilidades.
+
+Dos detalles antes de contar con este fichero: GitHub usa el `CODEOWNERS` de la **rama base** del PR, así que no avisa de nada hasta que esté fusionado en `dev`; y el autor de un PR no puede aprobarlo, así que el aviso y la aprobación solo aparecen cuando el PR lo abre otra persona.
+
+Cuando haya un segundo propietario, se activa en `Settings` → `Branches` → regla de `dev` y de `main` → marcar **Require review from Code Owners**. A partir de ahí, un PR que toque fichas de un sector no se fusiona sin la aprobación de quien responde de ese sector. El reparto definitivo de sectores entre personas es una tarea abierta del backlog (H-04).
 
 ## 2. Contribuir código
 
