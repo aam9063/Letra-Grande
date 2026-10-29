@@ -1,14 +1,14 @@
 :root {
-  --lg-tinta: #141414;
-  --lg-lienzo: #f7f7f8;
-  --lg-superficie: #ffffff;
-  --lg-acento: #3e9b94;
-  --lg-acento-texto: #141414;
+  /* Overrides deliberados del paquete de diseño: layout.tsx carga base.css
+     antes que esta hoja, así que estos dos valores ganan. Son más compactos
+     que los de base.css porque el shell de la app usa una escala propia.
+     Los tokens de color no se redeclaran aquí: su fuente de verdad es
+     packages/design (REF-QA-08-01). */
   --lg-espacio: 0.25rem;
   --lg-radio: 0.5rem;
+  /* Escala tipográfica de la app: no son tokens del paquete de diseño. */
   --lg-fuente-base: 1rem;
   --lg-linea: 1.6;
-  --lg-objetivo: 44px;
 }
 
 *,
@@ -94,7 +94,7 @@ body {
     height: 100dvh;
     overflow-y: auto;
     background: var(--lg-superficie);
-    border-right: 1px solid #e3e3e8;
+    border-right: 1px solid var(--lg-borde-suave);
     padding: 1.5rem 1rem;
   }
 
@@ -138,7 +138,7 @@ body {
   gap: 0.625rem;
   margin: 0;
   min-height: 3.25rem;
-  border: 1px solid #d5d5dc;
+  border: 1px solid var(--lg-borde);
   border-radius: 0.875rem;
   background: var(--lg-lienzo);
   padding: 0 0.75rem;
@@ -179,8 +179,8 @@ body {
 }
 
 .lg-sidebar-enlace-activo {
-  background: #ecf5f4;
-  color: #26605c;
+  background: var(--lg-acento-suave);
+  color: var(--lg-acento-suave-texto);
 }
 
 .lg-sidebar-grupo {
@@ -188,7 +188,7 @@ body {
   padding: 0 0.75rem 0.375rem;
   font-size: 0.875rem;
   font-weight: 700;
-  color: #55555f;
+  color: var(--lg-texto-tenue);
 }
 
 .lg-sidebar-nav-secundaria {
@@ -213,7 +213,7 @@ a.lg-sidebar-modulo {
 }
 
 .lg-sidebar-modulo-pendiente {
-  color: #55555f;
+  color: var(--lg-texto-tenue);
   cursor: default;
 }
 
@@ -223,8 +223,8 @@ a.lg-sidebar-modulo {
   font-weight: 700;
   border-radius: 999px;
   padding: 0.125rem 0.625rem;
-  background: #e3f2f1;
-  color: #17504b;
+  background: var(--lg-etiqueta-proxima-fondo);
+  color: var(--lg-etiqueta-proxima-texto);
   white-space: nowrap;
 }
 
@@ -239,8 +239,8 @@ a.lg-sidebar-modulo {
   margin: 0;
   border-radius: 0.875rem;
   padding: 0.875rem;
-  background: #e6f4ea;
-  color: #135c2e;
+  background: var(--lg-etiqueta-ok-fondo);
+  color: var(--lg-etiqueta-ok-texto);
   display: flex;
   gap: 0.625rem;
   align-items: flex-start;
@@ -254,7 +254,7 @@ a.lg-sidebar-modulo {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  border: 1px solid #d5d5dc;
+  border: 1px solid var(--lg-borde);
   border-radius: 0.75rem;
   text-decoration: none;
   font-size: 1rem;
@@ -285,7 +285,7 @@ a.lg-sidebar-modulo {
   font-weight: 700;
   color: var(--lg-tinta);
   background: var(--lg-superficie);
-  border: 1px solid #d5d5dc;
+  border: 1px solid var(--lg-borde);
   border-radius: 0.75rem;
   cursor: pointer;
 }
@@ -353,7 +353,7 @@ h1 {
   font-size: 0.78125rem;
   line-height: 1.2;
   font-weight: 700;
-  color: #55555f;
+  color: var(--lg-texto-tenue);
   text-decoration: none;
   border: none;
   border-radius: 1.25rem;
@@ -362,7 +362,7 @@ h1 {
 }
 
 .lg-nav-enlace-activo {
-  color: #26605c;
+  color: var(--lg-acento-suave-texto);
 }
 
 .lg-nav-velo {
@@ -409,7 +409,7 @@ h1 {
 }
 
 .lg-nav-hoja-enlace[aria-current="page"] {
-  color: #26605c;
+  color: var(--lg-acento-suave-texto);
 }
 
 :focus-visible {
@@ -570,7 +570,7 @@ h1 {
   appearance: none;
   border-radius: 999px;
   background: var(--lg-lienzo);
-  border: 2px solid #d5d5dc;
+  border: 2px solid var(--lg-borde);
   position: relative;
   margin: 0;
 }
@@ -585,7 +585,7 @@ h1 {
   height: 1rem;
   border-radius: 50%;
   background: var(--lg-superficie);
-  border: 1px solid #d5d5dc;
+  border: 1px solid var(--lg-borde);
 }
 
 /* Carpeta privada (UI-07): pantallas de crear, desbloquear y sesión abierta.
@@ -652,7 +652,7 @@ h1 {
   min-height: var(--lg-objetivo);
   padding: 0 calc(var(--lg-espacio) * 3);
   font: inherit;
-  border: 2px solid #d5d5dc;
+  border: 2px solid var(--lg-borde);
   border-radius: var(--lg-radio);
 }
 
@@ -663,7 +663,7 @@ h1 {
 
 .lg-carpeta-pista {
   font-size: 0.875rem;
-  color: #55555f;
+  color: var(--lg-texto-tenue);
 }
 
 .lg-carpeta-error {
@@ -699,7 +699,7 @@ h1 {
   padding: 0 calc(var(--lg-espacio) * 1);
   font: inherit;
   font-weight: 700;
-  color: #26605c;
+  color: var(--lg-acento-suave-texto);
   background: none;
   border: none;
   text-decoration: underline;
@@ -742,7 +742,7 @@ h1 {
   min-height: var(--lg-objetivo);
   padding: 0 calc(var(--lg-espacio) * 3);
   font: inherit;
-  border: 2px solid #d5d5dc;
+  border: 2px solid var(--lg-borde);
   border-radius: var(--lg-radio);
 }
 

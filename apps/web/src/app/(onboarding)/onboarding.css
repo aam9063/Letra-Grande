@@ -31,7 +31,7 @@
   width: 0.5rem;
   height: 0.5rem;
   border-radius: 999px;
-  background: #d5d5dc;
+  background: var(--lg-borde);
 }
 
 .lg-ob-punto-activo {
@@ -46,7 +46,7 @@
   font-family: inherit;
   font-size: 1rem;
   font-weight: 700;
-  color: #55555f;
+  color: var(--lg-texto-tenue);
   cursor: pointer;
 }
 
@@ -67,7 +67,7 @@
 .lg-ob-subtitulo {
   margin: 0.75rem 0 0;
   font-size: 1.1875rem;
-  color: #3a3a42;
+  color: var(--lg-texto-medio);
   max-width: 40rem;
 }
 
@@ -83,7 +83,7 @@
   flex: 1 1 15rem;
   min-width: 0;
   background: var(--lg-superficie);
-  border: 1px solid #e3e3e8;
+  border: 1px solid var(--lg-borde-suave);
   border-radius: 1.25rem;
   padding: 1.5rem;
 }
@@ -92,15 +92,15 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  color: #55555f;
+  color: var(--lg-texto-tenue);
 }
 
 .lg-ob-icono {
   width: 2.75rem;
   height: 2.75rem;
   border-radius: 0.875rem;
-  background: #ecf5f4;
-  color: #26605c;
+  background: var(--lg-acento-suave);
+  color: var(--lg-acento-suave-texto);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -116,14 +116,14 @@
 .lg-ob-tarjeta p {
   margin: 0.5rem 0 0;
   font-size: 1.0625rem;
-  color: #3a3a42;
+  color: var(--lg-texto-medio);
 }
 
 /* Paso 2: tabla comparativa. */
 .lg-ob-tabla {
   margin-top: 2rem;
   background: var(--lg-superficie);
-  border: 1px solid #e3e3e8;
+  border: 1px solid var(--lg-borde-suave);
   border-radius: 1.25rem;
   overflow: hidden;
 }
@@ -134,7 +134,7 @@
 }
 
 .lg-ob-fila + .lg-ob-fila {
-  border-top: 1px solid #ececf0;
+  border-top: 1px solid var(--lg-superficie-alterna);
 }
 
 .lg-ob-fila > span {
@@ -148,20 +148,20 @@
 }
 
 .lg-ob-general {
-  color: #55555f;
+  color: var(--lg-texto-tenue);
 }
 
 .lg-ob-columna-propia,
 .lg-ob-propio {
-  background: #ecf5f4;
+  background: var(--lg-acento-suave);
   font-weight: 700;
-  color: #141414;
+  color: var(--lg-tinta);
 }
 
 .lg-ob-fila-cabecera > span {
   font-weight: 700;
   font-size: 0.9375rem;
-  color: #55555f;
+  color: var(--lg-texto-tenue);
 }
 
 .lg-ob-propio {
@@ -172,14 +172,14 @@
 
 .lg-ob-propio svg {
   margin-top: 0.1875rem;
-  color: #135c2e;
+  color: var(--lg-etiqueta-ok-texto);
 }
 
 /* Paso 3: relato de seguridad. */
 .lg-ob-relato {
   margin-top: 2rem;
   background: var(--lg-superficie);
-  border: 1px solid #e3e3e8;
+  border: 1px solid var(--lg-borde-suave);
   border-radius: 1.25rem;
   padding: 1.5rem;
 }
@@ -193,7 +193,7 @@
   font-size: 3.5rem;
   line-height: 1;
   font-weight: 700;
-  color: #26605c;
+  color: var(--lg-acento-suave-texto);
   margin-right: 0.5rem;
   vertical-align: -0.375rem;
 }
@@ -221,7 +221,7 @@
 .lg-ob-relato-lista p {
   margin: 0;
   font-size: 1rem;
-  color: #55555f;
+  color: var(--lg-texto-tenue);
 }
 
 /* Paso 4: instalación. */
@@ -236,7 +236,7 @@
   flex: 1 1 16rem;
   min-width: 0;
   background: var(--lg-superficie);
-  border: 1px solid #e3e3e8;
+  border: 1px solid var(--lg-borde-suave);
   border-radius: 1.25rem;
   padding: 1.5rem;
 }
@@ -284,7 +284,7 @@
   border: none;
   border-radius: 1rem;
   background: var(--lg-acento);
-  color: #ffffff;
+  color: var(--lg-superficie);
   font-family: inherit;
   font-size: 1.1875rem;
   font-weight: 700;

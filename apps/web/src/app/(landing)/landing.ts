@@ -4,19 +4,18 @@
  * ficticios; no hay plazos ni importes que no estén respaldados: la cifra de
  * «15 días de antelación» del mockup se retiró por falta de fuente.
  *
- * Valores derivados del acento (el mockup los calcula en tiempo de ejecución
- * con color-mix; aquí van precalculados con su derivación comentada):
- * - onAccent: contraste(tinta #141414, acento) = 5.5:1 gana a
- *   contraste(blanco, acento) = 3.3:1; el texto sobre acento es tinta.
- * - accentText: acento mezclado al 62 % con negro = #26605C (7.2:1 sobre
- *   blanco); coincide con el color de enlaces del <style> del mockup.
- * - accentSoft: acento mezclado al 10 % con blanco = #ECF5F4.
+ * Los colores salen de los tokens de @letra-grande/design (REF-QA-08-01), que
+ * son la fuente de verdad; el registro de derivación de cada valor está
+ * comentado allí. Las gravedades del radar usan el tono peligro del sistema
+ * y el paso 1 usa colorSuperficieAlterna, unificados como el aviso.
  */
 
-export const acento = "#3E9B94";
-export const acentoTexto = "#141414";
-export const acentoEnlace = "#26605C";
-export const acentoSuave = "#ECF5F4";
+import { tokens, tonos } from "@letra-grande/design/client";
+
+export const acento = tokens.colorAcento;
+export const acentoTexto = tokens.colorAcentoTexto;
+export const acentoEnlace = tokens.colorAcentoSuaveTexto;
+export const acentoSuave = tokens.colorAcentoSuave;
 
 export const enlacesNav = [
   { etiqueta: "Cómo funciona", href: "#como" },
@@ -32,16 +31,17 @@ export const radarHero = [
     mes: "oct",
     gravedad: "Urgente",
     titulo: "Recurrir la multa de aparcamiento",
-    fondo: "#FDEBE9",
-    texto: "#9A1B12",
+    fondo: tonos.peligro.fondo,
+    texto: tonos.peligro.texto,
   },
   {
     dia: "14",
     mes: "nov",
     gravedad: "Aviso",
     titulo: "Termina tu permanencia con Ondalia",
-    fondo: "#FFF3D6",
-    texto: "#6B4500",
+    // Aviso unificado al tono del sistema (REF-QA-08-01): antes #FFF3D6/#6B4500.
+    fondo: tonos.aviso.fondo,
+    texto: tonos.aviso.texto,
   },
 ] as const;
 
@@ -74,8 +74,8 @@ export const pasos = [
     titulo: "Cuéntanos qué necesitas",
     texto: "Escribe tu duda con tus palabras: una baja, una reclamación, una ayuda.",
     ejemplo: "\"Quiero dar de baja mi línea sin que me cobren penalización.\"",
-    fondo: "#F0F0F3",
-    color: "#141414",
+    fondo: tokens.colorSuperficieAlterna,
+    color: tokens.colorTinta,
   },
   {
     n: "2",
@@ -84,20 +84,28 @@ export const pasos = [
       "Recibes pasos claros, los documentos que necesitas y la carta lista cuando hace falta.",
     ejemplo: "Paso 1 · Mira cuándo termina tu permanencia. Fuente 1",
     fondo: acentoSuave,
-    color: "#141414",
+    color: tokens.colorTinta,
   },
   {
     n: "3",
     titulo: "Te avisamos de los plazos",
     texto: "Lo que tiene fecha se añade a tu radar para que no se te pase.",
     ejemplo: "Quedan 3 días para recurrir la multa.",
-    fondo: "#FDEBE9",
-    color: "#9A1B12",
+    fondo: tonos.peligro.fondo,
+    color: tonos.peligro.texto,
   },
 ] as const;
 
-const etiquetaPrimera = { etiqueta: "Primera versión", fondo: "#E6F4EA", color: "#135C2E" } as const;
-const etiquetaDespues = { etiqueta: "Después", fondo: "#E3F2F1", color: "#17504B" } as const;
+const etiquetaPrimera = {
+  etiqueta: "Primera versión",
+  fondo: tokens.etiquetas.ok.fondo,
+  color: tokens.etiquetas.ok.texto,
+} as const;
+const etiquetaDespues = {
+  etiqueta: "Después",
+  fondo: tokens.etiquetas.proxima.fondo,
+  color: tokens.etiquetas.proxima.texto,
+} as const;
 
 export const modulos = [
   {
@@ -207,8 +215,9 @@ export const instalacion = [
 ] as const;
 
 export const radarMovil = [
-  { dia: "29", mes: "oct", titulo: "Recurrir la multa", fondo: "#FDEBE9", texto: "#9A1B12" },
-  { dia: "14", mes: "nov", titulo: "Fin de permanencia", fondo: "#FFF3D6", texto: "#6B4500" },
+  { dia: "29", mes: "oct", titulo: "Recurrir la multa", fondo: tonos.peligro.fondo, texto: tonos.peligro.texto },
+  // Aviso unificado al tono del sistema (REF-QA-08-01): antes #FFF3D6/#6B4500.
+  { dia: "14", mes: "nov", titulo: "Fin de permanencia", fondo: tonos.aviso.fondo, texto: tonos.aviso.texto },
 ] as const;
 
 export const colaborar = [
