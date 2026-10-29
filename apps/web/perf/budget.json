@@ -1,19 +1,19 @@
 {
-  "$comment": "Presupuesto de rendimiento de la web (QA-05). Los tamanos son el JavaScript de primera carga en gzip, medido sobre el HTML prerenderizado de `pnpm build` por scripts/check-bundle-budget.mjs. Desde REF-QA-08-02 la primera carga NO incluye los scripts con `noModule` (polyfills legacy): son 38.7 KiB gzip que un navegador que soporta modulos no descarga, y contarlos inflaba cada ruta entre un 21 % y un 23 %. Ese bloque se mide aparte y tiene su propio tope en maxLegacyGzipPorRuta. Linea base medida con el medidor nuevo: entre 130.8 KiB (/) y 142.4 KiB (/carpeta), con 1527.1 KiB de suma entre rutas. El totalGzip queda por debajo de la suma de maximos por ruta (1590 vs 1759 KiB) para que un crecimiento repartido tambien falle, y solo un 1.5 % por encima de lo medido. El margen por ruta es de 16.6 a 17.7 KiB absolutos, mas estrecho que los 21.7 a 25.9 de antes: una regresion de 20 KiB en una ruta que antes pasaba, ahora falla.",
+  "$comment": "Presupuesto de rendimiento de la web (QA-05). Los tamanos son el JavaScript de primera carga en gzip, medido sobre el HTML prerenderizado de `pnpm build` por scripts/check-bundle-budget.mjs. Desde REF-QA-08-02 la primera carga NO incluye los scripts con `noModule` (polyfills legacy): son 38.7 KiB gzip que un navegador que soporta modulos no descarga, y contarlos inflaba cada ruta entre un 21 % y un 23 %. Ese bloque se mide aparte y tiene su propio tope en maxLegacyGzipPorRuta. Linea base medida: entre 130.9 KiB (/) y 143.7 KiB (/carpeta), con 1509.6 KiB de suma entre rutas. Desde REF-QA-08-03 el codigo del vault ya no viaja en la primera carga de siete rutas que no lo usan: cada una baja 2.9 KiB y los limites se rebajan en consecuencia. El totalGzip queda por debajo de la suma de maximos por ruta (1570 vs 1670 KiB) para que un crecimiento repartido tambien falle, y solo un 1.5 % por encima de lo medido. El margen por ruta va de 13.5 a 16.7 KiB absolutos, mas estrecho que los 21.7 a 25.9 de antes: una regresion de 20 KiB en una ruta que antes pasaba, ahora falla.",
   "porRuta": {
     "/": 151000,
     "/ajustes": 163000,
-    "/asistente": 161000,
-    "/ayudas": 161000,
+    "/asistente": 154000,
+    "/ayudas": 154000,
     "/carpeta": 164000,
-    "/datos": 161000,
-    "/familia": 161000,
-    "/hoy": 161000,
+    "/datos": 154000,
+    "/familia": 154000,
+    "/hoy": 154000,
     "/onboarding": 154000,
-    "/reclamar": 161000,
-    "/vida": 161000
+    "/reclamar": 154000,
+    "/vida": 154000
   },
-  "totalGzip": 1590000,
+  "totalGzip": 1570000,
   "caminoCritico": {
     "prohibidos": [
       "tesseract",
