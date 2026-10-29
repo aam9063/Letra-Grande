@@ -32,7 +32,19 @@ function MuestrasTokens() {
     { nombre: "tinta sobre lienzo", fondo: tokens.colorLienzo, texto: tokens.colorTinta },
     { nombre: "tinta sobre superficie", fondo: tokens.colorSuperficie, texto: tokens.colorTinta },
     { nombre: "texto sobre acento", fondo: tokens.colorAcento, texto: tokens.colorAcentoTexto },
+    { nombre: "texto tenue sobre lienzo", fondo: tokens.colorLienzo, texto: tokens.colorTextoTenue },
+    { nombre: "texto medio sobre lienzo", fondo: tokens.colorLienzo, texto: tokens.colorTextoMedio },
+    {
+      nombre: "texto sobre acento suave",
+      fondo: tokens.colorAcentoSuave,
+      texto: tokens.colorAcentoSuaveTexto,
+    },
     ...Object.values(tonos).map((tono) => ({ nombre: `tono ${tono.nombre}`, fondo: tono.fondo, texto: tono.texto })),
+    ...Object.values(tokens.etiquetas).map((etiqueta) => ({
+      nombre: `etiqueta ${etiqueta.nombre}`,
+      fondo: etiqueta.fondo,
+      texto: etiqueta.texto,
+    })),
   ];
   return (
     <section aria-labelledby="galeria-tokens">

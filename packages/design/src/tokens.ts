@@ -25,6 +25,31 @@ export const tokens = {
   colorAcento: "#3E9B94",
   /** Color de texto sobre el acento (acción primaria). Tinta: 5.5:1 AA. */
   colorAcentoTexto: "#141414",
+  /** Texto secundario (grupos de la navegación, ayudas). AA 6.9:1 sobre lienzo. */
+  colorTextoTenue: "#55555F",
+  /** Texto de apoyo en landing y onboarding. AA 10.5:1 sobre lienzo. */
+  colorTextoMedio: "#3A3A42",
+  /** Bordes suaves y separadores de tarjetas. */
+  colorBordeSuave: "#E3E3E8",
+  /** Bordes de controles (campos, interruptores). */
+  colorBorde: "#D5D5DC",
+  /** Texto de apoyo sobre fondos oscuros (pie de la landing). */
+  colorTextoApoyo: "#C9C9D1",
+  /** Separadores de filas de tabla sobre superficie. */
+  colorSuperficieAlterna: "#ECECF0",
+  /** Fondo de apoyo con acento (navegación activa, iconos). */
+  colorAcentoSuave: "#ECF5F4",
+  /** Texto y enlaces sobre colorAcentoSuave y sobre superficie. AA 6.5:1. */
+  colorAcentoSuaveTexto: "#26605C",
+  /** Antetítulos decorativos de la landing sobre fondo oscuro. */
+  colorAcentoClaro: "#BFE6E2",
+  /** Ruta del bloque de código de la landing sobre fondo oscuro. */
+  colorAcentoClaroFuerte: "#8FD3CC",
+  /** Etiquetas de estado (REF-QA-08-01), con su par de contraste AA. */
+  etiquetas: {
+    ok: { nombre: "ok", fondo: "#E6F4EA", texto: "#135C2E" },
+    proxima: { nombre: "proxima", fondo: "#E3F2F1", texto: "#17504B" },
+  },
   /** Tamaño base de lectura. */
   tamanoBase: "16px",
 } as const;

@@ -26,16 +26,22 @@ Los números son deliberadamente estrechos. Subir un límite es una decisión de
 
 ## Línea base medida
 
-Medido sobre `pnpm build` en la rama `lg/qa-05-rendimiento` (febrero de 2026), gzip de primera carga:
+Medido sobre `pnpm build`, gzip de primera carga. Las cifras son las de REF-QA-08-02, que sacó los polyfills de la cuenta (ver abajo); entre paréntesis, la cifra anterior que los incluía:
 
 | Ruta | Medido | Presupuesto |
 |---|---|---|
-| `/` | 169.5 KiB | 195.3 KiB |
-| `/onboarding` | 172.4 KiB | 195.3 KiB |
-| `/hoy`, `/asistente`, `/ayudas`, `/datos`, `/familia`, `/reclamar`, `/vida` | 178.5 KiB | 200.2 KiB |
-| `/ajustes` | 180.4 KiB | 205.1 KiB |
-| `/carpeta` | 181.1 KiB | 207.0 KiB |
-| Suma de las once rutas | 1952.8 KiB | 1982.4 KiB |
+| `/` | 130.8 KiB (era 169.5) | 147.5 KiB |
+| `/onboarding` | 133.7 KiB (era 172.4) | 150.4 KiB |
+| `/hoy`, `/asistente`, `/ayudas`, `/datos`, `/familia`, `/reclamar`, `/vida` | 139.8 KiB (era 178.5) | 157.2 KiB |
+| `/ajustes` | 141.7 KiB (era 180.4) | 159.2 KiB |
+| `/carpeta` | 142.4 KiB (era 181.1) | 160.2 KiB |
+| Suma de las once rutas | 1527.1 KiB (era 1952.8) | 1718.8 KiB |
+
+### Los polyfills no se cuentan, pero tampoco se ignoran
+
+Next emite un bloque de polyfills con `noModule=""`. Un navegador que soporta módulos no lo descarga, así que sumarlo a la primera carga era contar un recurso que nadie pide: 110.0 KiB crudos y 38.7 KiB gzip por ruta, entre el 21 % y el 23 % de la cifra que se presupuestaba. Ese hueco, además, regalaba margen: una regresión real de 30 KiB cabía dentro sin poner la CI en rojo.
+
+Ahora el medidor separa los scripts por el atributo `noModule` del propio tag, buscado fuera del valor de `src` (un chunk llamado `page-nomodule-*.js` no es legacy), nunca por el nombre del fichero, que cambia con cada versión del bundler. El camino crítico de la sección anterior se comprueba solo sobre los scripts modernos; el bloque legacy no se escanea por marcadores porque no lo descarga ningún navegador actual. El bloque legacy se mide aparte y tiene su propio tope por ruta (`maxLegacyGzipPorRuta`, hoy 43.9 KiB con un bloque real de 38.7), así que engordarlo sigue viéndose aunque no cuente como primera carga.
 
 Lighthouse 12.8.2 con el mismo build servido por `next start`, dos corridas en móvil emulado (la segunda entre paréntesis cuando cambia, que es el ruido normal de la herramienta):
 
