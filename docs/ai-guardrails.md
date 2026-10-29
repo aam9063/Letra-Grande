@@ -56,6 +56,19 @@ La atribución ya la cubre el contrato común y no se duplica en `packages/ai`: 
 
 La tasa de JSON válido a la primera y la calidad del español también se miden solo en AI-04, con modelos reales.
 
+## El conjunto de evaluaciones (AI-04)
+
+`pnpm evals` recorre los 40 casos (cuatro por cada categoría de la sección 13.2), obtiene la respuesta del proveedor que toque y aplica el mismo camino que el proxy: recuperación sobre `content/`, catálogo cerrado, los tres guardarraíles y el reintento único con salida `outOfScope` honesta. Sobre ese camino calcula las seis métricas de la sección 13.2.
+
+- **Dato y código separados:** los casos están en `packages/ai/evals/cases.yaml` y los umbrales en `packages/ai/evals/thresholds.json`, ambos versionados. El código está en `packages/ai/src/evals/`. Los casos usan fichas reales de `content/` (el ejecutor lo comprueba al arrancar) y datos personales ficticios.
+- **Qué mide cada métrica:** las métricas 1, 2, 4 y 6 miden la primera respuesta del modelo que encaja en el catálogo, aunque los guardarraíles la degraden después (medir solo la salida degradada escondería los fallos del modelo). La métrica 3 mide el rechazo del modelo en las preguntas fuera de alcance y la 5 el JSON válido al primer intento. La calidad del español (métrica 6) se operacionaliza con el guardarraíl de tono.
+- **Casos que aceptan `outOfScope`:** en la categoría Ambigüedad, la aclaración necesita citar algo y puede que no haya contenido: se acepta también la salida honesta `outOfScope` como forma de decir que no hay contenido. En la categoría Idioma, con el corpus actual (solo español) el comportamiento esperado es el rechazo; se revisará si `content/` añade fichas cooficiales.
+- **Proveedores:** `AI_PROVIDER` elige el proveedor (mock por defecto). Con mock, las respuestas son las de cada caso (`mockAnswer`): la ejecución valida el camino completo (recuperación, guardarraíles y métricas), no la calidad del modelo. Contra el proveedor real (`nan`) se necesita `NAN_API_KEY`, y correrlo así sigue bloqueado por H-03 y H-08 (condiciones del proveedor sin confirmar): no se finge que se mide lo que no se mide.
+- **Umbrales y fallo:** si alguna métrica queda por debajo de su umbral, `pnpm evals` sale con código distinto de cero y nombra la métrica y los casos que fallan. Los umbrales se fijaron con la primera medición real y su fichero lleva la anotación de dónde sale cada uno: ninguna cifra de umbral está inventada.
+- **Caso de control:** `pnpm evals --selfcheck` ejecuta el conjunto contra un proveedor que inventa (cita fuentes inexistentes, cifra importes que no están en ninguna fuente, promete resultados y emite un documento con forma de DNI). Si las métricas no lo detectan, el comando sale con error: unas evaluaciones que dan verde sin medir son peores que no tenerlas.
+- **CI:** el job `evals` de `.github/workflows/evals.yml` corre cada noche (`schedule`) y se puede lanzar a mano (`workflow_dispatch`). Con el proveedor `mock` por defecto; correrlo contra `nan` necesita el secreto `NAN_API_KEY` y H-03 y H-08 siguen abiertas.
+- **Tests del propio ejecutor:** en `packages/ai/test/evals-runner.test.ts`, con un proveedor falso controlado: cita inválida, cifra no respaldada, rechazo incorrecto y datos personales en la salida tienen que bajar la métrica correspondiente. El ejecutor también tiene que saber suspender.
+
 ## Cómo añadir un guardarraíl nuevo
 
 1. Escribe primero los tests que lo hacen fallar en `packages/ai/test/` (TDD: rojo, verde, refactor). Cada regla necesita un caso que la haga fallar y uno que demuestre que no bloquea respuestas legítimas.

@@ -15,6 +15,7 @@
     "test": "pnpm -r test",
     "test:scripts": "node --test scripts/check-bundle-budget.test.mjs scripts/check-decisions.test.mjs scripts/check-lighthouse-budget.test.mjs scripts/check-main-history.test.mjs scripts/check-review-report.test.mjs scripts/lighthouse-reintentos.test.mjs scripts/sync-dev.test.mjs",
     "content:validate": "pnpm --filter @letra-grande/schema validate-content",
+    "evals": "pnpm --filter @letra-grande/ai evals",
     "style": "node scripts/check-style.mjs",
     "check": "pnpm style && pnpm decisions:check && pnpm test:scripts && pnpm typecheck && pnpm test && pnpm content:validate",
     "e2e": "pnpm --filter @letra-grande/web e2e",
