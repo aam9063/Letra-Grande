@@ -1,7 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { openVault, type Vault, type VaultTimer } from "@letra-grande/vault";
+// Solo tipos: el codigo del vault se carga con import() al crear o desbloquear
+// la carpeta (REF-QA-08-03). Con el import de valor, la build lo metia en la
+// primera carga de las nueve rutas de la app por culpa del shell.
+import type { Vault, VaultTimer, openVault } from "@letra-grande/vault";
 
 /**
  * Sesión compartida de la carpeta (UI-07, S4): un módulo con suscriptores que
@@ -41,7 +44,6 @@ export interface SesionCarpeta {
 }
 
 export function crearSesionCarpeta(opciones: OpcionesSesion = {}): SesionCarpeta {
-  const abrir = opciones.abrirVault ?? openVault;
   let vault: Vault | null = null;
   const oyentes = new Set<(estado: EstadoCarpeta) => void>();
 
@@ -83,6 +85,7 @@ export function crearSesionCarpeta(opciones: OpcionesSesion = {}): SesionCarpeta
   }
 
   async function abrirSesion(password: string): Promise<Vault> {
+    const abrir = opciones.abrirVault ?? (await import("@letra-grande/vault")).openVault;
     const abierta = await abrir({
       password,
       dbName: opciones.dbName,
