@@ -1,25 +1,32 @@
 {
-  "$comment": "Presupuesto de rendimiento de la web (QA-05). Los tamaños son el JavaScript de primera carga en gzip, medido sobre el HTML prerenderizado de `pnpm build` por scripts/check-bundle-budget.mjs. Línea base medida en la rama lg/qa-05-rendimiento: entre 169.5 KiB (/) y 181.1 KiB (/carpeta), con 1952.8 KiB de suma entre rutas porque cada una paga su propia primera carga; el totalGzip presupuesta esa suma por debajo de la suma de los maximos por ruta: asi un crecimiento repartido entre varias rutas, que ninguna supera por si sola, si hace fallar la comprobacion de total. Lighthouse dio 0.99 de rendimiento y 0.96 de buenas prácticas en /hoy con el build de producción. Los límites quedan dos cifras por encima de la línea base a propósito: subirlos es una decisión que se revisa en el diff del PR.",
+  "$comment": "Presupuesto de rendimiento de la web (QA-05). Los tamanos son el JavaScript de primera carga en gzip, medido sobre el HTML prerenderizado de `pnpm build` por scripts/check-bundle-budget.mjs. Desde REF-QA-08-02 la primera carga NO incluye los scripts con `noModule` (polyfills legacy): son 38.7 KiB gzip que un navegador que soporta modulos no descarga, y contarlos inflaba cada ruta entre un 21 % y un 23 %. Ese bloque se mide aparte y tiene su propio tope en maxLegacyGzipPorRuta. Linea base medida con el medidor nuevo: entre 130.8 KiB (/) y 142.4 KiB (/carpeta), con 1527.1 KiB de suma entre rutas. El totalGzip queda por debajo de la suma de maximos por ruta (1590 vs 1759 KiB) para que un crecimiento repartido tambien falle, y solo un 1.5 % por encima de lo medido. El margen por ruta es de 16.6 a 17.7 KiB absolutos, mas estrecho que los 21.7 a 25.9 de antes: una regresion de 20 KiB en una ruta que antes pasaba, ahora falla.",
   "porRuta": {
-    "/": 200000,
-    "/ajustes": 210000,
-    "/asistente": 205000,
-    "/ayudas": 205000,
-    "/carpeta": 212000,
-    "/datos": 205000,
-    "/familia": 205000,
-    "/hoy": 205000,
-    "/onboarding": 200000,
-    "/reclamar": 205000,
-    "/vida": 205000
+    "/": 151000,
+    "/ajustes": 163000,
+    "/asistente": 161000,
+    "/ayudas": 161000,
+    "/carpeta": 164000,
+    "/datos": 161000,
+    "/familia": 161000,
+    "/hoy": 161000,
+    "/onboarding": 154000,
+    "/reclamar": 161000,
+    "/vida": 161000
   },
-  "totalGzip": 2030000,
+  "totalGzip": 1590000,
   "caminoCritico": {
-    "prohibidos": ["tesseract", "pdfjs", "traineddata"]
+    "prohibidos": [
+      "tesseract",
+      "pdfjs",
+      "traineddata"
+    ]
   },
   "lighthouse": {
     "$comment": "Umbrales del job de CI que corre Lighthouse contra el build de producción. Las categorías son 0..1; los tiempos en milisegundos.",
-    "rutas": ["/", "/hoy"],
+    "rutas": [
+      "/",
+      "/hoy"
+    ],
     "categorias": {
       "performance": 0.85,
       "accessibility": 1,
@@ -33,5 +40,6 @@
       "cumulative-layout-shift": 0.1,
       "speed-index": 4000
     }
-  }
+  },
+  "maxLegacyGzipPorRuta": 45000
 }

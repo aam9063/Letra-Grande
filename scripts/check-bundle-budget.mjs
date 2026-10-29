@@ -35,14 +35,37 @@ function rutaPublica(relativa) {
   return `/${sinExtension.replace(/\/index$/, "")}`;
 }
 
+/**
+ * Separa los scripts del HTML en dos grupos por el atributo `noModule`.
+ *
+ * Un `<script noModule>` solo lo ejecutan los navegadores que no soportan
+ * módulos, y esos tampoco lo descargan si lo soportan: contarlo como primera
+ * carga infla la cifra con un recurso que el navegador moderno no pide
+ * (REF-QA-08-02). Se separa por el atributo del propio tag, nunca por el nombre
+ * del fichero, que es cosa del bundler y cambia con cada versión.
+ */
 function scriptsDeHtml(html) {
-  return [
-    ...new Set(
-      [...html.matchAll(/<script[^>]+src=["'](\/_next\/[^"']+\.js)["']/g)].map((m) => m[1]),
-    ),
-  ];
+  const modernos = new Set();
+  const legacy = new Set();
+
+  for (const [etiqueta] of html.matchAll(/<script[^>]*>/gi)) {
+    const src = /src=["'](\/_next\/[^"']+\.js)["']/i.exec(etiqueta)?.[1];
+    if (!src) continue;
+    // El atributo se busca fuera del valor de src: un chunk llamado
+    // "page-nomodule-*.js" no es legacy, y los nombres los pone el bundler.
+    const atributos = etiqueta.replace(/src=["'][^"']*["']/i, "");
+    if (/(^|[\s/])nomodule([\s=>/]|$)/i.test(atributos)) legacy.add(src);
+    else modernos.add(src);
+  }
+
+  return { modernos: [...modernos], legacy: [...legacy] };
 }
 
+/**
+ * Mide la primera carga de cada ruta prerenderizada, en gzip y en bytes sin
+ * comprimir. Un mismo chunk compartido por dos rutas se mide una vez por ruta:
+ * cada ruta paga su propia primera carga.
+ */
 function htmlsPrerenderizados(buildDir) {
   const raiz = join(buildDir, "server", "app");
   if (!existsSync(raiz)) return [];
@@ -59,11 +82,6 @@ function htmlsPrerenderizados(buildDir) {
   return encontrados;
 }
 
-/**
- * Mide la primera carga de cada ruta prerenderizada, en gzip y en bytes sin
- * comprimir. Un mismo chunk compartido por dos rutas se mide una vez por ruta:
- * cada ruta paga su propia primera carga.
- */
 export function medirPrimeraCarga({ buildDir }) {
   const rutas = {};
   const tamanos = new Map();
@@ -83,12 +101,14 @@ export function medirPrimeraCarga({ buildDir }) {
     const ruta = rutaPublica(relative(join(buildDir, "server", "app"), html));
     if (!ruta) continue;
 
-    const srcs = scriptsDeHtml(readFileSync(html, "utf8"));
+    const { modernos, legacy } = scriptsDeHtml(readFileSync(html, "utf8"));
     const ficheros = [];
     let gzip = 0;
     let raw = 0;
+    let legacyGzip = 0;
     const ausentes = [];
-    for (const src of srcs) {
+
+    for (const src of modernos) {
       const medido = tamanoDe(src);
       if (!medido) {
         ausentes.push(src);
@@ -99,7 +119,20 @@ export function medirPrimeraCarga({ buildDir }) {
       raw += medido.raw;
     }
 
-    rutas[ruta] = { gzip, raw, ficheros, ausentes };
+    // El bloque legacy se mide, pero no se suma: se presupuesta aparte para que
+    // engordarlo se vea sin ensuciar la cifra que sí descarga el navegador.
+    const legacyFicheros = [];
+    for (const src of legacy) {
+      const medido = tamanoDe(src);
+      if (!medido) {
+        ausentes.push(src);
+        continue;
+      }
+      legacyFicheros.push({ src, ...medido });
+      legacyGzip += medido.gzip;
+    }
+
+    rutas[ruta] = { gzip, raw, ficheros, ausentes, legacyGzip, legacyFicheros };
   }
 
   return { rutas };
@@ -169,6 +202,19 @@ export function comprobarPresupuesto({ medidas, presupuesto }) {
         tipo: "ruta-sin-presupuesto",
         detalle: `${ruta} no tiene presupuesto declarado. Añádela a apps/web/perf/budget.json.`,
       });
+    }
+  }
+
+  // El bloque legacy (polyfills con noModule) tiene su propio tope por ruta: no
+  // cuenta como primera carga, pero tampoco se ignora.
+  if (presupuesto.maxLegacyGzipPorRuta !== undefined) {
+    for (const [ruta, medida] of Object.entries(rutasMedidas)) {
+      if ((medida.legacyGzip ?? 0) > presupuesto.maxLegacyGzipPorRuta) {
+        violaciones.push({
+          tipo: "legacy-excedido",
+          detalle: `${ruta} carga ${kb(medida.legacyGzip)} de polyfills legacy (noModule) y su máximo es ${kb(presupuesto.maxLegacyGzipPorRuta)}.`,
+        });
+      }
     }
   }
 
