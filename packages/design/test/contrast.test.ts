@@ -27,4 +27,64 @@ describe("contraste AA de los tokens (seccion 14)", () => {
       expect(ratio, `tono ${tono.nombre}`).toBeGreaterThanOrEqual(AA_TEXTO);
     }
   });
+
+  // REF-QA-08-01: pares de texto y fondo que antes solo existían como
+  // literales en las hojas de la app y el test no veía.
+  it("el texto tenue pasa AA sobre lienzo, superficie y superficie alterna", () => {
+    for (const fondo of [tokens.colorLienzo, tokens.colorSuperficie, tokens.colorSuperficieAlterna]) {
+      expect(contraste(tokens.colorTextoTenue, fondo), `texto tenue sobre ${fondo}`).toBeGreaterThanOrEqual(
+        AA_TEXTO,
+      );
+    }
+  });
+
+  it("el texto medio pasa AA sobre lienzo, superficie y superficie alterna", () => {
+    for (const fondo of [tokens.colorLienzo, tokens.colorSuperficie, tokens.colorSuperficieAlterna]) {
+      expect(contraste(tokens.colorTextoMedio, fondo), `texto medio sobre ${fondo}`).toBeGreaterThanOrEqual(
+        AA_TEXTO,
+      );
+    }
+  });
+
+  it("el texto sobre el fondo con acento suave pasa AA", () => {
+    expect(contraste(tokens.colorAcentoSuaveTexto, tokens.colorAcentoSuave)).toBeGreaterThanOrEqual(AA_TEXTO);
+  });
+
+  it("cada etiqueta del registro etiquetas pasa AA entre su texto y su fondo", () => {
+    for (const etiqueta of Object.values(tokens.etiquetas)) {
+      const ratio = contraste(etiqueta.texto, etiqueta.fondo);
+      expect(ratio, `etiqueta ${etiqueta.nombre}`).toBeGreaterThanOrEqual(AA_TEXTO);
+    }
+  });
+});
+
+// REF-QA-08-01, hallazgo del review: estos pares se usan de verdad como texto
+// sobre un fondo en las hojas de la app, y ninguno tenía test. Hoy pasan AA;
+// la prueba existe para que sigan pasando.
+describe("pares en uso que no estaban cubiertos", () => {
+  it("el texto del acento suave pasa AA sobre lienzo y superficie", () => {
+    for (const fondo of [tokens.colorLienzo, tokens.colorSuperficie]) {
+      expect(
+        contraste(tokens.colorAcentoSuaveTexto, fondo),
+        `acento suave texto sobre ${fondo}`,
+      ).toBeGreaterThanOrEqual(AA_TEXTO);
+    }
+  });
+
+  it("el texto de la etiqueta ok pasa AA sobre acento suave y superficie", () => {
+    for (const fondo of [tokens.colorAcentoSuave, tokens.colorSuperficie]) {
+      expect(
+        contraste(tokens.etiquetas.ok.texto, fondo),
+        `etiqueta ok sobre ${fondo}`,
+      ).toBeGreaterThanOrEqual(AA_TEXTO);
+    }
+  });
+
+  it("los grises claros usados como texto sobre tinta pasan AA", () => {
+    for (const claro of [tokens.colorBordeSuave, tokens.colorBorde, tokens.colorTextoApoyo]) {
+      expect(contraste(claro, tokens.colorTinta), `${claro} sobre tinta`).toBeGreaterThanOrEqual(
+        AA_TEXTO,
+      );
+    }
+  });
 });

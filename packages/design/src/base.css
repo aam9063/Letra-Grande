@@ -18,6 +18,22 @@
   --lg-peligro-texto: #8A1C1C;
   --lg-exito-fondo: #E7F4EA;
   --lg-exito-texto: #14532D;
+  /* Tokens nuevos de REF-QA-08-01: antes eran literales repetidos en las
+     hojas de la app; los valores salen de esos literales, sin inventar. */
+  --lg-texto-tenue: #55555F;
+  --lg-texto-medio: #3A3A42;
+  --lg-borde-suave: #E3E3E8;
+  --lg-borde: #D5D5DC;
+  --lg-texto-apoyo: #C9C9D1;
+  --lg-superficie-alterna: #ECECF0;
+  --lg-acento-suave: #ECF5F4;
+  --lg-acento-suave-texto: #26605C;
+  --lg-acento-claro: #BFE6E2;
+  --lg-acento-claro-fuerte: #8FD3CC;
+  --lg-etiqueta-ok-fondo: #E6F4EA;
+  --lg-etiqueta-ok-texto: #135C2E;
+  --lg-etiqueta-proxima-fondo: #E3F2F1;
+  --lg-etiqueta-proxima-texto: #17504B;
   --lg-radio: 8px;
   --lg-espacio: 1rem;
   --lg-objetivo: 44px;
