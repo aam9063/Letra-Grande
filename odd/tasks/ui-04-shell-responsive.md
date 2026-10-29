@@ -81,7 +81,7 @@ cripciones [Próximamente], Factura de luz, Datos abiertos, Familia), callout
 - [ ] T4 (S2,S3) e2e shell.spec.ts: barra en móvil, sidebar en escritorio,
       hoja «Más», sin scroll horizontal; RED antes del CSS final.
 - [ ] T5 (S1) Ruta /ajustes pendiente y fila del backlog (solo mi hunk).
-- [ ] T6 Review gate (subagente) e informe en odd/reviews/UI-04.md; una ronda.
+- [ ] T6 Review gate (subagente) e informe en odd/reviews/ui-04.md; una ronda.
 
 ## Evidencia y progreso
 
@@ -103,7 +103,7 @@ T1 con tests en rojo.
   redondeado con aspecto liquid glass de apple [captura]».
 - L2. Decisiones: 3 tareas en serie; barra de 5 con «Más» e icono de tres
   puntos; ajustes «reales los posibles»; carpeta real después (UI-07).
-- L3. Review gate (odd/reviews/UI-04.md, veredicto «aprobado con cambios»):
+- L3. Review gate (odd/reviews/ui-04.md, veredicto «aprobado con cambios»):
   una ronda aplicada. Bloqueante: el velo cerraba la hoja con cualquier clic
   dentro de ella por burbujeo (solo el toque directo en el velo cierra).
   Recomendados: Escape a nivel de documento (el foco puede salir de la hoja

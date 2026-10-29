@@ -70,7 +70,7 @@ carpeta privada» y la pantalla de bloqueo. La sidebar reserva el sitio de
       cierra la sesión.
 - [ ] T4 (S1,S2) Pantallas según el PDF y estilos del sistema.
 - [ ] T5 (S4) e2e del flujo completo; fila del backlog.
-- [ ] T6 Review gate con informe en odd/reviews/UI-07.md; una ronda.
+- [ ] T6 Review gate con informe en odd/reviews/ui-07.md; una ronda.
 
 ## Evidencia y progreso
 
@@ -88,7 +88,7 @@ Arrancar T1 cuando UI-06 esté cerrada (su revisor está corriendo).
 
 - L1. «el onboarding y demás secciones como ajustes etc. ... El resto intenta
   seguir nuestro diseño» con el PDF (2): «Crea tu carpeta privada».
-- L2. Review gate (odd/reviews/UI-07.md, veredicto «aprobado con cambios»,
+- L2. Review gate (odd/reviews/ui-07.md, veredicto «aprobado con cambios»,
   sin bloqueantes): una ronda aplicada. Test negativo del filtro «?next»
   («//evil.com», «https://evil.com») y endurecimiento con la barra invertida
   («/\evil.com», RED a GREEN). Refactor registrado como REF-UI-07 (patrón
