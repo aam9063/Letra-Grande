@@ -81,7 +81,7 @@ privacidad y cómo colaborar, y da paso a la app. Se replica el mockup
       FAQ desplegable); RED antes de la página. Commit.
 - [ ] T6 (S1) Backlog (fila UI-03) y docs afectados. Commit.
 - [ ] T7 Review gate (subagente solo lectura) e informe en
-      `odd/reviews/UI-03.md`; una ronda de correcciones.
+      `odd/reviews/ui-03.md`; una ronda de correcciones.
 
 ## Evidencia y progreso
 
@@ -122,7 +122,7 @@ T6 (backlog y docs) y T7 (review gate).
   de la landing heredaba max-width 42 rem del globals.css de la app (anulado);
   Firefox no estira el main de un flex en columna (width: 100%); faltaban el
   globo oscuro de la pregunta del chat y las sombras del héroe.
-- L6. Review gate (odd/reviews/UI-03.md, veredicto «aprobado con cambios»):
+- L6. Review gate (odd/reviews/ui-03.md, veredicto «aprobado con cambios»):
   una ronda aplicada. Bloqueante: la PWA (start_url, precache y fallback
   offline) apuntaba a la raíz, que ahora es la landing; alineado con S2
   (start_url y fallback /hoy, CACHE_VERSION v2). Recomendados baratos:
