@@ -706,6 +706,99 @@ h1 {
   cursor: pointer;
 }
 
+/* Asistente (AI-03): formulario de pregunta y lista de turnos. */
+.lg-asistente {
+  display: grid;
+  gap: calc(var(--lg-espacio) * 4);
+}
+
+.lg-asistente h1 {
+  margin-bottom: 0;
+}
+
+.lg-asistente-panel {
+  border: 1px solid var(--lg-lienzo);
+  border-radius: var(--lg-radio);
+  padding: calc(var(--lg-espacio) * 4);
+  display: grid;
+  gap: calc(var(--lg-espacio) * 3);
+}
+
+.lg-asistente-panel > p {
+  margin: 0;
+  max-width: 40rem;
+}
+
+.lg-asistente-formulario {
+  display: grid;
+  gap: calc(var(--lg-espacio) * 3);
+  max-width: 30rem;
+}
+
+.lg-asistente-campo {
+  display: grid;
+  gap: calc(var(--lg-espacio) * 1);
+}
+
+.lg-asistente-campo label {
+  font-weight: 700;
+}
+
+.lg-asistente-entrada {
+  width: 100%;
+  min-height: calc(var(--lg-objetivo) * 2);
+  padding: calc(var(--lg-espacio) * 2) calc(var(--lg-espacio) * 3);
+  font: inherit;
+  border: 2px solid var(--lg-borde);
+  border-radius: var(--lg-radio);
+  resize: vertical;
+}
+
+.lg-asistente-entrada:focus-visible {
+  outline: 3px solid var(--lg-acento);
+  outline-offset: 2px;
+}
+
+.lg-asistente-pista {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--lg-texto-tenue);
+}
+
+.lg-asistente-botones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--lg-espacio) * 3);
+}
+
+.lg-asistente-botones .lg-primario {
+  padding: 0 calc(var(--lg-espacio) * 4);
+}
+
+.lg-asistente-mensajes {
+  display: grid;
+  gap: calc(var(--lg-espacio) * 3);
+}
+
+.lg-asistente-intercambio {
+  border: 1px solid var(--lg-lienzo);
+  border-radius: var(--lg-radio);
+  padding: calc(var(--lg-espacio) * 3);
+  display: grid;
+  gap: calc(var(--lg-espacio) * 2);
+}
+
+.lg-asistente-pregunta {
+  margin: 0;
+  font-weight: 700;
+}
+
+.lg-asistente-error {
+  margin: 0;
+  color: var(--lg-peligro-texto);
+  font-weight: 700;
+}
+
 /* Borrado total: el único flujo destructivo del shell. */
 .lg-borrado-texto {
   max-width: 40rem;
