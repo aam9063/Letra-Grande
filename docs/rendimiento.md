@@ -26,16 +26,20 @@ Los números son deliberadamente estrechos. Subir un límite es una decisión de
 
 ## Línea base medida
 
-Medido sobre `pnpm build`, gzip de primera carga. Las cifras son las de REF-QA-08-02, que sacó los polyfills de la cuenta (ver abajo); entre paréntesis, la cifra anterior que los incluía:
+Medido sobre `pnpm build`, gzip de primera carga. Las cifras incluyen REF-QA-08-02 (polyfills fuera de la cuenta) y REF-QA-08-03 (el vault solo donde se usa); entre paréntesis, la cifra original de QA-05:
 
 | Ruta | Medido | Presupuesto |
 |---|---|---|
-| `/` | 130.8 KiB (era 169.5) | 147.5 KiB |
+| `/` | 130.9 KiB (era 169.5) | 147.5 KiB |
 | `/onboarding` | 133.7 KiB (era 172.4) | 150.4 KiB |
-| `/hoy`, `/asistente`, `/ayudas`, `/datos`, `/familia`, `/reclamar`, `/vida` | 139.8 KiB (era 178.5) | 157.2 KiB |
-| `/ajustes` | 141.7 KiB (era 180.4) | 159.2 KiB |
-| `/carpeta` | 142.4 KiB (era 181.1) | 160.2 KiB |
-| Suma de las once rutas | 1527.1 KiB (era 1952.8) | 1718.8 KiB |
+| `/hoy`, `/asistente`, `/ayudas`, `/datos`, `/familia`, `/reclamar`, `/vida` | 136.9 KiB (era 178.5) | 150.4 KiB |
+| `/ajustes` | 142.9 KiB (era 180.4) | 159.2 KiB |
+| `/carpeta` | 143.7 KiB (era 181.1) | 160.2 KiB |
+| Suma de las once rutas | 1509.6 KiB (era 1952.8) | 1669.9 KiB |
+
+### El vault solo se descarga donde se usa
+
+El código del vault (PBKDF2, AES-GCM, IndexedDB, copia y purga) viajaba en la primera carga de nueve rutas por un import estático en `apps/web/src/components/carpeta/sesion.ts`. Ahora ese módulo importa del paquete **solo tipos** y carga el código con `import()` al crear o desbloquear la carpeta, así que el vault se descarga únicamente en `/carpeta` y en `/ajustes` (el borrado total), que son las dos pantallas que lo necesitan. Las otras siete bajan 2.9 KiB cada una, y los límites se rebajaron con ellas: un margen que no se usa es margen que una regresión se come.
 
 ### Los polyfills no se cuentan, pero tampoco se ignoran
 
