@@ -4,7 +4,7 @@ import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { gzipSync } from "node:zlib";
-import { comprobarCaminoCritico, comprobarPresupuesto, medirPrimeraCarga } from "./check-bundle-budget.mjs";
+import { comprobarCaminoCritico, comprobarPresupuesto, leerPresupuesto, medirPrimeraCarga } from "./check-bundle-budget.mjs";
 
 // Salida de build sintética: cada HTML de apps/web/.next/server/app es una ruta
 // prerenderizada y solo cuentan los <script src="/_next/...js"> que referencia.
@@ -287,6 +287,101 @@ test("falla cuando una ruta referencia un chunk que no esta en la build", () => 
 
       assert.equal(resultado.status, "fail");
       assert.match(resultado.message, /falta\.js/);
+    },
+  );
+});
+
+// REF-QA-08-02: el bloque de polyfills va con noModule="" y un navegador que
+// soporta módulos no lo descarga. Contarlo como primera carga inflaba cada ruta
+// en 38.7 KiB gzip y regalaba ese margen a cualquier regresión real.
+test("un script con noModule no suma a la primera carga y si al bloque legacy", () => {
+  conBuild(
+    {
+      ".next/server/app/hoy.html": `<script src="/_next/static/chunks/a.js"></script><script src="/_next/static/chunks/polyfills.js" noModule=""></script>`,
+    },
+    (dir) => {
+      const a = chunk(dir, "static/chunks/a.js", "const a = 1;");
+      const polyfills = chunk(dir, "static/chunks/polyfills.js", "var legacy = 1;".repeat(80));
+
+      const medidas = medirPrimeraCarga({ buildDir: join(dir, ".next") });
+
+      assert.equal(medidas.rutas["/hoy"].gzip, a, "el polyfill no cuenta como primera carga");
+      assert.equal(medidas.rutas["/hoy"].legacyGzip, polyfills, "pero si se mide aparte");
+      assert.deepEqual(
+        medidas.rutas["/hoy"].ficheros.map((f) => f.src),
+        ["/_next/static/chunks/a.js"],
+      );
+    },
+  );
+});
+
+test("un script moderno sigue contando: la guarda no se afloja", () => {
+  conBuild(
+    { ".next/server/app/hoy.html": htmlConScripts("/_next/static/chunks/a.js") },
+    (dir) => {
+      const a = chunk(dir, "static/chunks/a.js", "const a = 1;".repeat(100));
+      const medidas = medirPrimeraCarga({ buildDir: join(dir, ".next") });
+
+      assert.equal(medidas.rutas["/hoy"].gzip, a);
+      assert.equal(medidas.rutas["/hoy"].legacyGzip, 0);
+    },
+  );
+});
+
+test("el bloque legacy tiene su propio limite y falla al superarse", () => {
+  conBuild(
+    {
+      ".next/server/app/hoy.html": `<script src="/_next/static/chunks/a.js"></script><script src="/_next/static/chunks/polyfills.js" noModule=""></script>`,
+    },
+    (dir) => {
+      chunk(dir, "static/chunks/a.js", "const a = 1;");
+      chunk(dir, "static/chunks/polyfills.js", "var legacy = 1;".repeat(80));
+      const medidas = medirPrimeraCarga({ buildDir: join(dir, ".next") });
+
+      const excedido = comprobarPresupuesto({
+        medidas,
+        presupuesto: { ...PRESUPUESTO, porRuta: { "/hoy": 2000 }, maxLegacyGzipPorRuta: 10 },
+      });
+      assert.equal(excedido.status, "fail");
+      assert.match(excedido.message, /legacy|polyfill/i);
+
+      const dentro = comprobarPresupuesto({
+        medidas,
+        presupuesto: {
+          ...PRESUPUESTO,
+          porRuta: { "/hoy": 2000 },
+          maxLegacyGzipPorRuta: 100000,
+        },
+      });
+      assert.equal(dentro.status, "pass");
+    },
+  );
+});
+
+// El hallazgo del review de REF-QA-08-02: si el total presupuestado supera la
+// suma de los maximos por ruta, la comprobacion del total no puede fallar y el
+// crecimiento repartido entre rutas deja de estar vigilado. Este test es la
+// guarda de esa relacion, no de unas cifras concretas.
+test("el total presupuestado queda por debajo de la suma de maximos por ruta", () => {
+  const presupuesto = leerPresupuesto();
+  const suma = Object.values(presupuesto.porRuta).reduce((total, limite) => total + limite, 0);
+
+  assert.ok(
+    presupuesto.totalGzip < suma,
+    `totalGzip (${presupuesto.totalGzip}) debe quedar por debajo de la suma de maximos por ruta (${suma})`,
+  );
+});
+
+test("un chunk llamado nomodule no es legacy: el atributo manda, no el nombre", () => {
+  conBuild(
+    { ".next/server/app/hoy.html": htmlConScripts("/_next/static/chunks/page-nomodule-abc123.js") },
+    (dir) => {
+      const a = chunk(dir, "static/chunks/page-nomodule-abc123.js", "const a = 1;".repeat(50));
+
+      const medidas = medirPrimeraCarga({ buildDir: join(dir, ".next") });
+
+      assert.equal(medidas.rutas["/hoy"].gzip, a, "sin el atributo es primera carga");
+      assert.equal(medidas.rutas["/hoy"].legacyGzip, 0);
     },
   );
 });
