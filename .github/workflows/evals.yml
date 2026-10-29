@@ -1,0 +1,55 @@
+name: evals
+
+# Evaluaciones del asistente (AI-04): conjunto de 40 casos y seis métricas de
+# la sección 13.2 de docs/ARRANQUE.md. Corre cada noche y se puede lanzar a
+# mano antes de tocar el prompt de sistema, el modelo o el recuperador.
+#
+# Proveedor: el job corre con `mock` por defecto (sin claves, sin red,
+# determinista): mide que el camino completo (recuperación, guardarraíles,
+# catálogo cerrado y métricas) sigue en pie. Correr contra el proveedor real
+# `nan` necesita el secreto NAN_API_KEY y sigue bloqueado por H-03 (elección
+# de proveedor y presupuesto) y H-08 (condiciones de uso de la clave sin
+# confirmar): hasta que se cierren, NaN solo para desarrollo, staging y beta
+# con datos ficticios. Se documenta, no se finge.
+on:
+  schedule:
+    # Cada noche a las 03:20 UTC.
+    - cron: "20 3 * * *"
+  workflow_dispatch:
+    inputs:
+      provider:
+        description: "Proveedor de IA para esta ejecución (nan necesita NAN_API_KEY)"
+        type: choice
+        default: mock
+        options:
+          - mock
+          - nan
+
+jobs:
+  evals:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      # `pnpm evals` sale con código distinto de cero si alguna métrica queda
+      # por debajo de su umbral (packages/ai/evals/thresholds.json).
+      - name: Ejecutar el conjunto de evaluaciones
+        run: pnpm evals --json informe-evals.json
+        env:
+          # En schedule no hay inputs: mock. En workflow_dispatch, el valor
+          # elegido (si se elige nan sin secreto, el proveedor falla con un
+          # error honesto y el job se marca en rojo).
+          AI_PROVIDER: ${{ inputs.provider || 'mock' }}
+          NAN_API_KEY: ${{ secrets.NAN_API_KEY }}
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: informe-evals
+          path: informe-evals.json
+          retention-days: 30
