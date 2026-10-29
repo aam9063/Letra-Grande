@@ -73,7 +73,7 @@ siguiendo nuestro sistema de diseño.
 - [ ] T4 (S3) e2e del flujo: primer arranque, Saltar, terminar, no vuelve a
       aparecer.
 - [ ] T5 Backlog (fila UI-05, solo mi hunk) y review gate con informe en
-      odd/reviews/UI-05.md; una ronda de correcciones.
+      odd/reviews/ui-05.md; una ronda de correcciones.
 
 ## Evidencia y progreso
 
@@ -93,7 +93,7 @@ congelado; después T1.
 - L1. «cuando acabes, vas a continuar implementando UI... el onboarding y
   demás secciones como ajustes etc.» con capturas de la app de referencia y
   PDFs del diseño propio.
-- L2. Review gate (odd/reviews/UI-05.md, veredicto «aprobado con cambios»):
+- L2. Review gate (odd/reviews/ui-05.md, veredicto «aprobado con cambios»):
   una ronda aplicada. Bloqueante: el paso de instalación no ofrecía «Ahora
   no» (S2); ahora «Instalar la app» solo con beforeinstallprompt y «Ahora no"
   siempre. Recomendados: anunciado de paso con aria-live, e2e de

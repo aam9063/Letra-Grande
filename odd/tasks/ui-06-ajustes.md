@@ -89,7 +89,7 @@ y proveedor de IA como «Próximamente» deshabilitados.
       borrado con contraseña incorrecta muestra error y no borra; 375 px sin
       scroll horizontal.
 - [ ] T5 Backlog (fila UI-06, solo mi hunk) y review gate con informe en
-      odd/reviews/UI-06.md; una ronda de correcciones.
+      odd/reviews/ui-06.md; una ronda de correcciones.
 
 ## Evidencia y progreso
 
@@ -109,7 +109,7 @@ T1 con tests en rojo.
   diseño (2) y la decisión L2 de UI-04: «Reales los posibles (tamaño de letra
   y borrado total funcionales; lectura fácil, idioma y proveedor de IA como
   Próximamente)».
-- L2. Review gate (odd/reviews/UI-06.md, veredicto «aprobado con cambios»,
+- L2. Review gate (odd/reviews/ui-06.md, veredicto «aprobado con cambios»,
   sin bloqueantes): una ronda aplicada. Tras la purga se limpia también la
   bandera del onboarding (la app queda exactamente como recién instalada),
   la región aria-live del error es persistente (contenedor siempre montado),

@@ -17,10 +17,10 @@
   },
   "dependencies": {
     "@letra-grande/schema": "workspace:*",
-    "react": "^19.3.1",
-    "react-dom": "^19.3.1"
+    "react": "^19.3.1"
   },
   "devDependencies": {
+    "react-dom": "^19.3.1",
     "@testing-library/react": "^16.3.3",
     "@types/node": "^24.0.0",
     "@types/react": "^19.0.0",

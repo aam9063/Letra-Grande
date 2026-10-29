@@ -14,10 +14,10 @@ import FamiliaPage from "../../app/(app)/familia/page";
 // Un módulo por ruta: el contrato de la Ola 2. Cada página se importa aquí
 // directamente y se comprueba su encabezado y su estado pendiente honesto.
 // Carpeta tiene contrato propio (UI-07: crear/desbloquear en lugar de
-// pendiente) y se verifica aparte.
+// pendiente) y Asistente también (AI-03: preguntar al asistente), ambos
+// verificados aparte.
 const RUTAS: Array<{ modulo: string; Page: () => ReactElement }> = [
   { modulo: "Hoy", Page: HoyPage },
-  { modulo: "Asistente", Page: AsistentePage },
   { modulo: "Reclamar y bajas", Page: ReclamarPage },
   { modulo: "Vida", Page: VidaPage },
   { modulo: "Ayudas", Page: AyudasPage },
@@ -38,6 +38,19 @@ describe("rutas de módulo", () => {
 
     // Contrato nuevo de UI-07: ya no es una página pendiente.
     expect(screen.queryByText(paginaPendiente)).toBeNull();
+  });
+
+  it("Asistente: un solo h1 con el módulo y el formulario de pregunta (AI-03)", () => {
+    render(<AsistentePage />);
+
+    const h1 = screen.getAllByRole("heading", { level: 1 });
+    expect(h1).toHaveLength(1);
+    expect(h1[0]?.textContent).toContain("Asistente");
+
+    // Contrato nuevo de AI-03: ya no es una página pendiente; hay pregunta.
+    expect(screen.queryByText(paginaPendiente)).toBeNull();
+    expect(screen.getByLabelText("Tu pregunta")).not.toBeNull();
+    expect(screen.getByRole("button", { name: "Enviar pregunta" })).not.toBeNull();
   });
 
   for (const { modulo, Page } of RUTAS) {
