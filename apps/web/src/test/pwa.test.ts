@@ -57,17 +57,38 @@ describe("manifiesto PWA", () => {
 });
 
 describe("tokens en la hoja de estilos de la app", () => {
-  const css = readFileSync(
-    join(dirname(fileURLToPath(import.meta.url)), "..", "app", "globals.css"),
+  const dirApp = join(dirname(fileURLToPath(import.meta.url)), "..", "app");
+  const css = readFileSync(join(dirApp, "globals.css"), "utf8");
+  const hojaBase = readFileSync(
+    join(dirApp, "..", "..", "..", "..", "packages", "design", "src", "base.css"),
     "utf8",
   );
 
-  it("declara las custom properties de diseño con los valores del paquete", () => {
-    expect(css).toContain(`--lg-tinta: ${tokens.colorTinta.toLowerCase()}`);
-    expect(css).toContain(`--lg-lienzo: ${tokens.colorLienzo.toLowerCase()}`);
-    expect(css).toContain(`--lg-superficie: ${tokens.colorSuperficie.toLowerCase()}`);
-    expect(css).toContain(`--lg-acento: ${tokens.colorAcento.toLowerCase()}`);
-    expect(css).toContain(`--lg-objetivo: 44px`);
+  it("globals.css no redeclara los tokens de color ni --lg-objetivo: los declara base.css", () => {
+    // REF-QA-08-01: tokens.ts es la fuente de verdad y base.css la declara;
+    // si globals.css volviera a redeclararlos, la última hoja ganaría y la
+    // fuente de verdad dejaría de mandar.
+    for (const propiedad of [
+      "--lg-tinta",
+      "--lg-lienzo",
+      "--lg-superficie",
+      "--lg-acento",
+      "--lg-acento-texto",
+      "--lg-objetivo",
+    ]) {
+      expect(css).not.toContain(`${propiedad}:`);
+      expect(hojaBase).toContain(`${propiedad}:`);
+    }
+  });
+
+  it("globals.css conserva solo los overrides deliberados y su escala tipográfica propia", () => {
+    // Overrides documentados en el propio :root: layout.tsx carga base.css
+    // antes que globals.css, así que estos valores ganan a propósito.
+    expect(css).toContain("--lg-espacio: 0.25rem;");
+    expect(css).toContain("--lg-radio: 0.5rem;");
+    // Escala tipográfica de la app: no son tokens del paquete de diseño.
+    expect(css).toContain("--lg-fuente-base: 1rem;");
+    expect(css).toContain("--lg-linea: 1.6;");
   });
 });
 

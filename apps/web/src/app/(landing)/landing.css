@@ -6,14 +6,14 @@
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
-  background: #f7f7f8;
-  color: #141414;
+  background: var(--lg-lienzo);
+  color: var(--lg-tinta);
   font-size: 1.125rem; /* 18 px, base del mockup */
   line-height: 1.5;
 }
 
 .lg-land a {
-  color: #26605c;
+  color: var(--lg-acento-suave-texto);
 }
 
 .lg-land summary {
@@ -52,21 +52,21 @@
 /* Banner superior en construcción. */
 .lg-land-banner {
   margin: 0;
-  background: #141414;
-  color: #ffffff;
+  background: var(--lg-tinta);
+  color: var(--lg-superficie);
   text-align: center;
   padding: 0.625rem 1.25rem;
   font-size: 1rem;
 }
 
 .lg-land-banner a {
-  color: #ffffff;
+  color: var(--lg-superficie);
   font-weight: 700;
 }
 
 /* Cabecera. */
 .lg-land-cabecera {
-  background: #f7f7f8;
+  background: var(--lg-lienzo);
 }
 
 .lg-land-cabecera-fila {
@@ -84,7 +84,7 @@
   align-items: center;
   gap: 0.625rem;
   text-decoration: none;
-  color: #141414;
+  color: var(--lg-tinta);
 }
 
 /* Marca de la cabecera y del pie: el logo del proyecto, no un cubo de texto. */
@@ -120,7 +120,7 @@
   padding: 0 0.75rem;
   font-size: 1.0625rem;
   font-weight: 700;
-  color: #141414;
+  color: var(--lg-tinta);
   text-decoration: none;
 }
 
@@ -148,17 +148,17 @@
   /* Blanco por decisión de la persona (L4): 3.3:1 sobre el teal, AA solo
      como texto grande (3:1), de ahí el tamaño de 19 px en negrita. La
      especificidad extra vence a la regla genérica .lg-land a. */
-  color: #ffffff;
+  color: var(--lg-superficie);
 }
 
 .lg-land a.lg-land-boton-solido {
-  color: #ffffff;
+  color: var(--lg-superficie);
 }
 
 .lg-land-boton-borde {
   padding: 0 1.125rem;
-  border: 2px solid #141414;
-  color: #141414;
+  border: 2px solid var(--lg-tinta);
+  color: var(--lg-tinta);
 }
 
 .lg-land-boton-grande {
@@ -212,8 +212,8 @@
   font-weight: 700;
   border-radius: 999px;
   padding: 0.375rem 1rem;
-  background: #ffffff;
-  border: 1px solid #e3e3e8;
+  background: var(--lg-superficie);
+  border: 1px solid var(--lg-borde-suave);
 }
 
 .lg-land-hero h1 {
@@ -232,7 +232,7 @@
   margin: 1.5rem 0 0;
   font-size: 1.375rem;
   line-height: 1.5;
-  color: #3a3a42;
+  color: var(--lg-texto-medio);
   max-width: 35rem;
 }
 
@@ -246,7 +246,7 @@
 .lg-land-nota {
   margin: 1rem 0 0;
   font-size: 1rem;
-  color: #55555f;
+  color: var(--lg-texto-tenue);
 }
 
 /* Tarjetas de muestra del héroe. */
@@ -256,8 +256,8 @@
 }
 
 .lg-land-tarjeta {
-  background: #ffffff;
-  border: 1px solid #e3e3e8;
+  background: var(--lg-superficie);
+  border: 1px solid var(--lg-borde-suave);
   border-radius: 1.75rem;
   padding: 1.375rem;
 }
@@ -273,8 +273,8 @@
   margin: 0 0 0 auto;
   width: fit-content;
   max-width: 90%;
-  background: #141414;
-  color: #ffffff;
+  background: var(--lg-tinta);
+  color: var(--lg-superficie);
   border-radius: 1rem 1rem 0.25rem 1rem;
   padding: 0.625rem 0.875rem;
   font-size: 1.0625rem;
@@ -317,13 +317,13 @@
 }
 
 .lg-land-etiqueta-ok {
-  color: #135c2e;
-  background: #e6f4ea;
+  color: var(--lg-etiqueta-ok-texto);
+  background: var(--lg-etiqueta-ok-fondo);
 }
 
 .lg-land-etiqueta-proxima {
-  background: #e3f2f1;
-  color: #17504b;
+  background: var(--lg-etiqueta-proxima-fondo);
+  color: var(--lg-etiqueta-proxima-texto);
 }
 
 .lg-land-radar-lista {
@@ -339,7 +339,7 @@
   display: flex;
   gap: 0.75rem;
   align-items: center;
-  border: 1px solid #e3e3e8;
+  border: 1px solid var(--lg-borde-suave);
   border-radius: 1rem;
   padding: 0.75rem;
 }
@@ -421,16 +421,16 @@
   align-items: center;
   padding: 0 0.75rem;
   border-radius: 1rem;
-  border: 1px solid #d5d5dc;
+  border: 1px solid var(--lg-borde);
   font-size: 0.9375rem;
   font-weight: 700;
 }
 
 /* Franja de confianza. */
 .lg-land-confianza {
-  background: #ffffff;
-  border-top: 1px solid #e3e3e8;
-  border-bottom: 1px solid #e3e3e8;
+  background: var(--lg-superficie);
+  border-top: 1px solid var(--lg-borde-suave);
+  border-bottom: 1px solid var(--lg-borde-suave);
 }
 
 .lg-land-confianza-fila {
@@ -464,7 +464,7 @@
 .lg-land-confianza-texto {
   margin: 0.125rem 0 0;
   font-size: 1rem;
-  color: #55555f;
+  color: var(--lg-texto-tenue);
   line-height: 1.35;
 }
 
@@ -474,9 +474,9 @@
 }
 
 .lg-land-alterna {
-  background: #ffffff;
-  border-top: 1px solid #e3e3e8;
-  border-bottom: 1px solid #e3e3e8;
+  background: var(--lg-superficie);
+  border-top: 1px solid var(--lg-borde-suave);
+  border-bottom: 1px solid var(--lg-borde-suave);
 }
 
 .lg-land-antetitulo {
@@ -486,7 +486,7 @@
 }
 
 .lg-land-antetitulo-claro {
-  color: #bfe6e2;
+  color: var(--lg-acento-claro);
 }
 
 .lg-land-h2 {
@@ -508,12 +508,12 @@
 .lg-land-intro {
   margin: 1rem 0 0;
   font-size: 1.25rem;
-  color: #3a3a42;
+  color: var(--lg-texto-medio);
   max-width: 42.5rem;
 }
 
 .lg-land-intro-claro {
-  color: #e3e3e8;
+  color: var(--lg-borde-suave);
 }
 
 /* Cómo funciona: pasos. */
@@ -545,7 +545,7 @@
 .lg-land-paso-texto {
   margin: 0.625rem 0 0;
   font-size: 1.1875rem;
-  color: #3a3a42;
+  color: var(--lg-texto-medio);
 }
 
 .lg-land-paso-ejemplo {
@@ -565,8 +565,8 @@
 }
 
 .lg-land-modulo {
-  background: #f7f7f8;
-  border: 1px solid #e3e3e8;
+  background: var(--lg-lienzo);
+  border: 1px solid var(--lg-borde-suave);
   border-radius: 1.5rem;
   padding: 1.75rem;
   display: flex;
@@ -586,13 +586,13 @@
 .lg-land-modulo-texto {
   margin: 0;
   font-size: 1.125rem;
-  color: #3a3a42;
+  color: var(--lg-texto-medio);
 }
 
 /* Privacidad (sección oscura). */
 .lg-land-oscura {
-  background: #141414;
-  color: #ffffff;
+  background: var(--lg-tinta);
+  color: var(--lg-superficie);
 }
 
 .lg-land-dos-columnas {
@@ -627,8 +627,8 @@
   width: 1.875rem;
   height: 1.875rem;
   border-radius: 50%;
-  background: #ffffff;
-  color: #141414;
+  background: var(--lg-superficie);
+  color: var(--lg-tinta);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -643,14 +643,14 @@
 .lg-land-item-texto {
   margin: 0;
   font-size: 1.0625rem;
-  color: #d5d5dc;
+  color: var(--lg-borde);
   line-height: 1.4;
 }
 
 /* Demostración de enmascarado. */
 .lg-land-demo-enmascarado {
-  background: #ffffff;
-  color: #141414;
+  background: var(--lg-superficie);
+  color: var(--lg-tinta);
   border-radius: 1.75rem;
   padding: 1.75rem;
 }
@@ -659,13 +659,13 @@
   margin: 0;
   font-size: 0.9375rem;
   font-weight: 700;
-  color: #55555f;
+  color: var(--lg-texto-tenue);
 }
 
 .lg-land-demo-caja {
   margin: 0.375rem 0 0;
-  background: #f7f7f8;
-  border: 1px solid #e3e3e8;
+  background: var(--lg-lienzo);
+  border: 1px solid var(--lg-borde-suave);
   border-radius: 0.875rem;
   padding: 0.875rem;
   font-size: 1.1875rem;
@@ -688,8 +688,8 @@
 }
 
 .lg-land-marcado {
-  background: #141414;
-  color: #ffffff;
+  background: var(--lg-tinta);
+  color: var(--lg-superficie);
   border-radius: 0.375rem;
   padding: 0.125rem 0.5rem;
   font-size: 1rem;
@@ -699,7 +699,7 @@
 .lg-land-demo-nota {
   margin: 0.875rem 0 0;
   font-size: 0.9375rem;
-  color: #55555f;
+  color: var(--lg-texto-tenue);
   line-height: 1.4;
 }
 
@@ -720,13 +720,13 @@
 
 .lg-land-respuesta-filas {
   margin-top: 0.875rem;
-  border: 1px solid #e3e3e8;
+  border: 1px solid var(--lg-borde-suave);
   border-radius: 1rem;
   overflow: hidden;
 }
 
 .lg-land-respuesta-fila {
-  border-top: 1px solid #e3e3e8;
+  border-top: 1px solid var(--lg-borde-suave);
   padding: 0.875rem 1rem;
 }
 
@@ -738,7 +738,7 @@
   margin: 0;
   font-size: 0.875rem;
   font-weight: 700;
-  color: #55555f;
+  color: var(--lg-texto-tenue);
 }
 
 .lg-land-respuesta-texto {
@@ -756,8 +756,8 @@
   margin: 0.875rem 0 0;
   border-radius: 0.875rem;
   padding: 0.75rem 0.875rem;
-  background: #fff3d6;
-  color: #6b4500;
+  background: var(--lg-aviso-fondo);
+  color: var(--lg-aviso-texto);
   font-size: 1.0625rem;
   line-height: 1.4;
 }
@@ -777,19 +777,19 @@
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
-  border: 1px solid #e3e3e8;
+  border: 1px solid var(--lg-borde-suave);
   border-radius: 0.875rem;
   padding: 0.875rem 1rem;
-  background: #f7f7f8;
+  background: var(--lg-lienzo);
 }
 
 .lg-land-datos-item .lg-land-item-texto {
-  color: #55555f;
+  color: var(--lg-texto-tenue);
 }
 
 .lg-land-codigo {
-  background: #141414;
-  color: #f7f7f8;
+  background: var(--lg-tinta);
+  color: var(--lg-lienzo);
   border-radius: 1.5rem;
   padding: 1.5rem;
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
@@ -800,7 +800,7 @@
 
 .lg-land-codigo-ruta {
   margin: 0;
-  color: #8fd3cc;
+  color: var(--lg-acento-claro-fuerte);
 }
 
 .lg-land-codigo-bloque {
@@ -813,7 +813,7 @@
   margin: 0.75rem 0 0;
   font-family: var(--font-host-grotesk), system-ui, sans-serif;
   font-size: 0.9375rem;
-  color: #c9c9d1;
+  color: var(--lg-texto-apoyo);
 }
 
 /* Accesibilidad. */
@@ -882,14 +882,14 @@
 .lg-land-movil {
   width: 17.5rem;
   border-radius: 2.75rem;
-  background: #141414;
+  background: var(--lg-tinta);
   padding: 0.75rem;
   box-sizing: border-box;
 }
 
 .lg-land-movil-pantalla {
   border-radius: 2.125rem;
-  background: #f7f7f8;
+  background: var(--lg-lienzo);
   min-height: 33.75rem;
   padding: 1.75rem 1.125rem 1.125rem;
   box-sizing: border-box;
@@ -901,7 +901,7 @@
 .lg-land-movil-fecha {
   margin: 0;
   font-size: 0.9375rem;
-  color: #55555f;
+  color: var(--lg-texto-tenue);
 }
 
 .lg-land-movil-titulo {
@@ -926,8 +926,8 @@
   display: flex;
   gap: 0.625rem;
   align-items: center;
-  background: #ffffff;
-  border: 1px solid #e3e3e8;
+  background: var(--lg-superficie);
+  border: 1px solid var(--lg-borde-suave);
   border-radius: 0.875rem;
   padding: 0.625rem;
 }
@@ -981,7 +981,7 @@
   gap: 0.375rem;
   font-size: 1.125rem;
   font-weight: 700;
-  color: #26605c;
+  color: var(--lg-acento-suave-texto);
   text-decoration: none;
 }
 
@@ -998,8 +998,8 @@
 }
 
 .lg-land-faq-item {
-  background: #f7f7f8;
-  border: 1px solid #e3e3e8;
+  background: var(--lg-lienzo);
+  border: 1px solid var(--lg-borde-suave);
   border-radius: 1rem;
   padding: 0 1.375rem;
 }
@@ -1017,7 +1017,7 @@
   margin: 0 0 1.25rem;
   font-size: 1.125rem;
   line-height: 1.55;
-  color: #3a3a42;
+  color: var(--lg-texto-medio);
 }
 
 /* Cierre. */
@@ -1045,14 +1045,14 @@
 .lg-land-cierre-texto {
   margin: 1.25rem auto 0;
   font-size: 1.3125rem;
-  color: #3a3a42;
+  color: var(--lg-texto-medio);
   max-width: 38.75rem;
 }
 
 /* Footer. */
 .lg-land-footer {
-  background: #141414;
-  color: #ffffff;
+  background: var(--lg-tinta);
+  color: var(--lg-superficie);
   padding: 4rem 0 2.5rem;
 }
 
@@ -1068,13 +1068,13 @@
 }
 
 .lg-land-footer .lg-land-logo {
-  color: #ffffff;
+  color: var(--lg-superficie);
 }
 
 .lg-land-footer-lema {
   margin: 1rem 0 0;
   font-size: 1.0625rem;
-  color: #d5d5dc;
+  color: var(--lg-borde);
   max-width: 25rem;
 }
 
@@ -1089,7 +1089,7 @@
   margin: 0;
   font-size: 1rem;
   font-weight: 700;
-  color: #bfe6e2;
+  color: var(--lg-acento-claro);
 }
 
 .lg-land-footer-col a {
@@ -1097,17 +1097,17 @@
   display: flex;
   align-items: center;
   font-size: 1.0625rem;
-  color: #ffffff;
+  color: var(--lg-superficie);
   text-decoration: none;
 }
 
 .lg-land-footer-legal {
   margin: 2.5rem 0 0;
-  border-top: 1px solid #3a3a42;
+  border-top: 1px solid var(--lg-texto-medio);
   padding-top: 1.5rem;
   font-size: 0.9375rem;
   line-height: 1.5;
-  color: #c9c9d1;
+  color: var(--lg-texto-apoyo);
 }
 
 /* Pantallas estrechas: el mockup depende de flex-wrap y auto-fit; aquí solo
