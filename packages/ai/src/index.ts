@@ -5,6 +5,7 @@ import { assertServerContext } from "./server-guard.js";
 // R1: si un bundler mete este paquete en el navegador, falla al cargar.
 assertServerContext();
 
+export { normalizarSinTildes } from "./normalizar.js";
 export { LlmError, classifyStatus, type LlmErrorKind } from "./errors.js";
 export type {
   ChatRole,

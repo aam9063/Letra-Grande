@@ -1,6 +1,8 @@
 // Tokenizador español determinista para el índice BM25 (AI-03a).
 // Sin dependencias y sin colación dependiente del locale: solo operaciones
-// sobre unidades de código ASCII tras la normalización manual de acentos.
+// sobre unidades de código ASCII tras quitar tildes y diacríticos con la
+// normalización compartida del paquete (src/normalizar.ts, REF-QA-08-04).
+import { normalizarSinTildes } from "../normalizar.js";
 
 /**
  * Lista corta de palabras vacías del español. Solo se incluyen las más
@@ -25,15 +27,13 @@ export const SPANISH_STOPWORDS: readonly string[] = [
 // Conjunto para consulta en tiempo constante; se construye una vez por proceso.
 const STOPWORDS = new Set<string>(SPANISH_STOPWORDS);
 
-/** Mapa de acentos y diacríticos del español a su forma base. */
-const DIACRITICOS = new Map<string, string>([
-  ["á", "a"], ["é", "e"], ["í", "i"], ["ó", "o"], ["ú", "u"], ["ü", "u"], ["ñ", "n"],
-]);
-
 /**
  * Normaliza un texto para indexación:
- * 1. minúsculas (solo ASCII: los acentos se tratan en el paso 2);
- * 2. los acentos del español se sustituyen por su vocal base (á -> a, ñ -> n);
+ * 1. minúsculas;
+ * 2. las tildes y diacríticos se quitan con la normalización compartida
+ *    (á -> a, ñ -> n, y también caracteres fuera del set del español como
+ *    ç, à u ö, que antes partían la palabra y ahora resuelven a su base;
+ *    medido sobre el corpus real y los tests de recuperación: sin cambios);
  * 3. se parte por todo lo que no sea letra o dígito ASCII;
  * 4. se sueltan las palabras vacías y los tokens de una o dos letras
  *    (incluidos los números sueltos de uno o dos dígitos).
@@ -49,10 +49,9 @@ const DIACRITICOS = new Map<string, string>([
 export function tokenize(text: string): string[] {
   const tokens: string[] = [];
   let current = "";
-  for (const char of text.toLowerCase()) {
-    const base = DIACRITICOS.get(char) ?? char;
-    if ((base >= "a" && base <= "z") || (base >= "0" && base <= "9")) {
-      current += base;
+  for (const char of normalizarSinTildes(text)) {
+    if ((char >= "a" && char <= "z") || (char >= "0" && char <= "9")) {
+      current += char;
     } else if (current.length > 0) {
       tokens.push(current);
       current = "";
@@ -69,7 +68,5 @@ export function tokenize(text: string): string[] {
  * Así "Cataluña" y "cataluna" comparan igual de forma determinista.
  */
 export function normalizeText(text: string): string {
-  let out = "";
-  for (const char of text.toLowerCase()) out += DIACRITICOS.get(char) ?? char;
-  return out;
+  return normalizarSinTildes(text);
 }

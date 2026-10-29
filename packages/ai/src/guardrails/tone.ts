@@ -8,6 +8,7 @@
  * mayúsculas y tildes.
  */
 import type { AssistantAnswer } from "@letra-grande/schema";
+import { normalizarSinTildes } from "../normalizar.js";
 
 /** Formas prohibidas en un claim: lista cerrada, para código y para AI-04. */
 export const PROHIBITED_PHRASES: readonly string[] = [
@@ -37,14 +38,6 @@ export interface ToneIssue {
   message: string;
 }
 
-/** Quita tildes y pasa a minúsculas: la comparación no distingue acentos. */
-function normalizar(texto: string): string {
-  return texto
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase();
-}
-
 function escapeRegex(texto: string): string {
   return texto.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
@@ -53,9 +46,9 @@ function escapeRegex(texto: string): string {
 export function validateTone(answer: AssistantAnswer): ToneIssue[] {
   const issues: ToneIssue[] = [];
   answer.blocks.forEach((block, blockIndex) => {
-    const claim = normalizar(block.claim);
+    const claim = normalizarSinTildes(block.claim);
     for (const frase of PROHIBITED_PHRASES) {
-      const patron = new RegExp(`\\b${escapeRegex(normalizar(frase))}\\b`);
+      const patron = new RegExp(`\\b${escapeRegex(normalizarSinTildes(frase))}\\b`);
       if (patron.test(claim)) {
         issues.push({
           blockIndex,

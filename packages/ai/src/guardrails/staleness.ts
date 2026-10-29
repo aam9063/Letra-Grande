@@ -5,6 +5,7 @@
  * verificación (o con una fecha no válida) cuenta como caducada.
  */
 import type { AssistantAnswer } from "@letra-grande/schema";
+import { normalizarSinTildes } from "../normalizar.js";
 
 /** Días tras la verificación a partir de los cuales una fuente está caducada. */
 export const STALENESS_LIMIT_DAYS = 180;
@@ -48,21 +49,13 @@ function estaCaducada(source: StalenessSource, today: Date): boolean {
   return daysSinceVerification(source.verifiedAt, today) > STALENESS_LIMIT_DAYS;
 }
 
-/** Comparación de frases sin tildes ni mayúsculas, igual que el tono. */
-function normalizar(texto: string): string {
-  return texto
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase();
-}
-
 /** Un warning solo tapa la regla si habla de caducidad o cita una fuente caducada. */
 function avisoHablaDeCaducidad(
   block: AssistantAnswer["blocks"][number],
   caducadas: readonly string[],
 ): boolean {
-  const claim = normalizar(block.claim);
-  if (FRASES_DE_CADUCIDAD.some((frase) => claim.includes(normalizar(frase)))) return true;
+  const claim = normalizarSinTildes(block.claim);
+  if (FRASES_DE_CADUCIDAD.some((frase) => claim.includes(normalizarSinTildes(frase)))) return true;
   return block.citations.some((c) => caducadas.includes(c.sourceId));
 }
 
