@@ -1,4 +1,4 @@
-import { BlockRenderer, type Fuentes } from "@letra-grande/design";
+import { BlockRenderer, type Fuentes } from "@letra-grande/design/client";
 import type { AssistantAnswer } from "@letra-grande/schema";
 
 /**
