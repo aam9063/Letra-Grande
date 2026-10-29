@@ -1,0 +1,69 @@
+# Propietarios por sector (QA-06).
+#
+# Para qué sirve: cuando un PR toca una de estas rutas, GitHub avisa al
+# propietario y, si la revisión de code owners está activada en la rama, exige su
+# aprobación. Es la forma de que un cambio en las fichas de un sector no pase sin
+# que lo mire quien responde de ese sector.
+#
+# Estado actual: una sola persona. El reparto por sector está escrito para que
+# añadir responsables sea cambiar una línea, no reorganizar el fichero. La
+# política de moderación y el reparto definitivo son H-04 de docs/backlog.md, y
+# hasta que se decidan esto es provisional.
+#
+# Ojo con dos cosas antes de contar con este fichero:
+# - GitHub usa el CODEOWNERS de la rama base del PR, así que no avisa de nada
+#   hasta que esto esté fusionado en dev.
+# - El autor de un PR no puede aprobar su propio PR.
+#
+# Cómo se reparte cuando haya más gente: se añaden los usuarios o equipos a la
+# derecha de la ruta que corresponda, separados por espacio, con el más
+# específico al final (en CODEOWNERS gana la última regla que coincide). Un
+# equipo se escribe `@organizacion/equipo` y necesita permiso de escritura en el
+# repositorio.
+#
+# Importante antes de activar "Require review from Code Owners" en la rama:
+# GitHub no permite aprobar el propio PR, así que con un único propietario esa
+# casilla deja el requisito insatisfacible: nadie puede aprobar los PRs de esa
+# persona. La única salida sería el bypass de administrador, si la regla de rama
+# lo permite, y saltarse el requisito no es cumplirlo. Mientras no haya un
+# segundo propietario, este fichero funciona como aviso y como mapa de
+# responsabilidades, no como bloqueo. Está explicado en CONTRIBUTING.md,
+# sección "Quién aprueba".
+
+# Todo el repositorio: el propietario por defecto de lo que no tenga regla.
+* @aam9063
+
+# Contenido por sector. El validador comprueba estructura y coherencia; la
+# verificación contra la fuente la firma una persona (CONTRIBUTING.md).
+/content/ @aam9063
+/content/companies/ @aam9063
+/content/authorities/ @aam9063
+/content/procedures/ @aam9063
+
+# Contrato común: cualquier cambio aquí va en un PR aparte (CONTRIBUTING.md).
+/packages/schema/ @aam9063
+
+# Paquetes.
+/packages/privacy/ @aam9063
+/packages/vault/ @aam9063
+/packages/ai/ @aam9063
+/packages/extract/ @aam9063
+/packages/radar/ @aam9063
+/packages/design/ @aam9063
+
+# Aplicaciones.
+/apps/web/ @aam9063
+/apps/desktop/ @aam9063
+
+# Infraestructura: CI, scripts de comprobación y configuración del repositorio.
+# Es la superficie que puede romper la entrega de todos los carriles.
+/.github/ @aam9063
+/scripts/ @aam9063
+/package.json @aam9063
+/pnpm-lock.yaml @aam9063
+/tsconfig.base.json @aam9063
+
+# Documentación de proceso: el review gate, el presupuesto de rendimiento y la
+# accesibilidad tienen comprobaciones en la CI que estos documentos describen.
+/docs/ @aam9063
+/odd/ @aam9063
